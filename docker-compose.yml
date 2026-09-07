@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+
+  redis-db:
+    image: redis:8.10.1-alpine
+    container_name: redis_container
+
+    ports:
+      - "6379-6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+
+  spring-app:
+    build: .
+    container_name: spring_app_container
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      - redis-db
+    environment:
+      - SPRING_DATA_REDIS_HOST=redis-db
+    restart: on-failure
+
+volumes:
+  redis_data: 
