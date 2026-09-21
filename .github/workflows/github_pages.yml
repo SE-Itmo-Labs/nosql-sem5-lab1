@@ -40,7 +40,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ".output/public"
+          path: "./nosql-sem5-lab1-frontend/.output/public"
 
   deploy:
     needs: build
@@ -51,4 +51,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v4    cache-dependency-path: nosql-sem5-lab1-frontend/package-lock.json
