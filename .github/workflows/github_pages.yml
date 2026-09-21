@@ -27,6 +27,7 @@ jobs:
         with:
           node-version: 20 # Укажите используемую вами версию Node.js
           cache: 'npm' # Измените на yarn/pnpm при необходимости
+          cache-dependency-path: nosql-sem5-lab1-frontend/package-lock.json
 
       - name: Install dependencies
         working-directory: ./nosql-sem5-lab1-frontend
