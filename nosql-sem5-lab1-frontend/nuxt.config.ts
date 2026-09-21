@@ -8,6 +8,10 @@ export default defineNuxtConfig({
       routes: ['/']
     }
   },
+  app: {
+    baseURL: '/nosql-sem5-lab1-frontend/',
+  },
+
   ssr: true,
 
   modules: [
