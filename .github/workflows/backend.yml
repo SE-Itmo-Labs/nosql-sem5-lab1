@@ -38,6 +38,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: "build/libs/*.jar,docker-compose.yml,Dockerfile"
           target: "~/app"
           strip_components: 0 # Сохраняет структуру папок build/libs/ для Dockerfile
