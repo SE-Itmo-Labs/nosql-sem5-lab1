@@ -29,9 +29,11 @@ jobs:
           cache: 'npm' # Измените на yarn/pnpm при необходимости
 
       - name: Install dependencies
+        working-directory: ./nosql-sem5-lab1-frontend
         run: npm ci
 
       - name: Static HTML Generation
+        working-directory: ./nosql-sem5-lab1-frontend
         run: npx nuxt generate # Генерирует статику в папку .output/public
 
       - name: Upload Artifacts
