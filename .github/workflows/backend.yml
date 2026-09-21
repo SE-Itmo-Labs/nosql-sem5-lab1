@@ -1,0 +1,59 @@
+name: Deploy Spring Boot + Redis to remote server
+
+on:
+  push:
+    branches:
+      - main # Пайплайн сработает при пуше в ветку main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Скачиваем код репозитория
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Настраиваем Java 25 (используем Foojay для автоподкачки, если нужно)
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'oracle' # Можно выбрать 'temurin' или 'oracle'
+          cache: 'gradle'
+
+      # 3. Даем права на запуск gradle-скрипта
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # 4. Собираем чистый .jar файл приложения
+      - name: Build with Gradle
+        run: ./gradlew clean bootJar
+
+      # 5. Создаем рабочую директорию на сервере и копируем туда файлы (jar + compose)
+      - name: Copy files via SSH (SCP)
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          source: "build/libs/*.jar,docker-compose.yml,Dockerfile"
+          target: "~/app"
+          strip_components: 0 # Сохраняет структуру папок build/libs/ для Dockerfile
+
+      # 6. Подключаемся по SSH и перезапускаем Docker-контейнеры
+      - name: Execute remote SSH commands to deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ~/app
+            # Останавливаем старые контейнеры, если они были запущены
+            docker compose down --remove-orphans
+            # Пересобираем образ приложения из нового .jar и поднимаем все в фоне
+            docker compose up --build -d
+            # Удаляем старые зависшие слои докера, чтобы не забивать диск сервера
+            docker image prune -f
