@@ -51,4 +51,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4    cache-dependency-path: nosql-sem5-lab1-frontend/package-lock.json
+        uses: actions/deploy-pages@v4
