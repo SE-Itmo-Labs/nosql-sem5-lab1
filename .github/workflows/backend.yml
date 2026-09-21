@@ -50,6 +50,8 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ~/app
             # Останавливаем старые контейнеры, если они были запущены
