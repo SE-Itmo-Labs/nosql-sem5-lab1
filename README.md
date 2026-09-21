@@ -50,3 +50,5 @@ Nuxt
 cd nosql-sem5-lab1-frontend
 npm run dev
 ```
+
+Сайт https://se-itmo-labs.github.io/nosql-sem5-lab1/
