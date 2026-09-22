@@ -32,7 +32,7 @@ jobs:
 
       # 5. Создаем рабочую директорию на сервере и копируем туда файлы (jar + compose)
       - name: Copy files via SSH (SCP)
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
@@ -45,7 +45,7 @@ jobs:
 
       # 6. Подключаемся по SSH и перезапускаем Docker-контейнеры
       - name: Execute remote SSH commands to deploy
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
