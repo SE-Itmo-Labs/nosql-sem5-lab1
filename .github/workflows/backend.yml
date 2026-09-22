@@ -40,7 +40,7 @@ jobs:
           port: ${{ secrets.PORT }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: "build/libs/*.jar,docker-compose.yml,Dockerfile"
-          target: "~/app"
+          target: "~/nosql-sem5-lab1"
           strip_components: 0 # Сохраняет структуру папок build/libs/ для Dockerfile
 
       # 6. Подключаемся по SSH и перезапускаем Docker-контейнеры
@@ -53,7 +53,7 @@ jobs:
           port: ${{ secrets.PORT }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            cd ~/app
+            cd ~/nosql-sem5-lab1
             # Останавливаем старые контейнеры, если они были запущены
             docker compose down --remove-orphans
             # Пересобираем образ приложения из нового .jar и поднимаем все в фоне
