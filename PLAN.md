@@ -5,7 +5,7 @@
 
 ## 1. Текущее состояние репозитория
 
-Есть (каркас):
+Есть (каркас): 
 - Gradle-проект (Spring Boot **4.1.1**, Java 21) — `build.gradle.kts`, `gradlew`.
 - `docker-compose.yml` с Redis `8.10.1-alpine` и сервисом `spring-app`.
 - `Dockerfile`.

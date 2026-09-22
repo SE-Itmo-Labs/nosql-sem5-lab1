@@ -52,3 +52,9 @@ npm run dev
 ```
 
 Сайт https://se-itmo-labs.github.io/nosql-sem5-lab1/
+
+Бек, локальная сборка и запуск
+
+```bash
+./gradlew build && docker compose up --build --force-recreate -d
+```
