@@ -42,7 +42,7 @@ function onLogout() {
         </p>
       </section>
 
-      <section class="grid">
+      <!-- <section class="grid">
         <NuxtLink class="tile" to="/notifications">
           <span class="tile-title">Уведомления</span>
           <span class="tile-sub">список и отправка</span>
@@ -59,7 +59,7 @@ function onLogout() {
           <span class="tile-title">Блокировки</span>
           <span class="tile-sub">атомарный механизм</span>
         </NuxtLink>
-      </section>
+      </section> -->
 
       <p class="hint">
         Разделы-заглушки. Наполнятся, когда на беке появятся соответствующие REST-эндпоинты.
