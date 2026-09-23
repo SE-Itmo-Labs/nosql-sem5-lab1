@@ -11,7 +11,7 @@ export default defineNuxtConfig({
     }
   },
   app: {
-    baseURL: '/nosql-sem5-lab1-frontend/',
+    baseURL: '/nosql-sem5-lab1/',
   },
 
   ssr: true,
