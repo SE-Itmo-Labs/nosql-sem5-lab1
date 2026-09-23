@@ -29,23 +29,5 @@ services:
       - SPRING_DATA_REDIS_PORT=6379
     restart: on-failure
 
-  caddy:
-    image: caddy:2
-    container_name: caddy
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - spring-app
-    restart: always
-
 volumes:
-  redis_data: 
-  caddy_data: 
-  caddy_config: 
+  redis_data:
