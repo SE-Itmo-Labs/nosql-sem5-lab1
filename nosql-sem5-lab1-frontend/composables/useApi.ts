@@ -1,7 +1,8 @@
-export const useApi = () => {
-  const { apiBase } = useRuntimeConfig().public
 
-  return {
-    hello: () => $fetch(`${apiBase}/hello`)
-  }
-}
+// export const useApi = () => {
+//   const { apiBase } = useRuntimeConfig().public
+
+//   return {
+//     hello: () => $fetch(`${apiBase}/hello`)
+//   }
+// }
