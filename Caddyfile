@@ -1,5 +1,0 @@
-se-itmo-labs.ssngn.ru {
-	handle_path /nosql-sem5-lab1/api/* {
-		reverse_proxy spring-app:8080
-	}
-}
