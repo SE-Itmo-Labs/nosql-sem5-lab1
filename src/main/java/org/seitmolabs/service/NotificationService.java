@@ -5,34 +5,45 @@ import org.seitmolabs.model.Notification;
 import org.seitmolabs.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * NotificationService — обязательный сценарий «отправка уведомлений».
- * <p>
- * Назначение: бизнес-логика создания и выборки уведомлений поверх Redis:
- * INCR id → сохранить JSON → добавить id в индекс клиента → вернуть сохранённое.
- * Как именно устроены ключи — знает только repository, сервис оперирует моделями.
- */
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
 
     private final NotificationRepository repository;
 
-    /** Создать и «отправить» уведомление клиенту. */
+    // TODO: После подключения БД пользователей проверять получателя перед созданием уведомления.
     public Notification create(String userId, String title, String text, String categoryId) {
-        throw new UnsupportedOperationException("TODO: repository.nextId() → собрать Notification → save(...) → addToUserIndex(...)");
+        Long id = repository.nextId();
+        Instant createdAt = Instant.now();
+
+        Notification notification = new Notification(
+                id,
+                userId,
+                title,
+                text,
+                categoryId,
+                createdAt
+        );
+
+        repository.save(notification);
+        repository.addToUserNotifSet(userId, id, createdAt);
+
+        return notification;
     }
 
-    /** Уведомление по id (пусто, если такого нет). */
     public Optional<Notification> findById(Long id) {
-        throw new UnsupportedOperationException("TODO: repository.findById(id)");
+        return repository.findById(id);
     }
 
-    /** Все уведомления клиента в порядке создания. */
-    public List<Notification> listByUserId(String userId) {
-        throw new UnsupportedOperationException("TODO: repository.findIdsByUserId(userId) → findById(...) для каждого id");
+    /** Возвращает уведомления от старых к новым. */
+    public List<Notification> getNotifListByUserId(String userId) {
+        return repository.findIdsByUserId(userId).stream()
+                .map(repository::findById)
+                .flatMap(Optional::stream)
+                .toList();
     }
 }
