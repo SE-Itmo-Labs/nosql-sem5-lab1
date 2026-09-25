@@ -19,6 +19,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.redisson:redisson:4.7.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     compileOnly("org.projectlombok:lombok")

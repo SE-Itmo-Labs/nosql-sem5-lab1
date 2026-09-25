@@ -4,22 +4,21 @@ import lombok.RequiredArgsConstructor;
 import org.seitmolabs.model.Notification;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
- * NotificationRepository — доступ к уведомлениям в Redis.
- * <p>
- * Назначение: собрать схему ключей в одном месте и скрыть её от сервисного слоя.
- * Ключи:
+ * Схема хранения уведомлений в Redis:
  * <ul>
  *   <li>{@code notification:{id}} — JSON уведомления;</li>
- *   <li>{@code notification:user:{userId}} — sorted set id уведомлений клиента (score = id);</li>
- *   <li>{@code notification:seq} — инкрементный счётчик id (INCR).</li>
+ *   <li>{@code notification:user:{userId}} — sorted set id, score — время создания в миллисекундах Unix;</li>
+ *   <li>{@code notification:seq} — счётчик id (INCR).</li>
  * </ul>
- * Реализация через {@link StringRedisTemplate}: JSON-сериализация моделей
- * добавляется вместе с реализацией методов.
  */
 @Repository
 @RequiredArgsConstructor
@@ -30,29 +29,63 @@ public class NotificationRepository {
     private static final String SEQ_KEY = "notification:seq";
 
     private final StringRedisTemplate redis;
+    private final JsonMapper jsonMapper;
 
-    /** Следующий id уведомления — атомарный INCR в Redis. */
     public Long nextId() {
-        throw new UnsupportedOperationException("TODO: redis.opsForValue().increment(SEQ_KEY)");
+        return redis.opsForValue().increment(SEQ_KEY);
     }
 
-    /** Сохранить уведомление как JSON-строку по ключу notification:{id}. */
+    // TODO: Атомарно сохранять уведомление и добавлять его id в индекс пользователя.
     public void save(Notification notification) {
-        throw new UnsupportedOperationException("TODO: ObjectMapper → JSON, redis.opsForValue().set(KEY_PREFIX + id, json)");
+        try {
+            String jsonNotif = jsonMapper.writeValueAsString(notification);
+            redis.opsForValue().set(KEY_PREFIX + notification.getId(), jsonNotif);
+        } catch (JacksonException e) {
+            throw new IllegalStateException("Failed to serialize notification", e);
+        }
     }
 
-    /** Прочитать уведомление по id (пусто, если такой ключ отсутствует). */
     public Optional<Notification> findById(Long id) {
-        throw new UnsupportedOperationException("TODO: redis.opsForValue().get(KEY_PREFIX + id) → JSON → Notification");
+        String jsonNotif = redis.opsForValue().get(KEY_PREFIX + id);
+
+        if (jsonNotif == null) {
+            return Optional.empty();
+        }
+
+        try {
+            return Optional.of(
+                    jsonMapper.readValue(jsonNotif, Notification.class)
+            );
+        } catch (JacksonException e) {
+            throw new IllegalStateException(
+                    "Не удалось десериализовать уведомление с id " + id,
+                    e
+            );
+        }
     }
 
-    /** Добавить id уведомления в sorted set клиента (score = id — порядок создания). */
-    public void addToUserIndex(String userId, Long notificationId) {
-        throw new UnsupportedOperationException("TODO: redis.opsForZSet().add(USER_INDEX_PREFIX + userId, id, score)");
+    public void addToUserNotifSet(
+            String userId,
+            Long notificationId,
+            Instant createdAt
+    ) {
+        redis.opsForZSet().add(
+                USER_INDEX_PREFIX + userId,
+                notificationId.toString(),
+                createdAt.toEpochMilli()
+        );
     }
 
-    /** Список id уведомлений клиента по порядку создания. */
     public List<Long> findIdsByUserId(String userId) {
-        throw new UnsupportedOperationException("TODO: redis.opsForZSet().range(USER_INDEX_PREFIX + userId, 0, -1)");
+        Set<String> ids = redis.opsForZSet()
+                .range(USER_INDEX_PREFIX + userId, 0, -1);
+
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+
+        return ids.stream()
+                .map(Long::valueOf)
+                .toList();
     }
 }

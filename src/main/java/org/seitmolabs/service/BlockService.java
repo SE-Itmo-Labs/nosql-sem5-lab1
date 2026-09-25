@@ -5,28 +5,39 @@ import org.seitmolabs.model.Block;
 import org.seitmolabs.repository.BlockRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Optional;
 
-/**
- * BlockService — сценарий временного хранения: TTL-блокировка ресурса.
- * <p>
- * Назначение: «забронировать» ресурс (место, ресурс обработки) на N секунд.
- * Ключ в Redis получает EX, поэтому освобождение происходит автоматически,
- * без явного удаления.
- */
 @Service
 @RequiredArgsConstructor
 public class BlockService {
 
     private final BlockRepository repository;
 
-    /** Заблокировать ресурс на ttlSeconds. */
-    public Block block(String resourceId, String owner, long ttlSeconds) {
-        throw new UnsupportedOperationException("TODO: собрать Block + repository.save(block)");
-    }
+    public Optional<Block> tryBlock(
+            String resourceKey,
+            String owner,
+            long ttlSeconds
+    ) {
+        if (ttlSeconds <= 0) {
+            throw new IllegalArgumentException(
+                    "TTL блокировки должен быть больше нуля"
+            );
+        }
 
-    /** Активна ли блокировка (истечение TTL = блокировка снята). */
-    public Optional<Block> getActive(String resourceId) {
-        throw new UnsupportedOperationException("TODO: repository.findActive(resourceId)");
+        Block block = new Block(
+                resourceKey,
+                owner,
+                ttlSeconds,
+                Instant.now()
+        );
+
+        boolean saved = repository.trySave(block);
+
+        if (!saved) {
+            return Optional.empty();
+        }
+
+        return Optional.of(block);
     }
 }
