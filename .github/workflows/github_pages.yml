@@ -3,7 +3,8 @@ name: Deploy Nuxt to GitHub Pages
 on:
   push:
     branches:
-      - main # Или укажите вашу рабочую ветку (например, web, если пишете на ней)
+      - dev-production # Или укажите вашу рабочую ветку (например, web, если пишете на ней)
+      - main
 
 # Разрешения для работы с GitHub Pages внутри пайплайна
 permissions:

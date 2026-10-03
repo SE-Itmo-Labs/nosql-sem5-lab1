@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main # Пайплайн сработает при пуше в ветку main
+      - dev-production
 
 jobs:
   build-and-deploy:
