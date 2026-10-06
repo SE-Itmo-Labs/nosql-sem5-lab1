@@ -15,6 +15,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create credentials.env (postgres credentials) file for Docker
+        run: |
+          cat > credentials.env << 'EOF'
+          POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          EOF
+
       # 2. Настраиваем Java 25 (используем Foojay для автоподкачки, если нужно)
       - name: Set up JDK 25
         uses: actions/setup-java@v4
@@ -40,7 +48,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "build/libs/*.jar,docker-compose.yml,Dockerfile"
+          source: "build/libs/*.jar,docker-compose.yml,Dockerfile,credentials.env"
           target: "~/nosql-sem5-lab1"
           strip_components: 0 # Сохраняет структуру папок build/libs/ для Dockerfile
 
@@ -57,7 +65,10 @@ jobs:
             cd ~/nosql-sem5-lab1
             # Останавливаем старые контейнеры, если они были запущены
             docker compose down --remove-orphans
-            # Пересобираем образ приложения из нового .jar и поднимаем все в фоне
-            docker compose up --build -d
+
+            # В теории можно переделать создание credentials.env так, чтобы он создавался здесь, а не отдельным пунктом (типа безопаснее). Но мне лень + и так работает
+
+            # Пересобираем образ приложения из нового .jar и поднимаем все в фоне (причем используем credentials.env вместо .env)
+            docker compose --env-file credentials.env up -d --build
             # Удаляем старые зависшие слои докера, чтобы не забивать диск сервера
             docker image prune -f

@@ -58,3 +58,10 @@ npm run dev
 ```bash
 ./gradlew build && docker compose up --build --force-recreate -d
 ```
+
+Endpoints:
+
+/user/auth
+/user/auth/reg
+
+Также не забудьте прописать credentials.env, в которой указывются креды пользователя бд

@@ -16,18 +16,46 @@ services:
 
     restart: always
 
+  postgresql:
+    image: postgres:18.6-alpine3.24
+    container_name: postgres_container
+
+    ports:
+    - "5432:5432"
+
+    env_file:
+    - credentials.env
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
   spring-app:
     build: .
     container_name: spring_app_container
     ports:
       - "127.0.0.1:16767:8080" # убрано тк не нужно пока что
 
+    env_file:
+    - credentials.env
+
     depends_on:
       - redis-db
+      - postgresql
     environment:
       - SPRING_DATA_REDIS_HOST=redis-db
       - SPRING_DATA_REDIS_PORT=6379
+
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
     restart: on-failure
 
 volumes:
   redis_data:
+  postgres_data:
