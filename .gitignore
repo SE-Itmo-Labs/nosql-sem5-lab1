@@ -44,3 +44,6 @@ bin/
 
 ### REDIS GITIGNORE ###
 redis_data/*
+
+### POSTGRES .env ###
+credentials.env
