@@ -53,10 +53,10 @@ npm run dev
 
 Сайт https://se-itmo-labs.github.io/nosql-sem5-lab1/
 
-Бек, локальная сборка и запуск
+Backend, локальная сборка и запуск
 
 ```bash
-./gradlew build && docker compose up --build --force-recreate -d
+./gradlew build && docker compose --env-file credentials.env up --build --force-recreate -d
 ```
 
 Endpoints:
@@ -65,3 +65,7 @@ Endpoints:
 /user/auth/reg
 
 Также не забудьте прописать credentials.env, в которой указывются креды пользователя бд
+
+### Swagger отладка
+
+http://localhost:16767/swagger-ui/index.html
