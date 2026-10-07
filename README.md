@@ -59,10 +59,11 @@ Backend, локальная сборка и запуск
 ./gradlew build && docker compose --env-file credentials.env up --build --force-recreate -d
 ```
 
-Endpoints:
+API-контракт frontend/backend:
 
-/user/auth
-/user/auth/reg
+- подробное описание: [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md);
+- вход: `POST /api/v1/auth/login`;
+- регистрация: `POST /api/v1/auth/register`.
 
 Также не забудьте прописать credentials.env, в которой указывются креды пользователя бд
 
