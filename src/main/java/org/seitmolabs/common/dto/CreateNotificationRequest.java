@@ -1,4 +1,4 @@
-package org.seitmolabs.dto;
+package org.seitmolabs.common.dto;
 
 public record CreateNotificationRequest(
         String userId,

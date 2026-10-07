@@ -1,9 +1,9 @@
 package org.seitmolabs.modules.movie.repository.impl;
 
-import org.seitmolabs.modules.movie.repository.custom.TestCustom;
+import org.seitmolabs.modules.movie.repository.custom.TestRepositoryCustom;
 
 // Реализация
-public class TestImpl implements TestCustom {
+public class TestRepositoryImpl implements TestRepositoryCustom {
 
     @Override
     public Integer someMethod() {

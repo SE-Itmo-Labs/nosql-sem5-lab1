@@ -1,4 +1,4 @@
-package org.seitmolabs.model;
+package org.seitmolabs.old.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
