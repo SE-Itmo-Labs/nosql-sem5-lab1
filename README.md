@@ -69,3 +69,53 @@ Endpoints:
 ### Swagger отладка
 
 http://localhost:16767/swagger-ui/index.html
+
+```
+src/
+├── main/
+│   ├── java/
+│   │   └── com/example/lab1/
+│   │       ├── Lab1Application.java
+│   │       ├── common/                    # Общие вещи, переиспользуемые во всём проекте
+│   │       │   ├── dto/
+│   │       │   │   ├── PageResponse.java  # Универсальный ответ с пагинацией
+│   │       │   │   └── ErrorResponse.java
+│   │       │   ├── exception/
+│   │       │   │   ├── EntityNotFoundException.java
+│   │       │   │   └── GlobalExceptionHandler.java  # @RestControllerAdvice
+│   │       │   ├── mapper/
+│   │       │   │   └── BaseMapper.java    # (опц.)
+│   │       │   └── util/
+│   │       ├── config/                    # Конфиги Spring
+│   │       │   ├── MongoConfig.java       # (опц., если нужны кастомные настройки)
+│   │       │   └── OpenApiConfig.java     # Конфиг Springdoc (описание API)
+│   │       └── modules/                   # Доменные модули (feature-based)
+│   │           ├── movie/
+│   │           │   ├── controller/
+│   │           │   │   └── MovieController.java
+│   │           │   ├── service/
+│   │           │   │   ├── MovieService.java
+│   │           │   │   └── impl/MovieServiceImpl.java
+│   │           │   ├── repository/
+│   │           │   │   ├── MovieRepository.java        # MongoRepository + Query методы
+│   │           │   │   ├── custom/
+│   │           │   │   │   └── MovieCustomRepository.java
+│   │           │   │   └── impl/
+│   │           │   │       └── MovieCustomRepositoryImpl.java  # Агрегации (MongoTemplate)
+│   │           │   ├── domain/
+│   │           │   │   └── Movie.java                   # @Document(collection = "movies")
+│   │           │   ├── dto/
+│   │           │   │   ├── request/
+│   │           │   │   │   ├── MovieCreateRequest.java
+│   │           │   │   │   └── MovieUpdateRequest.java
+│   │           │   │   ├── response/
+│   │           │   │   │   └── MovieResponse.java
+│   │           │   │   └── filter/
+│   │           │   │       └── MovieFilter.java        # (опц. для фильтрации)
+│   │           │   ├── mapper/
+│   │           │   │   └── MovieMapper.java            # MapStruct или ручной
+│   │           │   └── MovieConstants.java             # (опц.)
+│   │           └── actor/ (если есть другая сущность)
+│   └── resources/
+│       └── application.yml (или .properties)
+```
