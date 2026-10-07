@@ -1,5 +1,10 @@
-package org.seitmolabs.modules.categories;
+package org.seitmolabs.modules.categories.controllers;
 
+import org.seitmolabs.modules.categories.domain.Category;
+import org.seitmolabs.modules.categories.services.CategoryService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -11,6 +16,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Tag(name = "Categories", description = "Справочник категорий (кэшируемый)")
 public class CategoryController {
+
+    private final CategoryService service;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Category> getById(@PathVariable Long id) {
+        throw new UnsupportedOperationException("TODO: service.getCategory(id) → 200 / 404");
+    }
 
     // @Operation(summary = "Получить список категорий")
     // @GetMapping

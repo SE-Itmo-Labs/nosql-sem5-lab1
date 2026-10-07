@@ -1,32 +1,25 @@
-package org.seitmolabs.modules.notification.domains;
+package org.seitmolabs.modules.notification.domain;
 
-import lombok.*;
-import org.springframework.data.annotation.Id;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
-@Getter
-@Setter
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Notification {
 
-    @Id
-    private String id;
+    private Long id;
+
+    private String userId;
 
     private String title;
 
-    private String message;
-
-    private String type; // INFO, WARNING, PROMOTION, SYSTEM и т.д.
-
-    @Builder.Default
-    private Boolean read = false;
-
-    private Instant sentAt;
-
-    private Instant expiresAt; // для TTL (временные данные)
+    private String text;
 
     private String categoryId;
+
+    private Instant createdAt;
 }

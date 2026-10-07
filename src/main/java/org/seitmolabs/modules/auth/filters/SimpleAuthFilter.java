@@ -44,7 +44,7 @@ public class SimpleAuthFilter extends OncePerRequestFilter {
                 !"admin".equals(username) || !"123".equals(password)) {
             throw new UnauthorizedException("Invalid credentials. Use X-Username: admin, X-Password: 123");
         }
-
+        
         filterChain.doFilter(request, response);
     }
     
