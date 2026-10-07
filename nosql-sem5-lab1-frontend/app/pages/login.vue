@@ -3,6 +3,7 @@ const { user, restore, login } = useAuth()
 restore()
 
 const router = useRouter()
+const isMockMode = useRuntimeConfig().public.apiMode === 'mock'
 
 const form = reactive({
   login: '',
@@ -29,8 +30,8 @@ async function onSubmit() {
 
   loading.value = true
   try {
-    // Сейчас — демо-вход (без backend). Позже заменим на POST /auth/login через useApi().
-    login(form.login.trim(), form.password)
+    // useAuth обращается к mock или backend через один и тот же ApiClient.
+    await login(form.login.trim(), form.password)
     await router.push('/')
   }
   catch (e) {
@@ -47,6 +48,10 @@ async function onSubmit() {
     <div class="login-card">
       <h1 class="login-title">Кинотеатр</h1>
       <p class="login-subtitle">Личный кабинет клиента</p>
+
+      <p v-if="isMockMode" class="demo-hint">
+        Демо-вход: <strong>client01</strong> / <strong>client123</strong>
+      </p>
 
       <form class="login-form" @submit.prevent="onSubmit">
         <label class="field">
@@ -121,6 +126,16 @@ async function onSubmit() {
   text-align: center;
   color: var(--color-text-secondary);
   font-size: 14px;
+}
+
+.demo-hint {
+  margin: -16px 0 24px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 13px;
+  text-align: center;
 }
 
 .login-form {

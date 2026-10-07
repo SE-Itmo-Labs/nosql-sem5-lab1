@@ -36,87 +36,121 @@ Lab1, NoSQL. Снагин Станислав, Александрова Мила�
 - Сделать выводы о применимости выбранного хранилища для разработанного приложения.
 
 
-### Прочее
+## Запуск и разработка
 
-Подрубиться к редису cli (в докере)
+Проект состоит из Spring Boot backend, Nuxt frontend, PostgreSQL и Redis.
+Frontend может работать независимо от незавершённого backend в явном
+`mock`-режиме.
+
+### Быстрый запуск frontend с демонстрационными данными
+
+Требуется Node.js `22.19+` или актуальная версия Node.js 24.
+
+```bash
+cd nosql-sem5-lab1-frontend
+cp .env.example .env
+npm ci
+npm run dev
+```
+
+В `.env` должен быть выбран режим локальных данных:
+
+```dotenv
+NUXT_PUBLIC_API_MODE=mock
+NUXT_PUBLIC_API_BASE=http://localhost:16767
+```
+
+Для демо-входа используются логин `client01` и пароль `client123`. Mock-режим
+не отправляет сетевые запросы и реализует тот же `ApiClient`, что и настоящий
+HTTP-клиент.
+
+### Запуск инфраструктуры и backend
+
+1. Создайте `credentials.env` по примеру `crendentials.env.example`.
+2. Укажите `POSTGRES_USER`, `POSTGRES_PASSWORD` и `POSTGRES_DB`.
+3. Соберите приложение и запустите контейнеры:
+
+```bash
+./gradlew build
+docker compose --env-file credentials.env up --build --force-recreate -d
+```
+
+Чтобы frontend обращался к Spring Boot, переключите режим:
+
+```dotenv
+NUXT_PUBLIC_API_MODE=real
+NUXT_PUBLIC_API_BASE=http://localhost:16767
+```
+
+Ошибки backend в режиме `real` намеренно не подменяются mock-ответами. Благодаря
+этому проблемы интеграции остаются заметными во время разработки.
+
+### Полезные адреса
+
+| Назначение | Адрес |
+| --- | --- |
+| Nuxt в режиме разработки | <http://localhost:3000/nosql-sem5-lab1/> |
+| Spring Boot API | <http://localhost:16767> |
+| Swagger UI | <http://localhost:16767/swagger-ui/index.html> |
+| Опубликованный frontend | <https://se-itmo-labs.github.io/nosql-sem5-lab1/> |
+| API-контракт | [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md) |
+
+### Работа с Redis CLI
+
+Подключение к Redis внутри Docker-контейнера:
 
 ```bash
 docker exec -it redis_container redis-cli
 ```
 
-Nuxt
+<details>
+<summary><strong>Основные команды разработки</strong></summary>
+
+Frontend:
 
 ```bash
 cd nosql-sem5-lab1-frontend
-npm run dev
+npm run dev       # сервер разработки
+npm run build     # production-сборка
+npm run generate  # статическая версия для GitHub Pages
 ```
 
-Сайт https://se-itmo-labs.github.io/nosql-sem5-lab1/
-
-Backend, локальная сборка и запуск
+Backend:
 
 ```bash
-./gradlew build && docker compose --env-file credentials.env up --build --force-recreate -d
+./gradlew build
+./gradlew bootRun
 ```
 
-API-контракт frontend/backend:
+Docker:
 
-- подробное описание: [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md);
-- вход: `POST /api/v1/auth/login`;
-- регистрация: `POST /api/v1/auth/register`.
-
-Также не забудьте прописать credentials.env, в которой указывются креды пользователя бд
-
-### Swagger отладка
-
-http://localhost:16767/swagger-ui/index.html
-
+```bash
+docker compose --env-file credentials.env up -d
+docker compose ps
+docker compose logs -f spring-app
 ```
-src/
-├── main/
-│   ├── java/
-│   │   └── com/example/lab1/
-│   │       ├── Lab1Application.java
-│   │       ├── common/                    # Общие вещи, переиспользуемые во всём проекте
-│   │       │   ├── dto/
-│   │       │   │   ├── PageResponse.java  # Универсальный ответ с пагинацией
-│   │       │   │   └── ErrorResponse.java
-│   │       │   ├── exception/
-│   │       │   │   ├── EntityNotFoundException.java
-│   │       │   │   └── GlobalExceptionHandler.java  # @RestControllerAdvice
-│   │       │   ├── mapper/
-│   │       │   │   └── BaseMapper.java    # (опц.)
-│   │       │   └── util/
-│   │       ├── config/                    # Конфиги Spring
-│   │       │   ├── MongoConfig.java       # (опц., если нужны кастомные настройки)
-│   │       │   └── OpenApiConfig.java     # Конфиг Springdoc (описание API)
-│   │       └── modules/                   # Доменные модули (feature-based)
-│   │           ├── movie/
-│   │           │   ├── controller/
-│   │           │   │   └── MovieController.java
-│   │           │   ├── service/
-│   │           │   │   ├── MovieService.java
-│   │           │   │   └── impl/MovieServiceImpl.java
-│   │           │   ├── repository/
-│   │           │   │   ├── MovieRepository.java        # MongoRepository + Query методы
-│   │           │   │   ├── custom/
-│   │           │   │   │   └── MovieCustomRepository.java
-│   │           │   │   └── impl/
-│   │           │   │       └── MovieCustomRepositoryImpl.java  # Агрегации (MongoTemplate)
-│   │           │   ├── domain/
-│   │           │   │   └── Movie.java                   # @Document(collection = "movies")
-│   │           │   ├── dto/
-│   │           │   │   ├── request/
-│   │           │   │   │   ├── MovieCreateRequest.java
-│   │           │   │   │   └── MovieUpdateRequest.java
-│   │           │   │   ├── response/
-│   │           │   │   │   └── MovieResponse.java
-│   │           │   │   └── filter/
-│   │           │   │       └── MovieFilter.java        # (опц. для фильтрации)
-│   │           │   ├── mapper/
-│   │           │   │   └── MovieMapper.java            # MapStruct или ручной
-│   │           │   └── MovieConstants.java             # (опц.)
-│   │           └── actor/ (если есть другая сущность)
-│   └── resources/
-│       └── application.yml (или .properties)
+
+</details>
+
+<details>
+<summary><strong>Структура frontend API-слоя</strong></summary>
+
+```text
+nosql-sem5-lab1-frontend/app/
+├── composables/
+│   ├── useApi.ts                     # выбор mock или real через конфигурацию
+│   └── useAuth.ts                    # пользовательская сессия поверх ApiClient
+├── constants/
+│   └── apiEndpoints.ts               # все URL backend в одном месте
+├── services/
+│   ├── api/
+│   │   ├── createApiClient.ts        # фабрика выбранного режима
+│   │   ├── http/                     # настоящий REST-клиент
+│   │   └── mock/                     # локальные реализации по доменам
+│   └── auth/
+│       └── authSession.ts            # чтение токена без циклических импортов
+└── types/
+    └── api/                           # контракты, разделённые по доменам
 ```
+
+</details>

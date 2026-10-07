@@ -1,16 +1,21 @@
-import { API_ENDPOINTS } from '~/constants/apiEndpoints'
+import { createApiClient, parseApiMode } from '~/services/api/createApiClient'
+import { createMockDatabase, type MockDatabase } from '~/services/api/mock/database'
+import type { ApiClient } from '~/types/api'
 
 /**
- * Минимальный HTTP-вход в backend.
+ * Возвращает единый клиент данных для всех страниц приложения.
  *
- * На текущем этапе здесь оставлена только техническая проверка `/hello`.
- * Доменные методы будут добавлены через интерфейс ApiClient одновременно с
- * HTTP- и mock-реализациями, чтобы временные заглушки не протекали в страницы.
+ * Режим задается через окружение, а mock-база хранится в Nuxt state. Поэтому
+ * разные страницы видят одни и те же изменения без глобального singleton,
+ * который мог бы смешивать данные разных SSR-запросов.
  */
-export const useApi = () => {
-  const { apiBase } = useRuntimeConfig().public
+export const useApi = (): ApiClient => {
+  const config = useRuntimeConfig().public
+  const mockDatabase = useState<MockDatabase>('mock-api-database', createMockDatabase)
 
-  return {
-    hello: () => $fetch<string>(`${apiBase}${API_ENDPOINTS.system.hello}`),
-  }
+  return createApiClient({
+    mode: parseApiMode(config.apiMode),
+    baseUrl: config.apiBase,
+    mockDatabase,
+  })
 }
