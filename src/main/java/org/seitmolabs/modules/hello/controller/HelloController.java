@@ -1,8 +1,7 @@
-package org.seitmolabs;
-
-import java.util.concurrent.TimeUnit;
+package org.seitmolabs.modules.hello.controller;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,13 +17,13 @@ public class HelloController {
 
         String cachedValue = redisTemplate.opsForValue().get(str_);
 
-        if (cachedValue != null) {
+        if (cachedValue != null) {  
             return cachedValue + " (из кэша Redis)";
         }
 
         String response = "Hello, World!";
 
-        redisTemplate.opsForValue().set(str_, response, 60, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(str_, response, Expiration.seconds(60));
 
         return response + " (из сервера)";
     }

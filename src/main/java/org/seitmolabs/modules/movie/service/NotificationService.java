@@ -1,8 +1,8 @@
-package org.seitmolabs.service;
+package org.seitmolabs.modules.movie.service;
 
 import lombok.RequiredArgsConstructor;
 import org.seitmolabs.model.Notification;
-import org.seitmolabs.repository.NotificationRepository;
+import org.seitmolabs.modules.movie.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

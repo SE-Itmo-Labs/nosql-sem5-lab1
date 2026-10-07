@@ -1,8 +1,8 @@
-package org.seitmolabs.controller;
+package org.seitmolabs.modules.movie.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.seitmolabs.model.Category;
-import org.seitmolabs.service.CategoryService;
+import org.seitmolabs.modules.movie.service.CategoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

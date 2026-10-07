@@ -1,7 +1,8 @@
-package org.seitmolabs.controller;
+package org.seitmolabs.modules.movie.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.seitmolabs.service.DistributedLockService;
+
+import org.seitmolabs.modules.movie.service.DistributedLockService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

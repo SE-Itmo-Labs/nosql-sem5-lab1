@@ -1,4 +1,4 @@
-package org.seitmolabs.service;
+package org.seitmolabs.modules.movie.service;
 
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;

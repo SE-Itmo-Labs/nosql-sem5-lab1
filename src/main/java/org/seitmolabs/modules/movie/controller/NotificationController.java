@@ -1,9 +1,10 @@
-package org.seitmolabs.controller;
+package org.seitmolabs.modules.movie.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.seitmolabs.dto.CreateNotificationRequest;
+
+import org.seitmolabs.common.dto.CreateNotificationRequest;
 import org.seitmolabs.model.Notification;
-import org.seitmolabs.service.NotificationService;
+import org.seitmolabs.modules.movie.service.NotificationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
