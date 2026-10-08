@@ -1,17 +1,103 @@
 # Запуск и разработка
 
-Проект состоит из Spring Boot backend, Nuxt frontend, PostgreSQL и Redis.
-Пока backend находится в разработке, frontend может работать
-независимо в явном `mock`-режиме.
+Проект состоит из Spring Boot backend, Nuxt frontend, PostgreSQL и трёх
+экземпляров Redis: primary и двух реплик.
 
 ## Требования
 
-- Java 21;
+- JDK 25;
+- Docker с Docker Compose;
 - Node.js 22.19 или актуальная версия Node.js 24;
-- Docker с Compose;
 - npm.
 
-## Frontend с демонстрационными данными
+Проверить активную версию Java можно командами:
+
+```bash
+javac --version
+./gradlew --version
+```
+
+## Полный запуск через Docker
+
+Создайте файл с параметрами PostgreSQL и запустите сборку:
+
+```bash
+cp credentials.env.example credentials.env
+./gradlew clean build
+docker compose --env-file credentials.env up -d --build
+docker compose --env-file credentials.env ps
+```
+
+| Сервис | Адрес или порт |
+| --- | --- |
+| Spring Boot API | <http://localhost:16767> |
+| PostgreSQL | `localhost:5432` |
+| Redis primary | `localhost:6379` |
+| Redis replica 1 | `localhost:6380` |
+| Redis replica 2 | `localhost:6381` |
+
+Логи приложения:
+
+```bash
+docker compose --env-file credentials.env logs -f spring-app
+```
+
+## Тестовые пользователи
+
+При первом запуске backend создаёт две учётные записи:
+
+| Роль | Логин | Пароль |
+| --- | --- | --- |
+| Клиент | `client01` | `client123` |
+| Администратор | `admin` | `123` |
+
+Регистрация, JWT и Spring Security в лабораторной не используются. Защищённые
+запросы принимают два заголовка:
+
+```text
+X-Username: client01
+X-Password: client123
+```
+
+Проверка входа:
+
+```bash
+curl -X POST http://localhost:16767/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"client01","password":"client123"}'
+```
+
+## Swagger
+
+- Swagger UI: <http://localhost:16767/swagger-ui/index.html>
+- OpenAPI JSON: <http://localhost:16767/v3/api-docs>
+
+В Swagger нажмите `Authorize` и заполните `X-Username` и `X-Password`. Метод
+входа можно вызвать без этих данных.
+
+## Тесты
+
+```bash
+./gradlew test
+```
+
+Интеграционные тесты используют Testcontainers, поэтому для них должен работать
+Docker. Тестовый Redis создаётся отдельно и не изменяет локальные данные проекта.
+
+## Локальный запуск backend
+
+PostgreSQL и Redis удобнее оставить в Docker, а Spring Boot запустить из IDE или
+Gradle. Адреса по умолчанию соответствуют портам из таблицы выше.
+
+```bash
+docker compose --env-file credentials.env up -d postgresql redis-db redis-replica-1 redis-replica-2
+set -a
+source credentials.env
+set +a
+SERVER_PORT=16767 ./gradlew bootRun
+```
+
+## Frontend
 
 ```bash
 cd nosql-sem5-lab1-frontend
@@ -20,80 +106,43 @@ npm ci
 npm run dev
 ```
 
-В `.env` выберите локальный источник данных:
+Для работы без backend:
 
 ```dotenv
 NUXT_PUBLIC_API_MODE=mock
 NUXT_PUBLIC_API_BASE=http://localhost:16767
 ```
 
-Демонстрационная учетная запись: логин `client01`, пароль `client123`.
-Mock-режим не отправляет сетевые запросы, но использует тот же `ApiClient`, что
-и HTTP-реализация.
-
-## Инфраструктура и backend
-
-1. Создайте `credentials.env` по примеру `crendentials.env.example`.
-2. Укажите `POSTGRES_USER`, `POSTGRES_PASSWORD` и `POSTGRES_DB`.
-3. Соберите приложение и запустите контейнеры.
-
-```bash
-./gradlew build
-docker compose --env-file credentials.env up --build --force-recreate -d
-```
-
-Для подключения frontend к Spring Boot измените `.env`:
+Для запросов к Spring Boot:
 
 ```dotenv
 NUXT_PUBLIC_API_MODE=real
 NUXT_PUBLIC_API_BASE=http://localhost:16767
 ```
 
-В режиме `real` ошибки backend не подменяются локальными ответами: проблемы
-интеграции остаются видимыми во время разработки.
-
-## Основные команды
-
-### Frontend
-
-```bash
-cd nosql-sem5-lab1-frontend
-npm run dev       # сервер разработки
-npm run build     # production-сборка
-npm run generate  # статическая версия для GitHub Pages
-```
-
-### Backend
-
-```bash
-./gradlew build
-./gradlew bootRun
-```
-
-### Docker
-
-```bash
-docker compose --env-file credentials.env up -d
-docker compose ps
-docker compose logs -f spring-app
-```
-
-## Redis CLI
-
-Команда подключения зависит от имени контейнера в `docker-compose.yml`. Для
-основного экземпляра:
+## Проверка Redis
 
 ```bash
 docker exec -it redis_container redis-cli
+docker exec -it redis_replica1_container redis-cli
+docker exec -it redis_replica2_container redis-cli
 ```
 
-## Полезные адреса
+Команда `INFO replication` показывает роль узла и состояние подключения реплик.
 
-| Назначение | Адрес |
-| --- | --- |
-| Nuxt в режиме разработки | <http://localhost:3000/nosql-sem5-lab1/> |
-| Spring Boot API | <http://localhost:16767> |
-| Swagger UI | <http://localhost:16767/swagger-ui/index.html> |
-| Опубликованный frontend | <https://se-itmo-labs.github.io/nosql-sem5-lab1/> |
+Для ручной проверки персистентности можно записать контрольный ключ, подождать
+не меньше секунды, перезапустить primary и прочитать ключ:
 
-Описание запросов находится в [контракте REST API](API_CONTRACT.md).
+```bash
+docker exec redis_container redis-cli SET persistence:test saved
+docker compose restart redis-db
+docker exec redis_container redis-cli GET persistence:test
+```
+
+Команда `docker compose down -v` удаляет Docker volumes. Данные primary также
+хранятся в подключённой папке `redis_data/`, поэтому её не следует удалять перед
+проверкой восстановления.
+
+Подробности приведены в [контракте REST API](API_CONTRACT.md),
+[архитектуре backend](BACKEND_ARCHITECTURE.md) и
+[отчёте](LAB_REPORT.md).
