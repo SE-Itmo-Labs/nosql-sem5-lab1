@@ -41,6 +41,9 @@ jobs:
 
       - name: Static HTML Generation
         working-directory: ./nosql-sem5-lab1-frontend
+        env:
+          NUXT_PUBLIC_API_MODE: real
+          NUXT_PUBLIC_API_BASE: https://backend-se-itmo-labs.ssngn.ru/nosql-sem5-lab1
         run: npm run generate
 
       - name: Configure GitHub Pages
