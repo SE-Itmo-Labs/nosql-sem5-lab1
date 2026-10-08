@@ -23,6 +23,8 @@ dependencies {
     // Redis
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.redisson:redisson:4.7.0")
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     
     // Swagger
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1")
