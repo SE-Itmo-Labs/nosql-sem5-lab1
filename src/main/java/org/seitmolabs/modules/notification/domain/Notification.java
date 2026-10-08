@@ -19,7 +19,9 @@ public class Notification {
 
     private String text;
 
-    private String categoryId;
+    private Long categoryId;
+
+    private NotificationStatus status;
 
     private Instant createdAt;
 }

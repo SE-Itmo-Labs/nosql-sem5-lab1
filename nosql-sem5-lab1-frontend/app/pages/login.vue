@@ -42,29 +42,45 @@ const onSubmit = async () => {
 </script>
 
 <template>
-  <section class="login-card">
-    <!-- Заголовок остается нейтральным и подходит mock- и real-режиму. -->
-    <header class="login-heading">
-      <p class="login-eyebrow">С возвращением</p>
-      <h2>Вход в кабинет</h2>
-      <p>Используйте учётные данные клиента кинотеатра.</p>
-    </header>
+  <div class="login-page">
+    <div class="login-card">
+      <h1 class="login-title">Кинотеатр</h1>
+      <p class="login-subtitle">Личный кабинет клиента</p>
+      <p class="login-hint">Тестовый вход: client01 / client123</p>
 
-    <p v-if="isMockMode" class="demo-hint">
-      <strong>Демо-доступ</strong>
-      <span>client01 / client123</span>
-    </p>
+      <form class="login-form" @submit.prevent="onSubmit">
+        <label class="field">
+          <span class="field-label">Логин</span>
+          <input
+            v-model="form.login"
+            type="text"
+            name="login"
+            autocomplete="username"
+            placeholder="например, ivanov01"
+            class="field-input"
+          >
+        </label>
 
-    <form class="login-form" @submit.prevent="onSubmit">
-      <label class="field">
-        <span class="field-label">Логин</span>
-        <input
-          v-model="form.login"
-          type="text"
-          name="login"
-          autocomplete="username"
-          placeholder="например, client01"
-          class="field-input"
+        <label class="field">
+          <span class="field-label">Пароль</span>
+          <input
+            v-model="form.password"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            placeholder="••••••••"
+            class="field-input"
+          >
+        </label>
+
+        <p v-if="error" class="form-error" role="alert">
+          {{ error }}
+        </p>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-block btn-lg"
+          :disabled="loading"
         >
       </label>
 
@@ -126,38 +142,23 @@ const onSubmit = async () => {
   letter-spacing: -0.02em;
 }
 
-.login-heading p:last-child {
-  margin-top: 8px;
+.login-subtitle {
+  margin: 8px 0 6px;
+  text-align: center;
   color: var(--color-text-secondary);
   font-size: 14px;
 }
 
-.demo-hint {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 0 0 22px;
-  padding: 11px 13px;
-  border-radius: var(--radius-sm);
-  background: var(--color-primary-soft);
-  color: #9a3412;
-  font-size: 12px;
-}
-
-.demo-hint span {
-  font-family: "Cascadia Code", Consolas, monospace;
+.login-hint {
+  margin: 0 0 28px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 13px;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 18px;
-}
-
-@media (max-width: 480px) {
-  .login-card {
-    padding: 28px 22px;
-  }
 }
 </style>

@@ -9,13 +9,17 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Repository
 @RequiredArgsConstructor
 public class CategoryCacheRepository {
 
     private static final String KEY_PREFIX = "category:";
+    private static final String LIST_KEY = "category:all";
 
     private final StringRedisTemplate redis;
     private final JsonMapper jsonMapper;
@@ -56,7 +60,40 @@ public class CategoryCacheRepository {
         }
     }
 
+    public void putAll(List<Category> categories, Duration ttl) {
+        try {
+            String jsonCategories = jsonMapper.writeValueAsString(categories);
+            redis.opsForValue().set(LIST_KEY, jsonCategories, ttl);
+        } catch (JacksonException e) {
+            throw new IllegalStateException("Не удалось сохранить список категорий в кэш", e);
+        }
+    }
+
+    public Optional<List<Category>> findAll() {
+        String jsonCategories = redis.opsForValue().get(LIST_KEY);
+
+        if (jsonCategories == null) {
+            return Optional.empty();
+        }
+
+        try {
+            Category[] categories = jsonMapper.readValue(jsonCategories, Category[].class);
+            return Optional.of(Arrays.asList(categories));
+        } catch (JacksonException e) {
+            throw new IllegalStateException("Не удалось прочитать список категорий из кэша", e);
+        }
+    }
+
+    public long getRemainingTtlSeconds(Long id) {
+        Long ttl = redis.getExpire(KEY_PREFIX + id, TimeUnit.SECONDS);
+        return ttl == null ? -2 : ttl;
+    }
+
     public void delete(Long id) {
         redis.delete(KEY_PREFIX + id);
+    }
+
+    public void deleteList() {
+        redis.delete(LIST_KEY);
     }
 }

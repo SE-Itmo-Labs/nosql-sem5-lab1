@@ -1,21 +1,21 @@
-# API-контракт личного кабинета кинотеатра
+# REST API личного кабинета кинотеатра
 
-Этот документ фиксирует целевой контракт между Nuxt-фронтендом и Spring Boot.
-Он является договорённостью команды, а не описанием текущей степени готовности
-backend. Состояние реализации на 8 октября 2026 года приведено в последнем разделе.
+Документ описывает фактически реализованные методы Spring Boot backend.
+Локальный адрес: `http://localhost:16767`, общий префикс: `/api/v1`.
 
 ## Общие правила
 
-- Базовый адрес задаётся переменной `NUXT_PUBLIC_API_BASE`. Локальное значение:
-  `http://localhost:16767`.
-- Все бизнес-методы находятся под `/api`; версия авторизации сохраняется в уже
-  созданном backend-префиксе `/api/v1/auth`.
-- Тела запросов и ответов передаются как `application/json`.
-- Дата и время передаются в UTC в формате ISO 8601, например
-  `2026-10-08T12:30:00Z`.
-- Для неизвестного объекта backend отвечает `404`, для конфликта блокировки —
-  `409`, для ошибки валидации — `400`, для отсутствующей авторизации — `401`.
-- Ошибка имеет единый вид:
+- запросы и ответы используют `application/json`;
+- дата и время передаются в UTC в формате ISO 8601;
+- все методы, кроме входа и Swagger, требуют заголовки `X-Username` и
+  `X-Password`;
+- тестовый клиент: `client01` / `client123`;
+- тестовый администратор: `admin` / `123`.
+
+JWT и Spring Security не используются. После проверки заголовков текущий
+пользователь доступен контроллеру через атрибут запроса.
+
+Типовой ответ с ошибкой:
 
 ```json
 {
@@ -23,80 +23,50 @@ backend. Состояние реализации на 8 октября 2026 го
   "status": 400,
   "error": "Bad Request",
   "message": "Validation failed",
-  "path": "/api/notifications"
+  "path": "/api/v1/notifications"
 }
 ```
 
-## Режимы frontend
+Основные статусы: `400` — неверный запрос, `401` — ошибка входа, `404` — объект
+не найден, `409` — ресурс уже заблокирован, `500` — внутренняя ошибка.
 
-Frontend использует общий интерфейс `ApiClient` и выбирает реализацию переменной
-`NUXT_PUBLIC_API_MODE`:
-
-- `mock` — локальные данные без сетевых запросов; используется по умолчанию,
-  пока backend находится в разработке;
-- `real` — HTTP-запросы к `NUXT_PUBLIC_API_BASE` с Bearer-токеном.
-
-Автоматического переключения с `real` на `mock` при ошибке нет. Это сделано
-намеренно, чтобы ошибки интеграции не выглядели как успешная работа приложения.
-
-## Авторизация
+## Авторизация и пользователь
 
 ### `POST /api/v1/auth/login`
 
-Вход существующего пользователя.
+Проверяет тестовую учётную запись. Заголовки авторизации не нужны.
 
 ```json
 {
   "username": "client01",
-  "password": "secret123"
+  "password": "client123"
 }
 ```
 
-Успешный ответ `200`:
+Ответ `200`:
 
 ```json
 {
-  "token": "jwt-token",
-  "type": "Bearer",
+  "userId": 1,
   "username": "client01",
-  "email": "client01@example.com"
+  "displayName": "Тестовый клиент",
+  "role": "ROLE_USER"
 }
 ```
 
-### `POST /api/v1/auth/register`
+### `GET /api/v1/users/me`
 
-Создание клиента. Ответ `201` имеет ту же структуру, что и вход.
-
-```json
-{
-  "username": "client01",
-  "email": "client01@example.com",
-  "password": "secret123"
-}
-```
-
-После получения токена frontend передаёт его в заголовке
-`Authorization: Bearer <token>`.
+Возвращает текущего пользователя. Формат ответа совпадает с ответом входа.
 
 ## Уведомления
 
-Уведомление — основной объект варианта. Его создание одновременно означает
-отправку клиенту и должно атомарно обновить индекс уведомлений пользователя.
-
-| Метод | URL | Назначение |
+| Метод | URL | Результат |
 | --- | --- | --- |
-| `GET` | `/api/notifications` | Общий список с пагинацией и фильтрами |
-| `GET` | `/api/notifications/user/{userId}` | Уведомления одного клиента |
-| `GET` | `/api/notifications/{id}` | Одно уведомление |
-| `POST` | `/api/notifications` | Создать и отправить уведомление |
-| `PATCH` | `/api/notifications/{id}` | Изменить текст, категорию или статус |
-| `DELETE` | `/api/notifications/{id}` | Удалить уведомление |
-| `GET` | `/api/notifications/stats` | Агрегированная статистика |
+| `GET` | `/api/v1/notifications` | уведомления текущего пользователя |
+| `GET` | `/api/v1/notifications/{id}` | уведомление по ID |
+| `POST` | `/api/v1/notifications` | создать и отправить уведомление |
 
-Параметры списка: `page`, `size`, `sort`, `userId`, `categoryId`, `status`, `q`.
-Поля `page` и `size` считаются от нуля и по умолчанию равны `0` и `20`.
-
-Создание:
+Создание уведомления:
 
 ```json
 {
@@ -107,46 +77,29 @@ Frontend использует общий интерфейс `ApiClient` и вы�
 }
 ```
 
-Ответ `201`:
-
-```json
-{
-  "id": 41,
-  "userId": "client01",
-  "title": "Сеанс скоро начнётся",
-  "text": "Зал 4, ряд 7, место 12",
-  "categoryId": 2,
-  "status": "SENT",
-  "createdAt": "2026-10-08T12:30:00Z"
-}
-```
-
-Ответ списка:
-
-```json
-{
-  "content": [],
-  "page": 0,
-  "size": 20,
-  "totalElements": 0,
-  "totalPages": 0,
-  "last": true,
-  "empty": true
-}
-```
+Ответ `201` содержит `id`, поля запроса, статус `SENT` и `createdAt`. Метод
+списка возвращает JSON-массив от новых уведомлений к старым.
 
 ## Категории и кэш
 
-| Метод | URL | Назначение |
+| Метод | URL | Результат |
 | --- | --- | --- |
-| `GET` | `/api/categories` | Полный справочник категорий |
-| `GET` | `/api/categories/{id}` | Категория с информацией о кэше |
-| `POST` | `/api/categories` | Создать категорию и инвалидировать список |
-| `PUT` | `/api/categories/{id}` | Обновить категорию и кэш |
-| `DELETE` | `/api/categories/{id}` | Удалить категорию и запись кэша |
+| `GET` | `/api/v1/categories` | список категорий |
+| `GET` | `/api/v1/categories/{id}` | категория и информация о кэше |
+| `POST` | `/api/v1/categories` | новая категория, ответ `201` |
+| `PUT` | `/api/v1/categories/{id}` | обновлённая категория |
+| `DELETE` | `/api/v1/categories/{id}` | удаление, ответ `204` |
 
-Контрольный `GET /api/categories/{id}` возвращает источник данных, чтобы на
-защите можно было увидеть сначала cache miss, а затем cache hit:
+Тело создания и обновления:
+
+```json
+{
+  "name": "Бронирование",
+  "description": "Изменения состояния билета"
+}
+```
+
+Контрольный `GET` показывает источник данных:
 
 ```json
 {
@@ -158,20 +111,22 @@ Frontend использует общий интерфейс `ApiClient` и вы�
   "cache": {
     "source": "CACHE",
     "cached": true,
-    "remainingTtlSeconds": 54
+    "remainingTtlSeconds": 278
   }
 }
 ```
 
+При первом чтении `source` равен `DATABASE`, при повторном — `CACHE`.
+
 ## Временная блокировка с TTL
 
-| Метод | URL | Назначение |
+| Метод | URL | Результат |
 | --- | --- | --- |
-| `POST` | `/api/blocks` | Временно заблокировать ресурс |
-| `GET` | `/api/blocks/{resourceKey}` | Проверить блокировку и оставшийся TTL |
-| `DELETE` | `/api/blocks/{resourceKey}` | Досрочно освободить собственную блокировку |
+| `POST` | `/api/v1/blocks` | создать блокировку, ответ `201` |
+| `GET` | `/api/v1/blocks/{resourceKey}` | состояние и оставшийся TTL |
+| `DELETE` | `/api/v1/blocks/{resourceKey}` | снять свою блокировку, ответ `204` |
 
-Запрос на создание:
+Тело создания:
 
 ```json
 {
@@ -181,84 +136,92 @@ Frontend использует общий интерфейс `ApiClient` и вы�
 }
 ```
 
-Успешный ответ `201` содержит `createdAt`, `expiresAt`, исходный
-`ttlSeconds`, вычисленный `remainingTtlSeconds` и `active: true`. Если ключ уже
-занят, backend возвращает `409`, не перезаписывая владельца и TTL.
-
-После автоматического удаления Redis-ключа проверка отвечает `404`.
+Ответ содержит `resourceKey`, `owner`, исходный и оставшийся TTL, `createdAt`,
+`expiresAt` и `active`. Повторное создание того же ключа возвращает `409` и не
+изменяет владельца или TTL. При досрочном удалении владельцем считается текущий
+пользователь из заголовков.
 
 ## Распределённая блокировка
 
-### `POST /api/locks/acquire`
+### `POST /api/v1/locks/execute`
 
-Атомарно выполняет `SET lock:{resourceKey} <token> NX EX <ttlSeconds>`.
-
-```json
-{
-  "resourceKey": "notification:41:delivery",
-  "owner": "worker-1",
-  "ttlSeconds": 15
-}
-```
-
-Ответ всегда имеет HTTP-статус `200`; результат попытки определяется полем
-`acquired`. Секретный `token` возвращается только успешному владельцу.
-
-### `POST /api/locks/release`
+Пытается выполнить операцию внутри критической секции Redisson.
 
 ```json
 {
   "resourceKey": "notification:41:delivery",
-  "token": "random-owner-token"
+  "holdMillis": 1000
 }
 ```
 
-Backend сравнивает токен и удаляет ключ одной Lua-операцией. Это не позволяет
-клиенту снять блокировку, которая уже истекла и была захвачена другим владельцем.
+`holdMillis` может быть от `0` до `10000`. Ответ:
+
+```json
+{
+  "resourceKey": "notification:41:delivery",
+  "owner": "client01",
+  "acquired": true,
+  "message": "Критическая секция выполнена"
+}
+```
+
+При параллельном занятии ресурса запрос остаётся успешным по HTTP, но получает
+`acquired: false`.
 
 ## Исследование согласованности Redis
 
-### `POST /api/consistency/experiments`
+| Метод | URL | Назначение |
+| --- | --- | --- |
+| `GET` | `/api/v1/consistency/state` | выбранные режимы чтения и записи |
+| `PUT` | `/api/v1/consistency/mode` | изменить один или оба режима |
+| `POST` | `/api/v1/consistency/write` | записать значение в primary |
+| `GET` | `/api/v1/consistency/read/{key}` | прочитать в выбранном режиме |
+| `GET` | `/api/v1/consistency/nodes/{key}` | сравнить все три узла |
+| `POST` | `/api/v1/consistency/experiments` | выполнить измеряемый эксперимент |
+| `POST` | `/api/v1/consistency/replicas/{number}/detach` | отключить реплику 1 или 2 |
+| `POST` | `/api/v1/consistency/replicas/{number}/attach` | подключить реплику обратно |
 
-Метод записывает значение в primary и затем читает его из выбранного узла.
+Изменение режима:
 
 ```json
 {
-  "key": "experiment:client01",
-  "value": "revision-42",
+  "readMode": "REPLICA_PREFERRED",
+  "writeMode": "WAIT_FOR_REPLICAS"
+}
+```
+
+Для чтения доступны `MASTER` и `REPLICA_PREFERRED`, для записи — `ASYNC` и
+`WAIT_FOR_REPLICAS`. Поле, которое изменять не нужно, можно не передавать.
+
+Простая запись:
+
+```json
+{
+  "key": "demo",
+  "value": "version-1"
+}
+```
+
+Один эксперимент со своими параметрами:
+
+```json
+{
+  "key": "demo",
+  "value": "version-2",
   "readTarget": "REPLICA",
   "mode": "EVENTUAL",
   "waitTimeoutMs": 500
 }
 ```
 
-- `EVENTUAL` читает реплику сразу после записи.
-- `WAIT_FOR_REPLICA` вызывает `WAIT 1 <waitTimeoutMs>` перед чтением.
-- `PRIMARY` используется как контрольный режим чтения после собственной записи.
+`readTarget` принимает `PRIMARY` или `REPLICA`, а `mode` — `EVENTUAL` или
+`WAIT_FOR_REPLICA`. Ответ содержит записанное и прочитанное значения, узел,
+число подтверждений, `consistent` и длительности записи, ожидания и чтения.
 
-Ответ содержит записанное и прочитанное значения, число подтвердивших реплик,
-признак `consistent` и длительности записи, ожидания и чтения в миллисекундах.
-`WAIT` уменьшает окно рассогласования, но не превращает Redis в строго
-согласованную систему и не является гарантией сохранения на диск.
+## Swagger
 
-## Текущее состояние backend
+- Swagger UI: <http://localhost:16767/swagger-ui/index.html>
+- OpenAPI JSON: <http://localhost:16767/v3/api-docs>
 
-| Контракт | Состояние на 08.10.2026 |
-| --- | --- |
-| `POST /api/v1/auth/login` | Маршрут есть, но возвращает только `message` и `username` |
-| `POST /api/v1/auth/register` | DTO существует, контроллера нет |
-| `/api/notifications/**` | Методы присутствуют только в комментариях |
-| `GET /api/categories/{id}` | Маршрут есть, но всегда выбрасывает `UnsupportedOperationException` |
-| `/api/blocks/**` | Репозиторий и сервис есть, REST-контроллера нет |
-| `/api/locks/**` | Есть сервис Redisson, REST-контроллера нет |
-| `/api/consistency/**` | Ещё не реализовано |
-
-Перед подключением настоящего backend необходимо также:
-
-1. заменить Swagger-аннотацию `io.swagger.v3.oas.annotations.parameters.RequestBody`
-   в `AuthController` на `org.springframework.web.bind.annotation.RequestBody`;
-2. выбрать одну схему авторизации — целевой Bearer JWT из этого контракта либо
-   временные `X-Username`/`X-Password`, но не обе одновременно;
-3. добавить `PATCH` в список разрешённых CORS-методов;
-4. привести Java `categoryId` к числу, как в `Category.id`;
-5. формировать все ошибки через единый `ApiErrorResponse`.
+В Swagger два глобальных поля авторизации соответствуют заголовкам
+`X-Username` и `X-Password`.

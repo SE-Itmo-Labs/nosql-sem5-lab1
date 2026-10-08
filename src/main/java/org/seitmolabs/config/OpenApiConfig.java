@@ -1,28 +1,44 @@
 package org.seitmolabs.config;
 
-import java.util.LinkedList;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @Configuration 
 public class OpenApiConfig {
     
     @Bean 
-    public OpenAPI openApiConfig() {
+    public OpenAPI openApi() {
         var info = new Info();
 
         info.setTitle("NoSQL API");
         info.setDescription("Описание REST API первой лр по носкл");
         info.setVersion("0.0.1");
 
-        var servers = new LinkedList<Server>();
-        servers.add(new Server().url("http://localhost:8080").description("Local"));
+        Components components = new Components()
+                .addSecuritySchemes("username", headerScheme("X-Username"))
+                .addSecuritySchemes("password", headerScheme("X-Password"));
 
-        return new OpenAPI().info(info);
+        SecurityRequirement credentials = new SecurityRequirement()
+                .addList("username")
+                .addList("password");
+
+        return new OpenAPI()
+                .info(info)
+                .components(components)
+                .addSecurityItem(credentials);
+    }
+
+    private SecurityScheme headerScheme(String headerName) {
+        return new SecurityScheme()
+                .type(SecurityScheme.Type.APIKEY)
+                .in(SecurityScheme.In.HEADER)
+                .name(headerName);
     }
 }
