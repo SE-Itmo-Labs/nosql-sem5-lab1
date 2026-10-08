@@ -1,4 +1,5 @@
 import { useState } from '#imports'
+import { AUTH_SESSION_STORAGE_KEY } from '~/services/auth/authSession'
 
 export interface AuthUser {
   userId: number

@@ -1,3 +1,6 @@
+import { createApiClient, parseApiMode } from '~/services/api/createApiClient'
+import { createMockDatabase, type MockDatabase } from '~/services/api/mock/database'
+import type { ApiClient } from '~/types/api'
 
 export const useApi = () => {
   const { apiBase } = useRuntimeConfig().public

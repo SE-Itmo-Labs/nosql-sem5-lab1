@@ -1,25 +1,25 @@
 <script setup lang="ts">
-const { user, restore, login } = useAuth()
-restore()
+defineOptions({ name: 'UserLoginPage' })
 
+definePageMeta({
+  layout: 'auth',
+  middleware: 'guest',
+  title: 'Вход',
+})
+
+const { login } = useAuth()
 const router = useRouter()
+const isMockMode = useRuntimeConfig().public.apiMode === 'mock'
 
 const form = reactive({
   login: '',
   password: '',
 })
-
 const error = ref('')
 const loading = ref(false)
 
-// Уже вошли — сразу на главную
-onMounted(() => {
-  if (user.value) {
-    router.push('/')
-  }
-})
-
-async function onSubmit() {
+/** Валидация пустых полей выполняется до обращения к mock или backend. */
+const onSubmit = async () => {
   error.value = ''
 
   if (!form.login.trim() || !form.password) {
@@ -32,8 +32,8 @@ async function onSubmit() {
     await login(form.login.trim(), form.password)
     await router.push('/')
   }
-  catch (e) {
-    error.value = e instanceof Error ? e.message : 'Не удалось войти'
+  catch (cause) {
+    error.value = cause instanceof Error ? cause.message : 'Не удалось войти'
   }
   finally {
     loading.value = false
@@ -82,38 +82,64 @@ async function onSubmit() {
           class="btn btn-primary btn-block btn-lg"
           :disabled="loading"
         >
-          {{ loading ? 'Входим…' : 'Войти' }}
-        </button>
-      </form>
-    </div>
-  </div>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Пароль</span>
+        <input
+          v-model="form.password"
+          type="password"
+          name="password"
+          autocomplete="current-password"
+          placeholder="••••••••"
+          class="field-input"
+        >
+      </label>
+
+      <p v-if="error" class="form-error" role="alert">
+        {{ error }}
+      </p>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" :disabled="loading">
+        {{ loading ? 'Проверяем данные…' : 'Войти' }}
+      </button>
+    </form>
+  </section>
 </template>
 
 <style scoped>
-.login-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: linear-gradient(160deg, var(--color-bg-dark) 0%, var(--color-bg-dark-soft) 100%);
-}
-
 .login-card {
   width: 100%;
-  max-width: 380px;
-  background: var(--color-surface);
+  max-width: 430px;
+  padding: 36px;
+  border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
-  padding: 40px 32px;
-  box-shadow: var(--shadow-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
 }
 
-.login-title {
+.login-heading {
+  margin-bottom: 24px;
+}
+
+.login-eyebrow,
+.login-heading h2,
+.login-heading p {
   margin: 0;
+}
+
+.login-eyebrow {
+  color: var(--color-primary-hover);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.login-heading h2 {
+  margin-top: 8px;
   font-size: 28px;
-  font-weight: 700;
-  text-align: center;
-  color: var(--color-text);
+  letter-spacing: -0.02em;
 }
 
 .login-subtitle {

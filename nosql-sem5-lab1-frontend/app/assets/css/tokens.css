@@ -1,0 +1,47 @@
+/**
+ * Дизайн-токены приложения.
+ * Компоненты используют смысловые переменные и не дублируют оттенки, радиусы
+ * и размеры теней по отдельным scoped-стилям.
+ */
+:root {
+  --color-bg-page: #f4f5f7;
+  --color-bg-subtle: #ebeef2;
+  --color-bg-dark: #111827;
+  --color-bg-dark-soft: #1f2937;
+  --color-surface: #ffffff;
+  --color-surface-hover: #fafafa;
+
+  --color-text: #1f2937;
+  --color-text-secondary: #667085;
+  --color-text-muted: #98a2b3;
+  --color-text-on-dark: #ffffff;
+  --color-text-on-dark-muted: #d0d5dd;
+
+  --color-primary: #f97316;
+  --color-primary-hover: #ea580c;
+  --color-primary-soft: #fff7ed;
+  --color-primary-focus: rgb(249 115 22 / 18%);
+
+  --color-info: #2563eb;
+  --color-info-soft: #eff6ff;
+  --color-success: #15803d;
+  --color-success-soft: #f0fdf4;
+  --color-warning: #a16207;
+  --color-warning-soft: #fefce8;
+  --color-error: #b42318;
+  --color-error-bg: #fef3f2;
+
+  --color-border: #d0d5dd;
+  --color-border-soft: #eaecf0;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+
+  --shadow-sm: 0 4px 16px rgb(16 24 40 / 6%);
+  --shadow-md: 0 10px 28px rgb(16 24 40 / 10%);
+  --shadow-lg: 0 24px 60px rgb(0 0 0 / 30%);
+
+  --sidebar-width: 264px;
+  --content-max-width: 1180px;
+}
