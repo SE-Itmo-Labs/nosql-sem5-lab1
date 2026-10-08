@@ -1,13 +1,13 @@
+import { hasStoredAuthSession } from '~/services/auth/authSession'
+
 /**
  * Защищает страницы личного кабинета.
  * На сервере редирект не выполняется, потому что статическая генерация не имеет
- * доступа к localStorage; окончательная проверка происходит после гидратации.
+ * доступа к localStorage. На клиенте middleware только проверяет хранилище:
+ * восстановление Vue-state до гидратации создало бы несовпадение HTML.
  */
 export default defineNuxtRouteMiddleware(() => {
   if (import.meta.server) return
 
-  const { user, restore } = useAuth()
-  restore()
-
-  if (!user.value) return navigateTo('/login')
+  if (!hasStoredAuthSession()) return navigateTo('/login')
 })

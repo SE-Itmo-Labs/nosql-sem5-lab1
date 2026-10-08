@@ -14,6 +14,7 @@ definePageMeta({
 const { user } = useAuth()
 const featureLinks = APP_NAVIGATION.filter(item => item.to !== '/')
 const isMockMode = useRuntimeConfig().public.apiMode === 'mock'
+const implementedFeatures = 3
 </script>
 
 <template>
@@ -40,7 +41,7 @@ const isMockMode = useRuntimeConfig().public.apiMode === 'mock'
       </div>
       <div class="overview-status">
         <span aria-hidden="true" />
-        Каркас готов
+        {{ implementedFeatures }} из {{ featureLinks.length }} готовы
       </div>
     </section>
 

@@ -6,6 +6,10 @@ defineOptions({ name: 'DashboardLayout' })
 
 const sidebarOpen = ref(false)
 const route = useRoute()
+const { restore } = useAuth()
+
+/** localStorage переносится в реактивное состояние только после гидратации. */
+onMounted(restore)
 
 /** Любая навигация закрывает мобильное меню и возвращает контент пользователю. */
 watch(() => route.path, () => {
