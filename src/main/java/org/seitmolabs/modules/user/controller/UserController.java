@@ -9,17 +9,28 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestAttribute;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.seitmolabs.modules.auth.dto.response.AuthResponse;
+import org.seitmolabs.modules.auth.filters.SimpleAuthFilter;
+import org.seitmolabs.modules.user.domain.User;
 
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 @Tag(name = "Users", description = "Пользователи (клиенты)")
 public class UserController {
+
+    @Operation(summary = "Получить текущего пользователя")
+    @GetMapping("/me")
+    public AuthResponse getCurrentUser(
+            @RequestAttribute(SimpleAuthFilter.CURRENT_USER_ATTRIBUTE) User user) {
+        return AuthResponse.from(user);
+    }
 
     // @Operation(summary = "Получить список пользователей")
     // @GetMapping

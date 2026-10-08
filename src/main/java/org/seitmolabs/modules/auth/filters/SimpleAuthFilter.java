@@ -2,6 +2,9 @@ package org.seitmolabs.modules.auth.filters;
 
 import java.io.IOException;
 
+import org.seitmolabs.modules.auth.exceptions.UnauthorizedException;
+import org.seitmolabs.modules.auth.service.AuthService;
+import org.seitmolabs.modules.user.domain.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -9,9 +12,15 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @Component 
+@RequiredArgsConstructor
 public class SimpleAuthFilter extends OncePerRequestFilter {
+
+    public static final String CURRENT_USER_ATTRIBUTE = "currentUser";
+
+    private final AuthService authService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -45,8 +54,10 @@ public class SimpleAuthFilter extends OncePerRequestFilter {
         String username = request.getHeader("X-Username");
         String password = request.getHeader("X-Password");
 
-        if (username == null || password == null ||
-                !"admin".equals(username) || !"123".equals(password)) {
+        try {
+            User user = authService.authenticate(username, password);
+            request.setAttribute(CURRENT_USER_ATTRIBUTE, user);
+        } catch (UnauthorizedException ex) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
