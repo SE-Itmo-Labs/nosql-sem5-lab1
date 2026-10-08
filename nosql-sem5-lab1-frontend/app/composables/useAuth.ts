@@ -1,63 +1,47 @@
 import { useState } from '#imports'
+import {
+  clearStoredAuthSession,
+  readStoredAuthSession,
+  saveStoredAuthSession,
+  type StoredAuthUser,
+} from '~/services/auth/authSession'
 
-export interface AuthUser {
-  /** Логин пользователя (он же — идентификатор клиента в БД/Redis) */
-  login: string
-  /** Отображаемое имя (пока = логин, позже можно брать из ответа API) */
-  username: string
-  /** Момент входа (ISO), для отчёта */
-  loggedInAt: string
-}
+export type AuthUser = StoredAuthUser
 
-const STORAGE_KEY = 'nosql-sem5-lab1-auth'
-
-/**
- * Клиентская авторизация.
- *
- * СЕЙЧАС: демо-режим — валидируем поля и сохраняем сессию в localStorage,
- * потому что на беке ещё нет эндпоинта аутентификации.
- *
- * ПОТОМ: в login() заменить тело на вызов
- *   POST {apiBase}/auth/login  {  login, password  }
- * и брать пользователя + токен из ответа сервера.
- */
 export const useAuth = () => {
   const user = useState<AuthUser | null>('auth-user', () => null)
+  const api = useApi()
 
-  /** Восстановить сессию из localStorage (клиент). */
+  /** Восстановление после mount не создает расхождение со статическим HTML. */
   const restore = () => {
-    if (import.meta.client && !user.value) {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY)
-        if (raw) user.value = JSON.parse(raw)
-      }
-      catch {
-        // битые данные — просто игнорируем
-      }
+    if (!import.meta.client || user.value) return
+
+    const stored = readStoredAuthSession()
+    if (stored) {
+      user.value = stored.user
     }
   }
 
-  /** Вход: сейчас демо, позже — реальный вызов API. */
-  const login = (login: string, _password: string) => {
-    // TODO: заменить на POST {apiBase}/auth/login и обработать ошибку 401
+  const login = async (login: string, enteredPassword: string) => {
+    const response = await api.auth.login({ username: login, password: enteredPassword })
+
     const authUser: AuthUser = {
-      login,
-      username: login,
+      userId: response.userId,
+      login: response.username,
+      username: response.displayName,
+      role: response.role,
       loggedInAt: new Date().toISOString(),
     }
+
     user.value = authUser
-    if (import.meta.client) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(authUser))
-    }
+    saveStoredAuthSession({ user: authUser, password: enteredPassword })
+
     return authUser
   }
 
-  /** Выход: очистить состояние и localStorage. */
   const logout = () => {
     user.value = null
-    if (import.meta.client) {
-      localStorage.removeItem(STORAGE_KEY)
-    }
+    clearStoredAuthSession()
   }
 
   return { user, restore, login, logout }

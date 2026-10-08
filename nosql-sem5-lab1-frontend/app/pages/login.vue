@@ -1,40 +1,35 @@
 <script setup lang="ts">
-const { user, restore, login } = useAuth()
-restore()
+defineOptions({ name: 'UserLoginPage' })
 
-const router = useRouter()
-
-const form = reactive({
-  login: '',
-  password: '',
+definePageMeta({
+  layout: 'auth',
+  middleware: 'guest',
+  title: 'Вход',
 })
 
+const { login } = useAuth()
+const router = useRouter()
+const isMockMode = useRuntimeConfig().public.apiMode === 'mock'
+const form = reactive({ login: '', password: '' })
 const error = ref('')
 const loading = ref(false)
 
-// Уже вошли — сразу на главную
-onMounted(() => {
-  if (user.value) {
-    router.push('/')
-  }
-})
-
-async function onSubmit() {
+/** Валидация пустых полей выполняется до обращения к mock или backend. */
+const onSubmit = async () => {
   error.value = ''
 
   if (!form.login.trim() || !form.password) {
-    error.value = 'Заполни логин и пароль'
+    error.value = 'Заполните логин и пароль'
     return
   }
 
   loading.value = true
   try {
-    // Сейчас — демо-вход (без backend). Позже заменим на POST /auth/login через useApi().
-    login(form.login.trim(), form.password)
+    await login(form.login.trim(), form.password)
     await router.push('/')
   }
-  catch (e) {
-    error.value = e instanceof Error ? e.message : 'Не удалось войти'
+  catch (cause) {
+    error.value = cause instanceof Error ? cause.message : 'Не удалось войти'
   }
   finally {
     loading.value = false
@@ -43,84 +38,105 @@ async function onSubmit() {
 </script>
 
 <template>
-  <div class="login-page">
-    <div class="login-card">
-      <h1 class="login-title">Кинотеатр</h1>
-      <p class="login-subtitle">Личный кабинет клиента</p>
+  <section class="login-card">
+    <header class="login-heading">
+      <p class="login-eyebrow">С возвращением</p>
+      <h2>Вход в кабинет</h2>
+      <p>Используйте учётные данные клиента кинотеатра.</p>
+    </header>
 
-      <form class="login-form" @submit.prevent="onSubmit">
-        <label class="field">
-          <span class="field-label">Логин</span>
-          <input
-            v-model="form.login"
-            type="text"
-            name="login"
-            autocomplete="username"
-            placeholder="например, ivanov01"
-            class="field-input"
-          >
-        </label>
+    <p class="login-mode" :class="{ 'login-mode--real': !isMockMode }">
+      {{ isMockMode ? 'Демо-доступ: client01 / client123' : 'Вход через Spring Boot API' }}
+    </p>
 
-        <label class="field">
-          <span class="field-label">Пароль</span>
-          <input
-            v-model="form.password"
-            type="password"
-            name="password"
-            autocomplete="current-password"
-            placeholder="••••••••"
-            class="field-input"
-          >
-        </label>
-
-        <p v-if="error" class="form-error" role="alert">
-          {{ error }}
-        </p>
-
-        <button
-          type="submit"
-          class="btn btn-primary btn-block btn-lg"
-          :disabled="loading"
+    <form class="login-form" @submit.prevent="onSubmit">
+      <label class="field">
+        <span class="field-label">Логин</span>
+        <input
+          v-model="form.login"
+          class="field-input"
+          type="text"
+          name="login"
+          autocomplete="username"
+          placeholder="например, client01"
+          required
         >
-          {{ loading ? 'Входим…' : 'Войти' }}
-        </button>
-      </form>
-    </div>
-  </div>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Пароль</span>
+        <input
+          v-model="form.password"
+          class="field-input"
+          type="password"
+          name="password"
+          autocomplete="current-password"
+          placeholder="••••••••"
+          required
+        >
+      </label>
+
+      <p v-if="error" class="form-error" role="alert">{{ error }}</p>
+
+      <button class="btn btn-primary btn-block btn-lg" type="submit" :disabled="loading">
+        {{ loading ? 'Проверяем данные…' : 'Войти' }}
+      </button>
+    </form>
+  </section>
 </template>
 
 <style scoped>
-.login-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: linear-gradient(160deg, var(--color-bg-dark) 0%, var(--color-bg-dark-soft) 100%);
-}
-
 .login-card {
-  width: 100%;
-  max-width: 380px;
-  background: var(--color-surface);
+  width: min(100%, 430px);
+  padding: 36px;
+  border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
-  padding: 40px 32px;
-  box-shadow: var(--shadow-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
 }
 
-.login-title {
+.login-heading {
+  margin-bottom: 20px;
+}
+
+.login-eyebrow,
+.login-heading h2,
+.login-heading p {
   margin: 0;
-  font-size: 28px;
-  font-weight: 700;
-  text-align: center;
-  color: var(--color-text);
 }
 
-.login-subtitle {
-  margin: 8px 0 32px;
-  text-align: center;
+.login-eyebrow {
+  color: var(--color-primary-hover);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.login-heading h2 {
+  margin-top: 8px;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+}
+
+.login-heading p:last-child {
+  margin-top: 8px;
   color: var(--color-text-secondary);
   font-size: 14px;
+}
+
+.login-mode {
+  margin: 0 0 22px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+  font-size: 12px;
+}
+
+.login-mode--real {
+  background: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .login-form {

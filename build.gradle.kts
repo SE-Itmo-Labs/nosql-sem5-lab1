@@ -12,18 +12,34 @@ repositories {
 }
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    // JUnit
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
+    // Spring boot
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
-    implementation("org.redisson:redisson:4.7.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
+    // Redis
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.redisson:redisson:4.7.0")
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:testcontainers-junit-jupiter")
+    
+    // Swagger
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1")
+
+    // Lombok
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
+
+    // JPA (postgres)
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    runtimeOnly("org.postgresql:postgresql")
+
+    // Validation (RegisterRequest/LoginRequest)
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
 }
 
 tasks.test {
@@ -34,4 +50,12 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
     }
+}
+
+tasks.bootJar {
+    archiveFileName = "app.jar"
+}
+
+tasks.jar {
+    enabled = false
 }
