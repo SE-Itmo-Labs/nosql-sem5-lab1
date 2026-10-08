@@ -36,136 +36,16 @@ Lab1, NoSQL. Снагин Станислав, Александрова Мила�
 - Сделать выводы о применимости выбранного хранилища для разработанного приложения.
 
 
-## Запуск и разработка
+## Документация проекта
 
-Проект состоит из Spring Boot backend, Nuxt frontend, PostgreSQL и Redis.
-Frontend может работать независимо от незавершённого backend в явном
-`mock`-режиме.
+Основной README сохраняет формулировку лабораторной работы. Инструкции и
+технические детали разделены по назначению:
 
-### Быстрый запуск frontend с демонстрационными данными
-
-Требуется Node.js `22.19+` или актуальная версия Node.js 24.
-
-```bash
-cd nosql-sem5-lab1-frontend
-cp .env.example .env
-npm ci
-npm run dev
-```
-
-В `.env` должен быть выбран режим локальных данных:
-
-```dotenv
-NUXT_PUBLIC_API_MODE=mock
-NUXT_PUBLIC_API_BASE=http://localhost:16767
-```
-
-Для демо-входа используются логин `client01` и пароль `client123`. Mock-режим
-не отправляет сетевые запросы и реализует тот же `ApiClient`, что и настоящий
-HTTP-клиент.
-
-### Запуск инфраструктуры и backend
-
-1. Создайте `credentials.env` по примеру `crendentials.env.example`.
-2. Укажите `POSTGRES_USER`, `POSTGRES_PASSWORD` и `POSTGRES_DB`.
-3. Соберите приложение и запустите контейнеры:
-
-```bash
-./gradlew build
-docker compose --env-file credentials.env up --build --force-recreate -d
-```
-
-Чтобы frontend обращался к Spring Boot, переключите режим:
-
-```dotenv
-NUXT_PUBLIC_API_MODE=real
-NUXT_PUBLIC_API_BASE=http://localhost:16767
-```
-
-Ошибки backend в режиме `real` намеренно не подменяются mock-ответами. Благодаря
-этому проблемы интеграции остаются заметными во время разработки.
-
-### Полезные адреса
-
-| Назначение | Адрес |
+| Документ | Содержание |
 | --- | --- |
-| Nuxt в режиме разработки | <http://localhost:3000/nosql-sem5-lab1/> |
-| Spring Boot API | <http://localhost:16767> |
-| Swagger UI | <http://localhost:16767/swagger-ui/index.html> |
-| Опубликованный frontend | <https://se-itmo-labs.github.io/nosql-sem5-lab1/> |
-| API-контракт | [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md) |
+| [Запуск и разработка](docs/DEVELOPMENT.md) | Frontend, backend, Docker, Redis CLI и полезные адреса |
+| [Архитектура frontend](docs/FRONTEND_ARCHITECTURE.md) | Структура Nuxt-приложения, mock/real режимы и правила декомпозиции |
+| [Контракт REST API](docs/API_CONTRACT.md) | Эндпоинты и структуры обмена с backend |
 
-### Работа с Redis CLI
-
-Подключение к Redis внутри Docker-контейнера:
-
-```bash
-docker exec -it redis_container redis-cli
-```
-
-<details>
-<summary><strong>Основные команды разработки</strong></summary>
-
-Frontend:
-
-```bash
-cd nosql-sem5-lab1-frontend
-npm run dev       # сервер разработки
-npm run build     # production-сборка
-npm run generate  # статическая версия для GitHub Pages
-```
-
-Backend:
-
-```bash
-./gradlew build
-./gradlew bootRun
-```
-
-Docker:
-
-```bash
-docker compose --env-file credentials.env up -d
-docker compose ps
-docker compose logs -f spring-app
-```
-
-</details>
-
-<details>
-<summary><strong>Структура frontend</strong></summary>
-
-```text
-nosql-sem5-lab1-frontend/app/
-├── assets/css/                        # токены, базовые стили, формы и поверхности
-├── components/
-│   ├── feature/                       # карточки и общая оболочка разделов
-│   ├── layout/                        # sidebar и верхняя панель кабинета
-│   └── ui/                            # заголовки и loading/empty/error состояния
-├── composables/
-│   ├── useApi.ts                      # выбор mock или real через конфигурацию
-│   └── useAuth.ts                     # пользовательская сессия поверх ApiClient
-├── config/
-│   └── navigation.ts                 # единая карта разделов и маршрутов
-├── constants/
-│   └── apiEndpoints.ts               # все URL backend в одном месте
-├── layouts/
-│   ├── auth.vue                       # экран до авторизации
-│   └── dashboard.vue                  # защищённый каркас личного кабинета
-├── middleware/
-│   ├── auth.ts                        # защита разделов кабинета
-│   └── guest.ts                       # редирект авторизованного пользователя
-├── pages/                             # короткие страницы предметных сценариев
-├── services/
-│   ├── api/
-│   │   ├── createApiClient.ts        # фабрика выбранного режима
-│   │   ├── http/                     # настоящий REST-клиент
-│   │   └── mock/                     # локальные реализации по доменам
-│   └── auth/
-│       └── authSession.ts            # чтение токена без циклических импортов
-├── types/api/                         # контракты, разделённые по доменам
-├── app.vue                            # подключение layouts и индикатора загрузки
-└── error.vue                          # глобальная страница ошибки
-```
-
-</details>
+Frontend можно запускать без готового backend в явном `mock`-режиме. Данные
+для демонстрационного входа: `client01` / `client123`.
