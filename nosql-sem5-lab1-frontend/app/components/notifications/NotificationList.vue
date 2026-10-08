@@ -11,6 +11,7 @@ const props = defineProps<{
   loading: boolean
   error: string
   busyId: number | null
+  allowActions: boolean
 }>()
 
 const emit = defineEmits<{
@@ -70,6 +71,7 @@ const categoryNames = computed(() => new Map(
         :notification="notification"
         :category-name="categoryNames.get(notification.categoryId) ?? `Категория #${notification.categoryId}`"
         :busy="busyId === notification.id"
+        :allow-actions="allowActions"
         @read="emit('read', notification)"
         @delete="emit('delete', notification)"
       />

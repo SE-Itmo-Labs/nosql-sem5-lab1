@@ -18,16 +18,16 @@ export interface HttpRequester {
 
 interface HttpRequesterOptions {
   baseUrl: string
-  getAccessToken: () => string | null
+  getAuthHeaders: () => Record<string, string>
 }
 
 /**
- * Низкоуровневый HTTP-слой отвечает только за адрес, Bearer-токен и ошибки.
+ * Низкоуровневый HTTP-слой отвечает только за адрес, auth-заголовки и ошибки.
  * Знание предметных маршрутов остается в createHttpApiClient.
  */
 export const createHttpRequester = ({
   baseUrl,
-  getAccessToken,
+  getAuthHeaders,
 }: HttpRequesterOptions): HttpRequester => {
   const normalizedBaseUrl = baseUrl.replace(/\/$/, '')
 
@@ -36,12 +36,10 @@ export const createHttpRequester = ({
     path: string,
     options: RequestOptions = {},
   ): Promise<T> => {
-    const token = getAccessToken()
     const headers: Record<string, string> = {
       Accept: 'application/json',
+      ...getAuthHeaders(),
     }
-
-    if (token) headers.Authorization = `Bearer ${token}`
 
     try {
       return await $fetch<T>(`${normalizedBaseUrl}${path}`, {

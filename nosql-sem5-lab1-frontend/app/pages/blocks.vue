@@ -40,7 +40,7 @@ const {
 
     <div class="blocks-layout">
       <TemporaryBlockForm
-        :username="user?.username ?? '—'"
+        :username="user?.login ?? '—'"
         :submitting="isCreating"
         @submit="createBlock"
       />

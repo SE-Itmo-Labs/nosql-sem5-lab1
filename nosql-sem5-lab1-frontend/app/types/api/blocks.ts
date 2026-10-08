@@ -18,35 +18,16 @@ export interface TemporaryBlock {
   active: boolean
 }
 
-/** Попытка захватить распределенную блокировку от имени клиента. */
-export interface AcquireLockRequest {
+/** Запрос фактического POST /api/v1/locks/execute. */
+export interface ExecuteLockRequest {
+  resourceKey: string
+  holdMillis: number
+}
+
+/** Backend сам берет и освобождает lock вокруг критической секции. */
+export interface ExecuteLockResponse {
   resourceKey: string
   owner: string
-  ttlSeconds: number
-}
-
-/**
- * Токен выдается только владельцу успешной блокировки и требуется для
- * безопасного освобождения через Lua-скрипт.
- */
-export interface LockAttemptResponse {
   acquired: boolean
-  resourceKey: string
-  owner: string | null
-  token: string | null
-  expiresAt: IsoDateTime | null
-  message: string
-}
-
-/** Данные для безопасного освобождения ранее захваченной блокировки. */
-export interface ReleaseLockRequest {
-  resourceKey: string
-  token: string
-}
-
-/** Результат сравнения токена и удаления ключа блокировки. */
-export interface ReleaseLockResponse {
-  released: boolean
-  resourceKey: string
   message: string
 }

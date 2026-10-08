@@ -44,7 +44,9 @@ const getErrorMessage = (cause: unknown): string => (
  */
 export const useNotifications = () => {
   const api = useApi()
+  const config = useRuntimeConfig().public
   const { user, restore } = useAuth()
+  const canManageHistory = config.apiMode === 'mock'
   const categories = ref<Category[]>([])
   const pageData = ref<PageResponse<Notification>>(createEmptyPage())
   const stats = ref<NotificationStats>(createEmptyStats())
@@ -64,7 +66,7 @@ export const useNotifications = () => {
 
   /** Собирает query единообразно для списка и агрегированной статистики. */
   const createQuery = (includePage: boolean): NotificationQuery => ({
-    userId: user.value?.username,
+    userId: user.value?.login,
     q: filters.search.trim() || undefined,
     categoryId: filters.categoryId ?? undefined,
     status: filters.status ?? undefined,
@@ -142,7 +144,7 @@ export const useNotifications = () => {
     feedback.value = ''
 
     try {
-      await api.notifications.create({ userId: user.value.username, ...draft })
+      await api.notifications.create({ userId: user.value.login, ...draft })
       feedback.value = 'Уведомление отправлено и добавлено в историю'
       composerVersion.value += 1
       pageData.value.page = 0
@@ -203,6 +205,7 @@ export const useNotifications = () => {
     actionError,
     applyFilters,
     busyNotificationId,
+    canManageHistory,
     categories,
     composerVersion,
     createNotification,

@@ -16,13 +16,13 @@ export const createMockConsistencyApi = (
     const previousReplicaValue = store.value.replicaValues[request.key] ?? null
     store.value.primaryValues[request.key] = request.value
 
-    let acknowledgedReplicas = 0
-    let replicationWaitDurationMs = 0
+    let replicasAcked: number | null = null
+    let waitDurationMs = 0
 
     if (request.mode === 'WAIT_FOR_REPLICA') {
       store.value.replicaValues[request.key] = request.value
-      acknowledgedReplicas = 1
-      replicationWaitDurationMs = Math.min(18, request.waitTimeoutMs)
+      replicasAcked = 1
+      waitDurationMs = Math.min(18, request.waitTimeoutMs)
     }
     else {
       setTimeout(() => {
@@ -41,11 +41,12 @@ export const createMockConsistencyApi = (
       writtenValue: request.value,
       readValue,
       readTarget: request.readTarget,
+      sourceNode: request.readTarget === 'PRIMARY' ? 'redis-primary' : 'redis-replica-1',
       mode: request.mode,
-      acknowledgedReplicas,
+      replicasAcked,
       consistent: readValue === request.value,
       writeDurationMs: 2,
-      replicationWaitDurationMs,
+      waitDurationMs,
       readDurationMs: request.readTarget === 'PRIMARY' ? 1 : 3,
     }
   },

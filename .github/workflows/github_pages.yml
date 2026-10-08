@@ -1,6 +1,7 @@
 name: Deploy Nuxt to GitHub Pages
 
 on:
+  workflow_dispatch:
   push:
     branches:
       # - dev-production # Или укажите вашу рабочую ветку (например, web, если пишете на ней)
@@ -34,12 +35,16 @@ jobs:
         working-directory: ./nosql-sem5-lab1-frontend
         run: npm ci
 
+      - name: Check frontend code
+        working-directory: ./nosql-sem5-lab1-frontend
+        run: npm run lint
+
       - name: Static HTML Generation
         working-directory: ./nosql-sem5-lab1-frontend
-        run: npx nuxt generate # Генерирует статику в папку .output/public
+        run: npm run generate
 
-      # - name: Configure GitHub Pages
-      #   uses: actions/configure-pages@v5
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
 
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3

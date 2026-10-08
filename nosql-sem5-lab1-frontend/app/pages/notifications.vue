@@ -13,6 +13,7 @@ const {
   actionError,
   applyFilters,
   busyNotificationId,
+  canManageHistory,
   categories,
   composerVersion,
   createNotification,
@@ -67,6 +68,7 @@ const {
           :loading="isLoading"
           :error="loadError"
           :busy-id="busyNotificationId"
+          :allow-actions="canManageHistory"
           @retry="loadNotifications"
           @page="goToPage"
           @read="markAsRead"
@@ -78,7 +80,7 @@ const {
       <NotificationComposer
         :key="composerVersion"
         :categories="categories"
-        :username="user?.username ?? '—'"
+        :username="user?.login ?? '—'"
         :submitting="isSubmitting"
         @submit="createNotification"
       />

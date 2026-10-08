@@ -1,10 +1,8 @@
-import type { AuthResponse, LoginRequest, RegisterRequest } from './auth'
+import type { AuthResponse, LoginRequest } from './auth'
 import type {
-  AcquireLockRequest,
   CreateTemporaryBlockRequest,
-  LockAttemptResponse,
-  ReleaseLockRequest,
-  ReleaseLockResponse,
+  ExecuteLockRequest,
+  ExecuteLockResponse,
   TemporaryBlock,
 } from './blocks'
 import type { Category, CategoryResponse, SaveCategoryRequest } from './categories'
@@ -26,7 +24,6 @@ import type {
 export interface ApiClient {
   auth: {
     login(request: LoginRequest): Promise<AuthResponse>
-    register(request: RegisterRequest): Promise<AuthResponse>
   }
   notifications: {
     getAll(query?: NotificationQuery): Promise<PageResponse<Notification>>
@@ -50,8 +47,7 @@ export interface ApiClient {
     release(resourceKey: string): Promise<void>
   }
   locks: {
-    acquire(request: AcquireLockRequest): Promise<LockAttemptResponse>
-    release(request: ReleaseLockRequest): Promise<ReleaseLockResponse>
+    execute(request: ExecuteLockRequest): Promise<ExecuteLockResponse>
   }
   consistency: {
     runExperiment(request: ConsistencyExperimentRequest): Promise<ConsistencyExperimentResponse>

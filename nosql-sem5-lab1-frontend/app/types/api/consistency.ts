@@ -22,10 +22,11 @@ export interface ConsistencyExperimentResponse {
   writtenValue: string
   readValue: string | null
   readTarget: RedisReadTarget
+  sourceNode: string
   mode: ReplicationMode
-  acknowledgedReplicas: number
+  replicasAcked: number | null
   consistent: boolean
   writeDurationMs: number
-  replicationWaitDurationMs: number
+  waitDurationMs: number
   readDurationMs: number
 }

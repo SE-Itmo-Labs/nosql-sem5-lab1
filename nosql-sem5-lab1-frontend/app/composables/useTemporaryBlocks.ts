@@ -92,7 +92,7 @@ export const useTemporaryBlocks = () => {
       const created = await api.temporaryBlocks.create({
         resourceKey: draft.resourceKey,
         ttlSeconds: draft.ttlSeconds,
-        owner: user.value.username,
+        owner: user.value.login,
       })
       setActiveBlock(created)
       feedback.value = `Ресурс заблокирован на ${created.ttlSeconds} секунд`

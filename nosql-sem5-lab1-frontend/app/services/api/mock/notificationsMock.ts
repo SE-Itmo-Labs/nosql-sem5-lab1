@@ -1,23 +1,9 @@
 import { API_ENDPOINTS } from '~/constants/apiEndpoints'
-import type { ApiClient, Notification, NotificationQuery } from '~/types/api'
+import type { ApiClient, Notification } from '~/types/api'
 import { createApiClientError } from '../ApiClientError'
+import { filterNotifications } from '../notificationCollection'
 import type { MockDatabaseStore } from './database'
 import { paginate, waitForMockResponse } from './helpers'
-
-/** Применяет те же фильтры, которые определены контрактом списка уведомлений. */
-const filterNotifications = (
-  notifications: Notification[],
-  query: NotificationQuery = {},
-): Notification[] => {
-  const search = query.q?.trim().toLocaleLowerCase('ru')
-
-  return notifications
-    .filter(item => query.userId === undefined || item.userId === query.userId)
-    .filter(item => query.categoryId === undefined || item.categoryId === query.categoryId)
-    .filter(item => query.status === undefined || item.status === query.status)
-    .filter(item => !search || `${item.title} ${item.text}`.toLocaleLowerCase('ru').includes(search))
-    .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))
-}
 
 /** Mock основного сценария: список, отправка, изменение и статистика. */
 export const createMockNotificationsApi = (

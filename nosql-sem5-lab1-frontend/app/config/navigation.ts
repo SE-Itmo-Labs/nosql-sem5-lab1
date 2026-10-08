@@ -48,7 +48,7 @@ export const APP_NAVIGATION: readonly NavigationItem[] = [
   {
     label: 'Распределённый lock',
     shortLabel: 'Lock',
-    description: 'Атомарный захват ресурса и безопасное освобождение по токену.',
+    description: 'Конкуренция запросов за критическую секцию Redisson RLock.',
     to: '/locks',
     icon: '◇',
     accent: 'violet',

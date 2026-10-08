@@ -18,37 +18,33 @@ export const API_ENDPOINTS = {
   /** Авторизация использует уже выбранный backend-префикс /api/v1/auth. */
   auth: {
     login: '/api/v1/auth/login',
-    register: '/api/v1/auth/register',
   },
 
   /** Основной сценарий лабораторной — создание и чтение уведомлений. */
   notifications: {
-    base: '/api/notifications',
-    byId: (id: number) => `/api/notifications/${pathSegment(id)}`,
-    byUser: (userId: string) => `/api/notifications/user/${pathSegment(userId)}`,
-    stats: '/api/notifications/stats',
+    base: '/api/v1/notifications',
+    byId: (id: number) => `/api/v1/notifications/${pathSegment(id)}`,
   },
 
   /** Справочник категорий, поверх которого backend реализует cache-aside. */
   categories: {
-    base: '/api/categories',
-    byId: (id: number) => `/api/categories/${pathSegment(id)}`,
+    base: '/api/v1/categories',
+    byId: (id: number) => `/api/v1/categories/${pathSegment(id)}`,
   },
 
   /** Ключи с TTL для временного бронирования ресурса. */
   temporaryBlocks: {
-    base: '/api/blocks',
-    byResource: (resourceKey: string) => `/api/blocks/${pathSegment(resourceKey)}`,
+    base: '/api/v1/blocks',
+    byResource: (resourceKey: string) => `/api/v1/blocks/${pathSegment(resourceKey)}`,
   },
 
   /** Атомарный захват и безопасное освобождение распределенной блокировки. */
   locks: {
-    acquire: '/api/locks/acquire',
-    release: '/api/locks/release',
+    execute: '/api/v1/locks/execute',
   },
 
   /** Управляемый эксперимент чтения из Redis primary или replica. */
   consistency: {
-    experiments: '/api/consistency/experiments',
+    experiments: '/api/v1/consistency/experiments',
   },
 } as const

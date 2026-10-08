@@ -5,18 +5,17 @@ import type {
   Category,
   CategoryResponse,
   ConsistencyExperimentResponse,
-  LockAttemptResponse,
   Notification,
-  NotificationStats,
-  PageResponse,
-  ReleaseLockResponse,
+  ExecuteLockResponse,
   TemporaryBlock,
 } from '~/types/api'
+import { createApiClientError } from '../ApiClientError'
+import { aggregateNotificationStats, paginateNotifications } from '../notificationCollection'
 import { createHttpRequester } from './createHttpRequester'
 
 interface HttpApiClientOptions {
   baseUrl: string
-  getAccessToken: () => string | null
+  getAuthHeaders: () => Record<string, string>
 }
 
 /**
@@ -25,24 +24,34 @@ interface HttpApiClientOptions {
  */
 export const createHttpApiClient = (options: HttpApiClientOptions): ApiClient => {
   const http = createHttpRequester(options)
+  const getNotifications = () => http.get<Notification[]>(API_ENDPOINTS.notifications.base)
 
   return {
     auth: {
       login: request => http.post<AuthResponse>(API_ENDPOINTS.auth.login, request),
-      register: request => http.post<AuthResponse>(API_ENDPOINTS.auth.register, request),
     },
 
     notifications: {
-      getAll: query => http.get<PageResponse<Notification>>(API_ENDPOINTS.notifications.base, query),
-      getByUser: (userId, query) => http.get<PageResponse<Notification>>(
-        API_ENDPOINTS.notifications.byUser(userId),
-        query,
+      getAll: async query => paginateNotifications(await getNotifications(), query),
+      getByUser: async (userId, query) => paginateNotifications(
+        await getNotifications(),
+        { ...query, userId },
       ),
       getById: id => http.get<Notification>(API_ENDPOINTS.notifications.byId(id)),
       create: request => http.post<Notification>(API_ENDPOINTS.notifications.base, request),
-      update: (id, request) => http.patch<Notification>(API_ENDPOINTS.notifications.byId(id), request),
-      delete: id => http.delete(API_ENDPOINTS.notifications.byId(id)),
-      getStats: query => http.get<NotificationStats>(API_ENDPOINTS.notifications.stats, query),
+      update: (id, _request) => Promise.reject(createApiClientError(
+        501,
+        'Not Implemented',
+        'Текущий backend пока не поддерживает изменение уведомлений',
+        API_ENDPOINTS.notifications.byId(id),
+      )),
+      delete: id => Promise.reject(createApiClientError(
+        501,
+        'Not Implemented',
+        'Текущий backend пока не поддерживает удаление уведомлений',
+        API_ENDPOINTS.notifications.byId(id),
+      )),
+      getStats: async query => aggregateNotificationStats(await getNotifications(), query),
     },
 
     categories: {
@@ -62,8 +71,7 @@ export const createHttpApiClient = (options: HttpApiClientOptions): ApiClient =>
     },
 
     locks: {
-      acquire: request => http.post<LockAttemptResponse>(API_ENDPOINTS.locks.acquire, request),
-      release: request => http.post<ReleaseLockResponse>(API_ENDPOINTS.locks.release, request),
+      execute: request => http.post<ExecuteLockResponse>(API_ENDPOINTS.locks.execute, request),
     },
 
     consistency: {

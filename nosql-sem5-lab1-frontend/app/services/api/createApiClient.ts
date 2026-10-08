@@ -1,4 +1,4 @@
-import { readAccessToken } from '~/services/auth/authSession'
+import { readAuthHeaders } from '~/services/auth/authSession'
 import type { ApiClient } from '~/types/api'
 import { createHttpApiClient } from './http/createHttpApiClient'
 import { createMockApiClient } from './mock/createMockApiClient'
@@ -26,7 +26,7 @@ export const createApiClient = ({
   if (mode === 'real') {
     return createHttpApiClient({
       baseUrl,
-      getAccessToken: readAccessToken,
+      getAuthHeaders: readAuthHeaders,
     })
   }
 

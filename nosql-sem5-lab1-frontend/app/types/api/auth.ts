@@ -4,18 +4,16 @@ export interface LoginRequest {
   password: string
 }
 
-/** Данные для создания учетной записи клиента кинотеатра. */
-export interface RegisterRequest extends LoginRequest {
-  email: string
-}
+/** Роли дословно повторяют enum Role из Spring Boot. */
+export type UserRole = 'ROLE_USER' | 'ROLE_ADMIN'
 
 /**
- * Результат входа или регистрации.
- * Поля повторяют целевой AuthResponse на backend.
+ * Фактический AuthResponse backend. JWT сейчас не используется: защищенные
+ * запросы передают исходные credentials в X-Username и X-Password.
  */
 export interface AuthResponse {
-  token: string
-  type: 'Bearer'
+  userId: number
   username: string
-  email: string | null
+  displayName: string
+  role: UserRole
 }

@@ -33,36 +33,12 @@ export const createMockAuthApi = (store: MockDatabaseStore): ApiClient['auth'] =
       )
     }
 
+    store.value.currentUsername = user.username
     return {
-      token: `mock-token-${user.username}-${Date.now()}`,
-      type: 'Bearer',
+      userId: user.id,
       username: user.username,
-      email: user.email,
-    }
-  },
-
-  async register(request): Promise<AuthResponse> {
-    await waitForMockResponse()
-
-    if (store.value.users.some(user => user.username === request.username)) {
-      throw createApiClientError(
-        409,
-        'Conflict',
-        'Пользователь с таким логином уже существует',
-        API_ENDPOINTS.auth.register,
-      )
-    }
-
-    store.value.users.push({
-      username: request.username,
-      email: request.email,
-      passwordHash: await createPasswordHash(request.password),
-    })
-    return {
-      token: `mock-token-${request.username}-${Date.now()}`,
-      type: 'Bearer',
-      username: request.username,
-      email: request.email,
+      displayName: user.displayName,
+      role: user.role,
     }
   },
 })

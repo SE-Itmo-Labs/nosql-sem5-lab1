@@ -5,8 +5,10 @@ import type { Category, Notification, TemporaryBlock } from '~/types/api'
  * попадает в сериализованное состояние статической Nuxt-страницы.
  */
 export interface MockUser {
+  id: number
   username: string
-  email: string
+  displayName: string
+  role: 'ROLE_USER' | 'ROLE_ADMIN'
   passwordHash: string
 }
 
@@ -20,8 +22,6 @@ export interface MockCategoryCacheRecord {
 export interface MockLockRecord {
   resourceKey: string
   owner: string
-  token: string
-  expiresAt: number
 }
 
 /**
@@ -39,6 +39,7 @@ export interface MockDatabase {
   replicaValues: Record<string, string>
   nextNotificationId: number
   nextCategoryId: number
+  currentUsername: string | null
 }
 
 /** Состояние совместимо с Vue Ref, но mock-модули не зависят от Vue напрямую. */
@@ -53,13 +54,17 @@ export const createMockDatabase = (): MockDatabase => {
   return {
     users: [
       {
+        id: 1,
         username: 'client01',
-        email: 'client01@example.com',
+        displayName: 'Тестовый клиент',
+        role: 'ROLE_USER',
         passwordHash: '186474c1f2c2f735a54c2cf82ee8e87f2a5cd30940e280029363fecedfc5328c',
       },
       {
+        id: 2,
         username: 'admin',
-        email: 'admin@example.com',
+        displayName: 'Администратор',
+        role: 'ROLE_ADMIN',
         passwordHash: 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3',
       },
     ],
@@ -95,5 +100,6 @@ export const createMockDatabase = (): MockDatabase => {
     replicaValues: {},
     nextNotificationId: 3,
     nextCategoryId: 4,
+    currentUsername: null,
   }
 }

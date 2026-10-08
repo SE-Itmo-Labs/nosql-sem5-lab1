@@ -15,7 +15,7 @@ const emit = defineEmits<{
 <template>
   <form class="lookup card" @submit.prevent="emit('check')">
     <div class="lookup-copy">
-      <span>GET /api/blocks/{resourceKey}</span>
+      <span>GET /api/v1/blocks/{resourceKey}</span>
       <strong>Проверить существующий ключ</strong>
     </div>
     <input

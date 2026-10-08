@@ -7,6 +7,7 @@ defineProps<{
   notification: Notification
   categoryName: string
   busy: boolean
+  allowActions: boolean
 }>()
 
 const emit = defineEmits<{
@@ -41,7 +42,7 @@ const formatDate = (value: string): string => dateFormatter.format(new Date(valu
     </div>
 
     <!-- Изменяющие действия блокируются на время запроса от повторного клика. -->
-    <div class="notification-actions">
+    <div v-if="allowActions" class="notification-actions">
       <button
         v-if="notification.status !== 'READ'"
         class="notification-action"

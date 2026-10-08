@@ -10,11 +10,7 @@ definePageMeta({
 const { login } = useAuth()
 const router = useRouter()
 const isMockMode = useRuntimeConfig().public.apiMode === 'mock'
-
-const form = reactive({
-  login: '',
-  password: '',
-})
+const form = reactive({ login: '', password: '' })
 const error = ref('')
 const loading = ref(false)
 
@@ -23,7 +19,7 @@ const onSubmit = async () => {
   error.value = ''
 
   if (!form.login.trim() || !form.password) {
-    error.value = 'Заполни логин и пароль'
+    error.value = 'Заполните логин и пароль'
     return
   }
 
@@ -42,64 +38,47 @@ const onSubmit = async () => {
 </script>
 
 <template>
-  <div class="login-page">
-    <div class="login-card">
-      <h1 class="login-title">Кинотеатр</h1>
-      <p class="login-subtitle">Личный кабинет клиента</p>
-      <p class="login-hint">Тестовый вход: client01 / client123</p>
+  <section class="login-card">
+    <header class="login-heading">
+      <p class="login-eyebrow">С возвращением</p>
+      <h2>Вход в кабинет</h2>
+      <p>Используйте учётные данные клиента кинотеатра.</p>
+    </header>
 
-      <form class="login-form" @submit.prevent="onSubmit">
-        <label class="field">
-          <span class="field-label">Логин</span>
-          <input
-            v-model="form.login"
-            type="text"
-            name="login"
-            autocomplete="username"
-            placeholder="например, ivanov01"
-            class="field-input"
-          >
-        </label>
+    <p class="login-mode" :class="{ 'login-mode--real': !isMockMode }">
+      {{ isMockMode ? 'Демо-доступ: client01 / client123' : 'Вход через Spring Boot API' }}
+    </p>
 
-        <label class="field">
-          <span class="field-label">Пароль</span>
-          <input
-            v-model="form.password"
-            type="password"
-            name="password"
-            autocomplete="current-password"
-            placeholder="••••••••"
-            class="field-input"
-          >
-        </label>
-
-        <p v-if="error" class="form-error" role="alert">
-          {{ error }}
-        </p>
-
-        <button
-          type="submit"
-          class="btn btn-primary btn-block btn-lg"
-          :disabled="loading"
-        >{{ loading ? 'Проверяем данные…' : 'Войти' }}</button>
+    <form class="login-form" @submit.prevent="onSubmit">
+      <label class="field">
+        <span class="field-label">Логин</span>
+        <input
+          v-model="form.login"
+          class="field-input"
+          type="text"
+          name="login"
+          autocomplete="username"
+          placeholder="например, client01"
+          required
+        >
+      </label>
 
       <label class="field">
         <span class="field-label">Пароль</span>
         <input
           v-model="form.password"
+          class="field-input"
           type="password"
           name="password"
           autocomplete="current-password"
           placeholder="••••••••"
-          class="field-input"
+          required
         >
       </label>
 
-      <p v-if="error" class="form-error" role="alert">
-        {{ error }}
-      </p>
+      <p v-if="error" class="form-error" role="alert">{{ error }}</p>
 
-      <button type="submit" class="btn btn-primary btn-block btn-lg" :disabled="loading">
+      <button class="btn btn-primary btn-block btn-lg" type="submit" :disabled="loading">
         {{ loading ? 'Проверяем данные…' : 'Войти' }}
       </button>
     </form>
@@ -108,8 +87,7 @@ const onSubmit = async () => {
 
 <style scoped>
 .login-card {
-  width: 100%;
-  max-width: 430px;
+  width: min(100%, 430px);
   padding: 36px;
   border: 1px solid var(--color-border-soft);
   border-radius: var(--radius-lg);
@@ -118,7 +96,7 @@ const onSubmit = async () => {
 }
 
 .login-heading {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .login-eyebrow,
@@ -141,18 +119,24 @@ const onSubmit = async () => {
   letter-spacing: -0.02em;
 }
 
-.login-subtitle {
-  margin: 8px 0 6px;
-  text-align: center;
+.login-heading p:last-child {
+  margin-top: 8px;
   color: var(--color-text-secondary);
   font-size: 14px;
 }
 
-.login-hint {
-  margin: 0 0 28px;
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: 13px;
+.login-mode {
+  margin: 0 0 22px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+  font-size: 12px;
+}
+
+.login-mode--real {
+  background: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .login-form {
