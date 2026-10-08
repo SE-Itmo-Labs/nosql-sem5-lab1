@@ -38,6 +38,9 @@ jobs:
         working-directory: ./nosql-sem5-lab1-frontend
         run: npx nuxt generate # Генерирует статику в папку .output/public
 
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
       - name: Upload Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
