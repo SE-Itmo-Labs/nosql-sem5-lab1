@@ -29,8 +29,7 @@ async function onSubmit() {
 
   loading.value = true
   try {
-    // Сейчас — демо-вход (без backend). Позже заменим на POST /auth/login через useApi().
-    login(form.login.trim(), form.password)
+    await login(form.login.trim(), form.password)
     await router.push('/')
   }
   catch (e) {
@@ -47,6 +46,7 @@ async function onSubmit() {
     <div class="login-card">
       <h1 class="login-title">Кинотеатр</h1>
       <p class="login-subtitle">Личный кабинет клиента</p>
+      <p class="login-hint">Тестовый вход: client01 / client123</p>
 
       <form class="login-form" @submit.prevent="onSubmit">
         <label class="field">
@@ -117,10 +117,17 @@ async function onSubmit() {
 }
 
 .login-subtitle {
-  margin: 8px 0 32px;
+  margin: 8px 0 6px;
   text-align: center;
   color: var(--color-text-secondary);
   font-size: 14px;
+}
+
+.login-hint {
+  margin: 0 0 28px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 13px;
 }
 
 .login-form {

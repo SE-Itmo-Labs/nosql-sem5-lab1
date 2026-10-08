@@ -4,23 +4,15 @@ import lombok.RequiredArgsConstructor;
 
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Repository;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Схема хранения уведомлений в Redis:
- * <ul>
- *   <li>{@code notification:{id}} — JSON уведомления;</li>
- *   <li>{@code notification:user:{userId}} — sorted set id, score — время создания в миллисекундах Unix;</li>
- *   <li>{@code notification:seq} — счётчик id (INCR).</li>
- * </ul>
- */
 @Repository
 @RequiredArgsConstructor
 public class NotificationRepository {
@@ -28,6 +20,12 @@ public class NotificationRepository {
     private static final String KEY_PREFIX = "notification:";
     private static final String USER_INDEX_PREFIX = "notification:user:";
     private static final String SEQ_KEY = "notification:seq";
+    private static final DefaultRedisScript<Long> SAVE_SCRIPT = new DefaultRedisScript<>(
+            "redis.call('SET', KEYS[1], ARGV[1]); " +
+                    "redis.call('ZADD', KEYS[2], ARGV[2], ARGV[3]); " +
+                    "return 1;",
+            Long.class
+    );
 
     private final StringRedisTemplate redis;
     private final JsonMapper jsonMapper;
@@ -36,13 +34,22 @@ public class NotificationRepository {
         return redis.opsForValue().increment(SEQ_KEY);
     }
 
-    // TODO: Атомарно сохранять уведомление и добавлять его id в индекс пользователя.
     public void save(Notification notification) {
         try {
             String jsonNotif = jsonMapper.writeValueAsString(notification);
-            redis.opsForValue().set(KEY_PREFIX + notification.getId(), jsonNotif);
+
+            redis.execute(
+                    SAVE_SCRIPT,
+                    List.of(
+                            KEY_PREFIX + notification.getId(),
+                            USER_INDEX_PREFIX + notification.getUserId()
+                    ),
+                    jsonNotif,
+                    String.valueOf(notification.getCreatedAt().toEpochMilli()),
+                    String.valueOf(notification.getId())
+            );
         } catch (JacksonException e) {
-            throw new IllegalStateException("Failed to serialize notification", e);
+            throw new IllegalStateException("Не удалось сохранить уведомление", e);
         }
     }
 
@@ -65,21 +72,9 @@ public class NotificationRepository {
         }
     }
 
-    public void addToUserNotifSet(
-            String userId,
-            Long notificationId,
-            Instant createdAt
-    ) {
-        redis.opsForZSet().add(
-                USER_INDEX_PREFIX + userId,
-                notificationId.toString(),
-                createdAt.toEpochMilli()
-        );
-    }
-
     public List<Long> findIdsByUserId(String userId) {
         Set<String> ids = redis.opsForZSet()
-                .range(USER_INDEX_PREFIX + userId, 0, -1);
+                .reverseRange(USER_INDEX_PREFIX + userId, 0, -1);
 
         if (ids == null || ids.isEmpty()) {
             return List.of();

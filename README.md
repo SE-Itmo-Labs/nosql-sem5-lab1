@@ -35,87 +35,47 @@ Lab1, NoSQL. Снагин Станислав, Александрова Мила�
 - Исследовать назначенный сценарием режим поведения системы.
 - Сделать выводы о применимости выбранного хранилища для разработанного приложения.
 
+## Результат
 
-### Прочее
+В проекте реализованы:
 
-Подрубиться к редису cli (в докере)
+- Spring Boot backend на JDK 25 и Nuxt frontend;
+- хранение уведомлений, временных блокировок и кэша в Redis;
+- PostgreSQL для пользователей и исходного справочника категорий;
+- атомарная отправка уведомления;
+- cache-aside с TTL и инвалидацией;
+- временная блокировка с TTL и распределённая блокировка Redisson;
+- primary Redis и две асинхронные реплики;
+- режим записи с `WAIT`, отключение и восстановление реплик для эксперимента;
+- AOF и RDB для восстановления Redis;
+- упрощённый вход тестовых пользователей без Spring Security;
+- Swagger/OpenAPI, unit-тесты и интеграционные тесты Testcontainers.
 
-```bash
-docker exec -it redis_container redis-cli
-```
-
-Nuxt
-
-```bash
-cd nosql-sem5-lab1-frontend
-npm run dev
-```
-
-Сайт https://se-itmo-labs.github.io/nosql-sem5-lab1/
-
-Backend, локальная сборка и запуск
+## Быстрый запуск
 
 ```bash
-./gradlew build && docker compose --env-file credentials.env up --build --force-recreate -d
+cp credentials.env.example credentials.env
+./gradlew clean build
+docker compose --env-file credentials.env up -d --build
 ```
 
-Endpoints:
+После запуска:
 
-/user/auth
-/user/auth/reg
+- API: <http://localhost:16767>
+- Swagger UI: <http://localhost:16767/swagger-ui/index.html>
+- OpenAPI JSON: <http://localhost:16767/v3/api-docs>
 
-Также не забудьте прописать credentials.env, в которой указывются креды пользователя бд
+Тестовые пользователи:
 
-### Swagger отладка
+- `client01` / `client123`;
+- `admin` / `123`.
 
-http://localhost:16767/swagger-ui/index.html
+## Документация
 
-```
-src/
-├── main/
-│   ├── java/
-│   │   └── com/example/lab1/
-│   │       ├── Lab1Application.java
-│   │       ├── common/                    # Общие вещи, переиспользуемые во всём проекте
-│   │       │   ├── dto/
-│   │       │   │   ├── PageResponse.java  # Универсальный ответ с пагинацией
-│   │       │   │   └── ErrorResponse.java
-│   │       │   ├── exception/
-│   │       │   │   ├── EntityNotFoundException.java
-│   │       │   │   └── GlobalExceptionHandler.java  # @RestControllerAdvice
-│   │       │   ├── mapper/
-│   │       │   │   └── BaseMapper.java    # (опц.)
-│   │       │   └── util/
-│   │       ├── config/                    # Конфиги Spring
-│   │       │   ├── MongoConfig.java       # (опц., если нужны кастомные настройки)
-│   │       │   └── OpenApiConfig.java     # Конфиг Springdoc (описание API)
-│   │       └── modules/                   # Доменные модули (feature-based)
-│   │           ├── movie/
-│   │           │   ├── controller/
-│   │           │   │   └── MovieController.java
-│   │           │   ├── service/
-│   │           │   │   ├── MovieService.java
-│   │           │   │   └── impl/MovieServiceImpl.java
-│   │           │   ├── repository/
-│   │           │   │   ├── MovieRepository.java        # MongoRepository + Query методы
-│   │           │   │   ├── custom/
-│   │           │   │   │   └── MovieCustomRepository.java
-│   │           │   │   └── impl/
-│   │           │   │       └── MovieCustomRepositoryImpl.java  # Агрегации (MongoTemplate)
-│   │           │   ├── domain/
-│   │           │   │   └── Movie.java                   # @Document(collection = "movies")
-│   │           │   ├── dto/
-│   │           │   │   ├── request/
-│   │           │   │   │   ├── MovieCreateRequest.java
-│   │           │   │   │   └── MovieUpdateRequest.java
-│   │           │   │   ├── response/
-│   │           │   │   │   └── MovieResponse.java
-│   │           │   │   └── filter/
-│   │           │   │       └── MovieFilter.java        # (опц. для фильтрации)
-│   │           │   ├── mapper/
-│   │           │   │   └── MovieMapper.java            # MapStruct или ручной
-│   │           │   └── MovieConstants.java             # (опц.)
-│   │           └── actor/ (если есть другая сущность)
-│   └── resources/
-│       └── application.yml (или .properties)
-```
+| Документ | Содержание |
+| --- | --- |
+| [Запуск и разработка](docs/DEVELOPMENT.md) | JDK 25, Docker, frontend, тесты и ручные проверки |
+| [Архитектура backend](docs/BACKEND_ARCHITECTURE.md) | Структура Java-кода, Redis-ключи и реализация сценариев |
+| [Архитектура frontend](docs/FRONTEND_ARCHITECTURE.md) | Структура Nuxt-приложения и режимы API |
+| [Контракт REST API](docs/API_CONTRACT.md) | Реализованные эндпоинты и примеры JSON |
+| [Отчёт](docs/LAB_REPORT.md) | Выполнение требований, эксперимент и выводы |

@@ -1,64 +1,90 @@
 import { useState } from '#imports'
 
 export interface AuthUser {
-  /** Логин пользователя (он же — идентификатор клиента в БД/Redis) */
+  userId: number
   login: string
-  /** Отображаемое имя (пока = логин, позже можно брать из ответа API) */
   username: string
-  /** Момент входа (ISO), для отчёта */
+  role: 'ROLE_USER' | 'ROLE_ADMIN'
   loggedInAt: string
+}
+
+interface LoginResponse {
+  userId: number
+  username: string
+  displayName: string
+  role: 'ROLE_USER' | 'ROLE_ADMIN'
+}
+
+interface StoredAuth {
+  user: AuthUser
+  password: string
 }
 
 const STORAGE_KEY = 'nosql-sem5-lab1-auth'
 
-/**
- * Клиентская авторизация.
- *
- * СЕЙЧАС: демо-режим — валидируем поля и сохраняем сессию в localStorage,
- * потому что на беке ещё нет эндпоинта аутентификации.
- *
- * ПОТОМ: в login() заменить тело на вызов
- *   POST {apiBase}/auth/login  {  login, password  }
- * и брать пользователя + токен из ответа сервера.
- */
 export const useAuth = () => {
   const user = useState<AuthUser | null>('auth-user', () => null)
+  const password = useState<string | null>('auth-password', () => null)
+  const { apiBase } = useRuntimeConfig().public
 
-  /** Восстановить сессию из localStorage (клиент). */
   const restore = () => {
-    if (import.meta.client && !user.value) {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY)
-        if (raw) user.value = JSON.parse(raw)
-      }
-      catch {
-        // битые данные — просто игнорируем
-      }
+    if (!import.meta.client || user.value) return
+
+    try {
+      const raw = sessionStorage.getItem(STORAGE_KEY)
+      if (!raw) return
+
+      const stored: StoredAuth = JSON.parse(raw)
+      user.value = stored.user
+      password.value = stored.password
+    }
+    catch {
+      sessionStorage.removeItem(STORAGE_KEY)
     }
   }
 
-  /** Вход: сейчас демо, позже — реальный вызов API. */
-  const login = (login: string, _password: string) => {
-    // TODO: заменить на POST {apiBase}/auth/login и обработать ошибку 401
+  const login = async (login: string, enteredPassword: string) => {
+    const response = await $fetch<LoginResponse>(`${apiBase}/api/v1/auth/login`, {
+      method: 'POST',
+      body: {
+        username: login,
+        password: enteredPassword,
+      },
+    })
+
     const authUser: AuthUser = {
-      login,
-      username: login,
+      userId: response.userId,
+      login: response.username,
+      username: response.displayName,
+      role: response.role,
       loggedInAt: new Date().toISOString(),
     }
+
     user.value = authUser
+    password.value = enteredPassword
+
     if (import.meta.client) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(authUser))
+      const stored: StoredAuth = { user: authUser, password: enteredPassword }
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stored))
     }
+
     return authUser
   }
 
-  /** Выход: очистить состояние и localStorage. */
-  const logout = () => {
-    user.value = null
-    if (import.meta.client) {
-      localStorage.removeItem(STORAGE_KEY)
+  const authHeaders = () => {
+    if (!user.value || !password.value) return {}
+
+    return {
+      'X-Username': user.value.login,
+      'X-Password': password.value,
     }
   }
 
-  return { user, restore, login, logout }
+  const logout = () => {
+    user.value = null
+    password.value = null
+    if (import.meta.client) sessionStorage.removeItem(STORAGE_KEY)
+  }
+
+  return { user, restore, login, logout, authHeaders }
 }
