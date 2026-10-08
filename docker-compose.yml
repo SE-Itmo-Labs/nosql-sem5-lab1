@@ -19,6 +19,44 @@ services:
       timeout: 3s
       retries: 10
 
+  redis-replica-1:
+    image: redis:8.10.1-alpine
+    container_name: redis_replica1_container
+
+    ports:
+      - "127.0.0.1:6380:6379"
+
+    command: redis-server --replicaof redis-db 6379 --protected-mode no
+
+    depends_on:
+      redis-db:
+        condition: service_healthy
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis-replica-2:
+    image: redis:8.10.1-alpine
+    container_name: redis_replica2_container
+
+    ports:
+      - "127.0.0.1:6381:6379"
+
+    command: redis-server --replicaof redis-db 6379 --protected-mode no
+
+    depends_on:
+      redis-db:
+        condition: service_healthy
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   postgresql:
     image: postgres:18.6-alpine3.24
     container_name: postgres_container
@@ -60,6 +98,9 @@ services:
     environment:
       - SPRING_DATA_REDIS_HOST=redis-db
       - SPRING_DATA_REDIS_PORT=6379
+
+      - REDIS_REPLICA1_HOST=redis-replica-1
+      - REDIS_REPLICA2_HOST=redis-replica-2
 
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/${POSTGRES_DB}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
