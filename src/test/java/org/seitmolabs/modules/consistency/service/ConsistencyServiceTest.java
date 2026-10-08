@@ -10,6 +10,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.seitmolabs.modules.consistency.dto.ExperimentRequest;
+import org.seitmolabs.modules.consistency.dto.ExperimentResponse;
 import org.seitmolabs.modules.consistency.dto.ModeRequest;
 import org.seitmolabs.modules.consistency.dto.NodeInfoResponse;
 import org.seitmolabs.modules.consistency.dto.NodesResponse;
@@ -113,5 +115,42 @@ class ConsistencyServiceTest {
 
         assertThat(response.key()).isEqualTo("demo");
         assertThat(response.nodes()).isEqualTo(nodes);
+    }
+
+    @Test
+    void runsEventualExperimentAgainstPrimary() {
+        when(values.get("consistency:demo")).thenReturn("version-1");
+        ExperimentRequest request = new ExperimentRequest(
+                "demo",
+                "version-1",
+                "PRIMARY",
+                "EVENTUAL",
+                500
+        );
+
+        ExperimentResponse response = service.runExperiment(request);
+
+        verify(values).set("consistency:demo", "version-1");
+        assertThat(response.sourceNode()).isEqualTo("primary");
+        assertThat(response.replicasAcked()).isNull();
+        assertThat(response.consistent()).isTrue();
+    }
+
+    @Test
+    void detectsStaleValueOnReplica() {
+        when(nodeProbeService.read("replica-1", "consistency:demo"))
+                .thenReturn("version-1");
+        ExperimentRequest request = new ExperimentRequest(
+                "demo",
+                "version-2",
+                "REPLICA",
+                "EVENTUAL",
+                500
+        );
+
+        ExperimentResponse response = service.runExperiment(request);
+
+        assertThat(response.readValue()).isEqualTo("version-1");
+        assertThat(response.consistent()).isFalse();
     }
 }

@@ -1,6 +1,8 @@
 package org.seitmolabs.modules.consistency.controller;
 
 import org.seitmolabs.modules.consistency.dto.ModeRequest;
+import org.seitmolabs.modules.consistency.dto.ExperimentRequest;
+import org.seitmolabs.modules.consistency.dto.ExperimentResponse;
 import org.seitmolabs.modules.consistency.dto.NodesResponse;
 import org.seitmolabs.modules.consistency.dto.ReadResponse;
 import org.seitmolabs.modules.consistency.dto.ReplicaActionResponse;
@@ -45,6 +47,12 @@ public class ConsistencyController {
     @PostMapping("/write")
     public WriteResponse write(@Valid @RequestBody WriteRequest request) {
         return consistencyService.write(request);
+    }
+
+    @Operation(summary = "Провести один эксперимент согласованности")
+    @PostMapping("/experiments")
+    public ExperimentResponse runExperiment(@Valid @RequestBody ExperimentRequest request) {
+        return consistencyService.runExperiment(request);
     }
 
     @Operation(summary = "Прочитать значение в выбранном режиме")
