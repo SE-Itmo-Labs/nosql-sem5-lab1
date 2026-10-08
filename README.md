@@ -36,32 +36,16 @@ Lab1, NoSQL. Снагин Станислав, Александрова Мила�
 - Сделать выводы о применимости выбранного хранилища для разработанного приложения.
 
 
-### Прочее
+## Документация проекта
 
-Подрубиться к редису cli (в докере)
+Основной README сохраняет формулировку лабораторной работы. Инструкции и
+технические детали разделены по назначению:
 
-```bash
-docker exec -it redis_container redis-cli
-```
+| Документ | Содержание |
+| --- | --- |
+| [Запуск и разработка](docs/DEVELOPMENT.md) | Frontend, backend, Docker, Redis CLI и полезные адреса |
+| [Архитектура frontend](docs/FRONTEND_ARCHITECTURE.md) | Структура Nuxt-приложения, mock/real режимы и правила декомпозиции |
+| [Контракт REST API](docs/API_CONTRACT.md) | Эндпоинты и структуры обмена с backend |
 
-Nuxt
-
-```bash
-cd nosql-sem5-lab1-frontend
-npm run dev
-```
-
-Сайт https://se-itmo-labs.github.io/nosql-sem5-lab1/
-
-Бек, локальная сборка и запуск
-
-```bash
-./gradlew build && docker compose up --build --force-recreate -d
-```
-
-Endpoints:
-
-/user/auth
-/user/auth/reg
-
-Также не забудьте прописать credentials.env, в которой указывются креды пользователя бд
+Frontend можно запускать без готового backend в явном `mock`-режиме. Данные
+для демонстрационного входа: `client01` / `client123`.

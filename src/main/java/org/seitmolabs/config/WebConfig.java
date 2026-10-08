@@ -6,7 +6,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * WebConfig — настройка HTTP-слоя приложения.
- * <p>
+ * 
  * Назначение: разрешить CORS-запросы к API.
  * Фронтенд живёт на другом origin (GitHub Pages / localhost при разработке),
  * поэтому без этих заголовков браузер заблокирует обращения к бекенду.
@@ -20,7 +20,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOriginPatterns(
                         "http://localhost:3000",
                         "https://se-itmo-labs.github.io",
-                        "http://se-itmo-labs.ssngn.ru",
                         "https://se-itmo-labs.ssngn.ru",
                         "https://backend.se-itmo-labs.ssngn.ru")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
