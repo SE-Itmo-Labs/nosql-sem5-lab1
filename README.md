@@ -36,86 +36,16 @@ Lab1, NoSQL. Снагин Станислав, Александрова Мила�
 - Сделать выводы о применимости выбранного хранилища для разработанного приложения.
 
 
-### Прочее
+## Документация проекта
 
-Подрубиться к редису cli (в докере)
+Основной README сохраняет формулировку лабораторной работы. Инструкции и
+технические детали разделены по назначению:
 
-```bash
-docker exec -it redis_container redis-cli
-```
+| Документ | Содержание |
+| --- | --- |
+| [Запуск и разработка](docs/DEVELOPMENT.md) | Frontend, backend, Docker, Redis CLI и полезные адреса |
+| [Архитектура frontend](docs/FRONTEND_ARCHITECTURE.md) | Структура Nuxt-приложения, mock/real режимы и правила декомпозиции |
+| [Контракт REST API](docs/API_CONTRACT.md) | Эндпоинты и структуры обмена с backend |
 
-Nuxt
-
-```bash
-cd nosql-sem5-lab1-frontend
-npm run dev
-```
-
-Сайт https://se-itmo-labs.github.io/nosql-sem5-lab1/
-
-Backend, локальная сборка и запуск
-
-```bash
-./gradlew build && docker compose --env-file credentials.env up --build --force-recreate -d
-```
-
-Endpoints:
-
-/user/auth
-/user/auth/reg
-
-Также не забудьте прописать credentials.env, в которой указывются креды пользователя бд
-
-### Swagger отладка
-
-http://localhost:16767/swagger-ui/index.html
-
-```
-src/
-├── main/
-│   ├── java/
-│   │   └── com/example/lab1/
-│   │       ├── Lab1Application.java
-│   │       ├── common/                    # Общие вещи, переиспользуемые во всём проекте
-│   │       │   ├── dto/
-│   │       │   │   ├── PageResponse.java  # Универсальный ответ с пагинацией
-│   │       │   │   └── ErrorResponse.java
-│   │       │   ├── exception/
-│   │       │   │   ├── EntityNotFoundException.java
-│   │       │   │   └── GlobalExceptionHandler.java  # @RestControllerAdvice
-│   │       │   ├── mapper/
-│   │       │   │   └── BaseMapper.java    # (опц.)
-│   │       │   └── util/
-│   │       ├── config/                    # Конфиги Spring
-│   │       │   ├── MongoConfig.java       # (опц., если нужны кастомные настройки)
-│   │       │   └── OpenApiConfig.java     # Конфиг Springdoc (описание API)
-│   │       └── modules/                   # Доменные модули (feature-based)
-│   │           ├── movie/
-│   │           │   ├── controller/
-│   │           │   │   └── MovieController.java
-│   │           │   ├── service/
-│   │           │   │   ├── MovieService.java
-│   │           │   │   └── impl/MovieServiceImpl.java
-│   │           │   ├── repository/
-│   │           │   │   ├── MovieRepository.java        # MongoRepository + Query методы
-│   │           │   │   ├── custom/
-│   │           │   │   │   └── MovieCustomRepository.java
-│   │           │   │   └── impl/
-│   │           │   │       └── MovieCustomRepositoryImpl.java  # Агрегации (MongoTemplate)
-│   │           │   ├── domain/
-│   │           │   │   └── Movie.java                   # @Document(collection = "movies")
-│   │           │   ├── dto/
-│   │           │   │   ├── request/
-│   │           │   │   │   ├── MovieCreateRequest.java
-│   │           │   │   │   └── MovieUpdateRequest.java
-│   │           │   │   ├── response/
-│   │           │   │   │   └── MovieResponse.java
-│   │           │   │   └── filter/
-│   │           │   │       └── MovieFilter.java        # (опц. для фильтрации)
-│   │           │   ├── mapper/
-│   │           │   │   └── MovieMapper.java            # MapStruct или ручной
-│   │           │   └── MovieConstants.java             # (опц.)
-│   │           └── actor/ (если есть другая сущность)
-│   └── resources/
-│       └── application.yml (или .properties)
-```
+Frontend можно запускать без готового backend в явном `mock`-режиме. Данные
+для демонстрационного входа: `client01` / `client123`.
