@@ -28,7 +28,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '25'
-          distribution: 'oracle' # Можно выбрать 'temurin' или 'oracle'
+          distribution: 'temurin'
           cache: 'gradle'
 
       # 3. Даем права на запуск gradle-скрипта
@@ -37,7 +37,7 @@ jobs:
 
       # 4. Собираем чистый .jar файл приложения
       - name: Build with Gradle
-        run: ./gradlew clean bootJar
+        run: ./gradlew clean build
 
       # 5. Создаем рабочую директорию на сервере и копируем туда файлы (jar + compose)
       - name: Copy files via SSH (SCP)
@@ -48,7 +48,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: "build/libs/*.jar,docker-compose.yml,Dockerfile,credentials.env"
+          source: "build/libs/app.jar,docker-compose.yml,Dockerfile,.dockerignore,redis.conf,credentials.env"
           target: "~/nosql-sem5-lab1"
           strip_components: 0 # Сохраняет структуру папок build/libs/ для Dockerfile
 
@@ -64,7 +64,7 @@ jobs:
           script: |
             cd ~/nosql-sem5-lab1
             # Останавливаем старые контейнеры, если они были запущены
-            docker compose down --remove-orphans
+            docker compose --env-file credentials.env down --remove-orphans
 
             # В теории можно переделать создание credentials.env так, чтобы он создавался здесь, а не отдельным пунктом (типа безопаснее). Но мне лень + и так работает
 

@@ -2,7 +2,6 @@ package org.seitmolabs.modules.auth.filters;
 
 import java.io.IOException;
 
-import org.seitmolabs.modules.auth.exceptions.UnauthorizedException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -20,6 +19,12 @@ public class SimpleAuthFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getRequestURI();
+
+        // Preflight-запрос браузера не содержит учётных данных.
+        if ("OPTIONS".equals(request.getMethod()) || "/error".equals(path)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // Пропускаем авторизационные эндпоинты
         if (path.startsWith("/api/v1/auth/")) {
@@ -42,7 +47,11 @@ public class SimpleAuthFilter extends OncePerRequestFilter {
 
         if (username == null || password == null ||
                 !"admin".equals(username) || !"123".equals(password)) {
-            throw new UnauthorizedException("Invalid credentials. Use X-Username: admin, X-Password: 123");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write("{\"status\":401,\"message\":\"Invalid credentials\"}");
+            return;
         }
         
         filterChain.doFilter(request, response);
