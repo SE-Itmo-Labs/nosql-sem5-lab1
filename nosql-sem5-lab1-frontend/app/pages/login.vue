@@ -81,8 +81,7 @@ const onSubmit = async () => {
           type="submit"
           class="btn btn-primary btn-block btn-lg"
           :disabled="loading"
-        >
-      </label>
+        >{{ loading ? 'Проверяем данные…' : 'Войти' }}</button>
 
       <label class="field">
         <span class="field-label">Пароль</span>
