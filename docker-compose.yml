@@ -93,6 +93,10 @@ services:
     depends_on:
       redis-db:
         condition: service_healthy
+      redis-replica-1:
+        condition: service_healthy
+      redis-replica-2:
+        condition: service_healthy
       postgresql:
         condition: service_healthy
     environment:
@@ -100,7 +104,11 @@ services:
       - SPRING_DATA_REDIS_PORT=6379
 
       - REDIS_REPLICA1_HOST=redis-replica-1
+      - REDIS_REPLICA1_PORT=6379
       - REDIS_REPLICA2_HOST=redis-replica-2
+      - REDIS_REPLICA2_PORT=6379
+      - REDIS_MASTER_HOST=redis-db
+      - REDIS_MASTER_PORT=6379
 
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/${POSTGRES_DB}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
