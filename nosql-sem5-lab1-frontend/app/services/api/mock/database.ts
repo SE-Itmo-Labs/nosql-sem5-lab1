@@ -1,10 +1,13 @@
 import type { Category, Notification, TemporaryBlock } from '~/types/api'
 
-/** Учетная запись хранит пароль только внутри локального mock-хранилища. */
+/**
+ * Учетная запись хранит только отпечаток пароля. Так открытый пароль не
+ * попадает в сериализованное состояние статической Nuxt-страницы.
+ */
 export interface MockUser {
   username: string
   email: string
-  password: string
+  passwordHash: string
 }
 
 /** Внутренняя запись кэша содержит момент истечения, недоступный бизнес-модели. */
@@ -49,8 +52,16 @@ export const createMockDatabase = (): MockDatabase => {
 
   return {
     users: [
-      { username: 'client01', email: 'client01@example.com', password: 'client123' },
-      { username: 'admin', email: 'admin@example.com', password: '123' },
+      {
+        username: 'client01',
+        email: 'client01@example.com',
+        passwordHash: '186474c1f2c2f735a54c2cf82ee8e87f2a5cd30940e280029363fecedfc5328c',
+      },
+      {
+        username: 'admin',
+        email: 'admin@example.com',
+        passwordHash: 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3',
+      },
     ],
     categories: [
       { id: 1, name: 'Системное', description: 'Служебные сообщения кинотеатра' },

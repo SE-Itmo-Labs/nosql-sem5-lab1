@@ -1,108 +1,222 @@
 <script setup lang="ts">
-const { user, restore, logout } = useAuth()
-restore()
+import FeatureCard from '~/components/feature/FeatureCard.vue'
+import PageHeader from '~/components/ui/PageHeader.vue'
+import { APP_NAVIGATION } from '~/config/navigation'
 
-const router = useRouter()
+defineOptions({ name: 'DashboardOverviewPage' })
 
-// Нет сессии — на страницу входа
-onMounted(() => {
-  if (!user.value) {
-    router.push('/login')
-  }
+definePageMeta({
+  layout: 'dashboard',
+  middleware: 'auth',
+  title: 'Обзор',
 })
 
-function onLogout() {
-  logout()
-  router.push('/login')
-}
+const { user } = useAuth()
+const featureLinks = APP_NAVIGATION.filter(item => item.to !== '/')
+const isMockMode = useRuntimeConfig().public.apiMode === 'mock'
 </script>
 
 <template>
-  <div class="page">
-    <header class="page-header">
+  <div>
+    <PageHeader
+      eyebrow="Лабораторная работа №1"
+      :title="`Добро пожаловать${user ? `, ${user.username}` : ''}`"
+      description="Личный кабинет объединяет обязательный сценарий отправки уведомлений и дополнительные механизмы Redis из варианта."
+    />
+
+    <!-- Верхняя сводка объясняет готовность среды, не подменяя реальные метрики. -->
+    <section class="overview-strip" aria-label="Состояние приложения">
+      <div class="overview-item">
+        <span class="overview-label">Источник данных</span>
+        <strong>{{ isMockMode ? 'Локальный mock' : 'Spring Boot API' }}</strong>
+      </div>
+      <div class="overview-item">
+        <span class="overview-label">Хранилище варианта</span>
+        <strong>Redis</strong>
+      </div>
+      <div class="overview-item">
+        <span class="overview-label">Сценариев</span>
+        <strong>{{ featureLinks.length }}</strong>
+      </div>
+      <div class="overview-status">
+        <span aria-hidden="true" />
+        Каркас готов
+      </div>
+    </section>
+
+    <!-- Карточки и sidebar используют одну конфигурацию APP_NAVIGATION. -->
+    <section class="features-section">
+      <div class="section-heading">
+        <div>
+          <p>Разделы приложения</p>
+          <h3>Сценарии лабораторной</h3>
+        </div>
+        <span>Выберите раздел для перехода</span>
+      </div>
+
+      <div class="features-grid">
+        <FeatureCard v-for="feature in featureLinks" :key="feature.to" :feature="feature" />
+      </div>
+    </section>
+
+    <section class="architecture-note">
+      <span class="architecture-mark" aria-hidden="true">i</span>
       <div>
-        <h1 class="page-header-title">Личный кабинет клиента</h1>
-        <p v-if="user" class="page-header-subtitle">
-          Вы вошли как <strong>{{ user.username }}</strong>
-          <span class="page-header-muted">(вход {{ new Date(user.loggedInAt).toLocaleString() }})</span>
+        <strong>Mock и backend используют один API-контракт</strong>
+        <p>
+          Компоненты страниц не содержат временных ветвлений. После готовности
+          backend достаточно выбрать <code>NUXT_PUBLIC_API_MODE=real</code>.
         </p>
       </div>
-      <button class="btn btn-ghost" type="button" @click="onLogout">
-        Выйти
-      </button>
-    </header>
-
-    <main class="page-main">
-      <section class="card">
-        <h2 class="card-title">Добро пожаловать!</h2>
-        <p class="card-text">
-          Это личный кабинет клиента кинотеатра. Здесь появятся разделы
-          лабораторной №1: уведомления, категории, бронирование мест и демонстрация
-          блокировок.
-        </p>
-      </section>
-
-      <!-- <section class="grid">
-        <NuxtLink class="tile" to="/notifications">
-          <span class="tile-title">Уведомления</span>
-          <span class="tile-sub">список и отправка</span>
-        </NuxtLink>
-        <NuxtLink class="tile" to="/categories">
-          <span class="tile-title">Категории</span>
-          <span class="tile-sub">справочник (кэш)</span>
-        </NuxtLink>
-        <NuxtLink class="tile" to="/blocks">
-          <span class="tile-title">Бронь мест</span>
-          <span class="tile-sub">TTL-блокировка</span>
-        </NuxtLink>
-        <NuxtLink class="tile" to="/locks">
-          <span class="tile-title">Блокировки</span>
-          <span class="tile-sub">атомарный механизм</span>
-        </NuxtLink>
-      </section> -->
-
-      <p class="hint">
-        Разделы-заглушки. Наполнятся, когда на беке появятся соответствующие REST-эндпоинты.
-      </p>
-    </main>
+    </section>
   </div>
 </template>
 
 <style scoped>
-.page {
-  min-height: 100vh;
-  background: var(--color-bg-page);
+.overview-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(130px, 1fr)) auto;
+  gap: 1px;
+  overflow: hidden;
+  margin-bottom: 30px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-border-soft);
+  box-shadow: var(--shadow-sm);
 }
 
-.page-header {
+.overview-item,
+.overview-status {
+  padding: 18px 20px;
+  background: var(--color-surface);
+}
+
+.overview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.overview-label {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 650;
+  text-transform: uppercase;
+}
+
+.overview-item strong {
+  font-size: 15px;
+}
+
+.overview-status {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 24px 32px;
-  background: var(--color-bg-dark);
-  color: var(--color-text-on-dark);
-}
-
-.page-header-title {
-  margin: 0;
-  font-size: 22px;
-}
-
-.page-header-subtitle {
-  margin: 6px 0 0;
-  color: var(--color-text-on-dark-muted);
-  font-size: 14px;
-}
-
-.page-header-muted {
-  color: var(--color-text-muted);
+  justify-content: center;
+  gap: 8px;
+  color: var(--color-success);
   font-size: 13px;
+  font-weight: 750;
 }
 
-.page-main {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 32px;
+.overview-status span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+  box-shadow: 0 0 0 4px var(--color-success-soft);
+}
+
+.features-section {
+  margin-top: 10px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.section-heading p,
+.section-heading h3 {
+  margin: 0;
+}
+
+.section-heading p {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.section-heading h3 {
+  margin-top: 5px;
+  font-size: 21px;
+}
+
+.section-heading > span {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.architecture-note {
+  display: flex;
+  gap: 14px;
+  margin-top: 24px;
+  padding: 18px 20px;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--radius-md);
+  background: var(--color-info-soft);
+  color: #1e3a8a;
+}
+
+.architecture-mark {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-info);
+  color: #fff;
+  font-family: Georgia, serif;
+  font-weight: 700;
+}
+
+.architecture-note p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.architecture-note code {
+  font-size: 12px;
+}
+
+@media (max-width: 760px) {
+  .overview-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .overview-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading > span {
+    display: none;
+  }
 }
 </style>

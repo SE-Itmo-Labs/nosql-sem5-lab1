@@ -133,15 +133,29 @@ docker compose logs -f spring-app
 </details>
 
 <details>
-<summary><strong>Структура frontend API-слоя</strong></summary>
+<summary><strong>Структура frontend</strong></summary>
 
 ```text
 nosql-sem5-lab1-frontend/app/
+├── assets/css/                        # токены, базовые стили, формы и поверхности
+├── components/
+│   ├── feature/                       # карточки и общая оболочка разделов
+│   ├── layout/                        # sidebar и верхняя панель кабинета
+│   └── ui/                            # заголовки и loading/empty/error состояния
 ├── composables/
-│   ├── useApi.ts                     # выбор mock или real через конфигурацию
-│   └── useAuth.ts                    # пользовательская сессия поверх ApiClient
+│   ├── useApi.ts                      # выбор mock или real через конфигурацию
+│   └── useAuth.ts                     # пользовательская сессия поверх ApiClient
+├── config/
+│   └── navigation.ts                 # единая карта разделов и маршрутов
 ├── constants/
 │   └── apiEndpoints.ts               # все URL backend в одном месте
+├── layouts/
+│   ├── auth.vue                       # экран до авторизации
+│   └── dashboard.vue                  # защищённый каркас личного кабинета
+├── middleware/
+│   ├── auth.ts                        # защита разделов кабинета
+│   └── guest.ts                       # редирект авторизованного пользователя
+├── pages/                             # короткие страницы предметных сценариев
 ├── services/
 │   ├── api/
 │   │   ├── createApiClient.ts        # фабрика выбранного режима
@@ -149,8 +163,9 @@ nosql-sem5-lab1-frontend/app/
 │   │   └── mock/                     # локальные реализации по доменам
 │   └── auth/
 │       └── authSession.ts            # чтение токена без циклических импортов
-└── types/
-    └── api/                           # контракты, разделённые по доменам
+├── types/api/                         # контракты, разделённые по доменам
+├── app.vue                            # подключение layouts и индикатора загрузки
+└── error.vue                          # глобальная страница ошибки
 ```
 
 </details>
