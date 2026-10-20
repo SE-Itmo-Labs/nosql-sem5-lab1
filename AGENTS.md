@@ -16,13 +16,13 @@ Before working with the any part of the project, etirely read the docs/ folder. 
 
 ### General information
 
-AI Bot should not start, restart, or stop the dev server without a direct user request. For frontend testing, use an existing server on 8080. If it doesn't respond within 5 seconds, report it and continue without attempting to start. Avoid running long-running commands like manage.py runserver in the foreground.
+AI Bot should not start, restart, or stop the dev server without a direct user request. For frontend testing, use an existing server on 3000. If it doesn't respond within 5 seconds, report it and continue without attempting to start. Avoid running long-running commands like manage.py runserver in the foreground.
 
 Use browser-use / Playwright / in-app browser only upon explicit user request: "open in browser," "check visually," "take a screenshot," "test frontend." For common, minor HTML/CSS/JS edits, do not automatically launch browser-use/Playwright; limit yourself to code checking and report that visual checking was not performed.
 
 ### Backend
 
-Backend server is running at the port 16768
+Backend server is running at the host port 16767.
 
 ### Frontend
 
@@ -37,6 +37,10 @@ When reading files with Russian text in PowerShell, always use Get-Content -Enco
 Use a DRY approach when developing. Before developing a new feature or inventing a new style, always make sure nothing similar already exists in the project. Do your very best to make code DRY.
 
 When designing new models, normalize them as much as possible. Avoid storing parameters for dozens of different entities in a single class. Make classes as specific as possible. This is necessary to prevent classes from growing in parameters as the project grows and to evenly distribute the database load when there are a large number of active users.
+
+#### Java
+
+Always use short types of imported classes. Example: `Logging log = ...` instead of `java.utils.Logging log = ...`
 
 #### Comments
 

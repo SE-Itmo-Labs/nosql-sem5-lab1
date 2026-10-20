@@ -42,6 +42,7 @@ Lab1, NoSQL. Снагин Станислав, Александрова Мила�
 - Spring Boot backend на JDK 25 и Nuxt frontend;
 - хранение уведомлений, временных блокировок и кэша в Redis;
 - PostgreSQL для пользователей и исходного справочника категорий;
+- каталог фильмов, залов, мест и будущих сеансов в PostgreSQL;
 - атомарная отправка уведомления;
 - cache-aside с TTL и инвалидацией;
 - временная блокировка с TTL и распределённая блокировка Redisson;
@@ -78,4 +79,5 @@ docker compose --env-file credentials.env up -d --build
 | [Архитектура backend](docs/BACKEND_ARCHITECTURE.md) | Структура Java-кода, Redis-ключи и реализация сценариев |
 | [Архитектура frontend](docs/FRONTEND_ARCHITECTURE.md) | Структура Nuxt-приложения и режимы API |
 | [Контракт REST API](docs/API_CONTRACT.md) | Реализованные эндпоинты и примеры JSON |
+| [Предметная модель](docs/DOMAIN_MODEL.md) | Владение данными, статусы и правила бронирования |
 | [Отчёт](docs/LAB_REPORT.md) | Выполнение требований, эксперимент и выводы |
