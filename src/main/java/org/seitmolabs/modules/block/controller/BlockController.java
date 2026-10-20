@@ -31,10 +31,13 @@ public class BlockController {
 
     @Operation(summary = "Временно заблокировать ресурс")
     @PostMapping
-    public ResponseEntity<BlockResponse> create(@Valid @RequestBody CreateBlockRequest request) {
+    public ResponseEntity<BlockResponse> create(
+            @Valid @RequestBody CreateBlockRequest request,
+            @RequestAttribute(SimpleAuthFilter.CURRENT_USER_ATTRIBUTE) User currentUser
+    ) {
         BlockResponse block = blockService.create(
                 request.resourceKey(),
-                request.owner(),
+                currentUser.getUsername(),
                 request.ttlSeconds()
         );
 

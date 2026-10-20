@@ -5,6 +5,7 @@
  */
 export type * from './auth'
 export type * from './blocks'
+export type * from './catalog'
 export type * from './categories'
 export type * from './client'
 export type * from './common'

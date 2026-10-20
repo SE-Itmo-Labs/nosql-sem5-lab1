@@ -10,6 +10,8 @@ import org.seitmolabs.modules.consistency.dto.StateResponse;
 import org.seitmolabs.modules.consistency.dto.WriteRequest;
 import org.seitmolabs.modules.consistency.dto.WriteResponse;
 import org.seitmolabs.modules.consistency.service.ConsistencyService;
+import org.seitmolabs.modules.auth.authorization.RequireRole;
+import org.seitmolabs.modules.user.enums.Role;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,8 +26,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/consistency")
+@RequestMapping("/api/v1/admin/laboratory/consistency")
 @RequiredArgsConstructor
+@RequireRole(Role.ROLE_ADMIN)
 @Tag(name = "Redis consistency", description = "Исследование чтения и записи primary/replica")
 public class ConsistencyController {
 
@@ -68,14 +71,14 @@ public class ConsistencyController {
     }
 
     @Operation(summary = "Отключить реплику от primary")
-    @PostMapping("/replicas/{replicaNumber}/detach")
-    public ReplicaActionResponse detachReplica(@PathVariable int replicaNumber) {
-        return consistencyService.detachReplica(replicaNumber);
+    @PostMapping("/nodes/{nodeId}/detach")
+    public ReplicaActionResponse detachReplica(@PathVariable String nodeId) {
+        return consistencyService.detachReplica(nodeId);
     }
 
     @Operation(summary = "Подключить реплику обратно к primary")
-    @PostMapping("/replicas/{replicaNumber}/attach")
-    public ReplicaActionResponse attachReplica(@PathVariable int replicaNumber) {
-        return consistencyService.attachReplica(replicaNumber);
+    @PostMapping("/nodes/{nodeId}/attach")
+    public ReplicaActionResponse attachReplica(@PathVariable String nodeId) {
+        return consistencyService.attachReplica(nodeId);
     }
 }

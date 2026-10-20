@@ -18,7 +18,7 @@ export interface TemporaryBlock {
   active: boolean
 }
 
-/** Запрос фактического POST /api/v1/locks/execute. */
+/** Запрос административного POST /api/v1/admin/laboratory/locks/execute. */
 export interface ExecuteLockRequest {
   resourceKey: string
   holdMillis: number

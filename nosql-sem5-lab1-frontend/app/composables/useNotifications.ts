@@ -15,7 +15,7 @@ export interface NotificationFilters {
   status: NotificationStatus | null
 }
 
-type NotificationDraft = Omit<CreateNotificationRequest, 'userId'>
+type NotificationDraft = CreateNotificationRequest
 
 const createEmptyPage = (): PageResponse<Notification> => ({
   content: [],
@@ -47,6 +47,7 @@ export const useNotifications = () => {
   const config = useRuntimeConfig().public
   const { user, restore } = useAuth()
   const canManageHistory = config.apiMode === 'mock'
+  const canSendNotifications = computed(() => user.value?.role === 'ROLE_ADMIN')
   const categories = ref<Category[]>([])
   const pageData = ref<PageResponse<Notification>>(createEmptyPage())
   const stats = ref<NotificationStats>(createEmptyStats())
@@ -132,10 +133,10 @@ export const useNotifications = () => {
     await loadNotifications()
   }
 
-  /** Отправитель всегда совпадает с текущим клиентом и не вводится вручную. */
+  /** Ручная отправка доступна администратору и содержит явного получателя. */
   const createNotification = async (draft: NotificationDraft) => {
-    if (!user.value) {
-      actionError.value = 'Для отправки уведомления необходимо войти в систему'
+    if (!canSendNotifications.value) {
+      actionError.value = 'Отправка уведомлений доступна администратору'
       return
     }
 
@@ -144,8 +145,8 @@ export const useNotifications = () => {
     feedback.value = ''
 
     try {
-      await api.notifications.create({ userId: user.value.login, ...draft })
-      feedback.value = 'Уведомление отправлено и добавлено в историю'
+      await api.notifications.create(draft)
+      feedback.value = 'Уведомление отправлено выбранному клиенту'
       composerVersion.value += 1
       pageData.value.page = 0
       await loadNotifications()
@@ -206,6 +207,7 @@ export const useNotifications = () => {
     applyFilters,
     busyNotificationId,
     canManageHistory,
+    canSendNotifications,
     categories,
     composerVersion,
     createNotification,

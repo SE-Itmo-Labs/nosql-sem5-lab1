@@ -18,6 +18,10 @@ import org.seitmolabs.modules.consistency.dto.NodesResponse;
 import org.seitmolabs.modules.consistency.dto.ReadResponse;
 import org.seitmolabs.modules.consistency.dto.WriteRequest;
 import org.seitmolabs.modules.consistency.dto.WriteResponse;
+import org.seitmolabs.modules.consistency.topology.RedisNodeClient;
+import org.seitmolabs.modules.consistency.topology.RedisNodeId;
+import org.seitmolabs.modules.consistency.topology.RedisNodeRegistry;
+import org.seitmolabs.modules.consistency.topology.ReplicaSelectionStrategy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
@@ -26,6 +30,12 @@ class ConsistencyServiceTest {
     private StringRedisTemplate primaryTemplate;
     private ValueOperations<String, String> values;
     private NodeProbeService nodeProbeService;
+    private RedisNodeRegistry nodeRegistry;
+    private ReplicaSelectionStrategy replicaSelectionStrategy;
+    private ReplicationTopologyService topologyService;
+    private RedisNodeClient primaryNode;
+    private RedisNodeClient replicaOne;
+    private RedisNodeClient replicaTwo;
     private ConsistencyService service;
 
     @SuppressWarnings("unchecked")
@@ -34,13 +44,31 @@ class ConsistencyServiceTest {
         primaryTemplate = mock(StringRedisTemplate.class);
         values = mock(ValueOperations.class);
         nodeProbeService = mock(NodeProbeService.class);
+        nodeRegistry = mock(RedisNodeRegistry.class);
+        replicaSelectionStrategy = mock(ReplicaSelectionStrategy.class);
+        topologyService = mock(ReplicationTopologyService.class);
+        primaryNode = mock(RedisNodeClient.class);
+        replicaOne = mock(RedisNodeClient.class);
+        replicaTwo = mock(RedisNodeClient.class);
         when(primaryTemplate.opsForValue()).thenReturn(values);
-        service = new ConsistencyService(primaryTemplate, nodeProbeService, 500, 2);
+        when(primaryNode.id()).thenReturn(new RedisNodeId("primary"));
+        when(primaryNode.template()).thenReturn(primaryTemplate);
+        when(replicaOne.id()).thenReturn(new RedisNodeId("replica-1"));
+        when(replicaTwo.id()).thenReturn(new RedisNodeId("replica-2"));
+        when(nodeRegistry.primary()).thenReturn(primaryNode);
+        service = new ConsistencyService(
+                nodeRegistry,
+                nodeProbeService,
+                replicaSelectionStrategy,
+                topologyService,
+                500,
+                2
+        );
     }
 
     @Test
-    void usesMasterAndAsyncModesByDefault() {
-        assertThat(service.getState().readMode()).isEqualTo("MASTER");
+    void usesPrimaryAndAsyncModesByDefault() {
+        assertThat(service.getState().readMode()).isEqualTo("PRIMARY");
         assertThat(service.getState().writeMode()).isEqualTo("ASYNC");
         assertThat(service.getState().waitTimeoutMs()).isEqualTo(500);
         assertThat(service.getState().waitReplicas()).isEqualTo(2);
@@ -68,6 +96,7 @@ class ConsistencyServiceTest {
     @Test
     void alternatesBetweenReplicas() {
         service.changeMode(new ModeRequest("REPLICA_PREFERRED", null));
+        when(replicaSelectionStrategy.select()).thenReturn(replicaOne, replicaTwo);
         when(nodeProbeService.read("replica-1", "consistency:demo")).thenReturn("old");
         when(nodeProbeService.read("replica-2", "consistency:demo")).thenReturn("new");
 
@@ -83,6 +112,7 @@ class ConsistencyServiceTest {
     @Test
     void fallsBackToPrimaryWhenReplicaIsUnavailable() {
         service.changeMode(new ModeRequest("REPLICA_PREFERRED", null));
+        when(replicaSelectionStrategy.select()).thenReturn(replicaOne);
         when(nodeProbeService.read("replica-1", "consistency:demo"))
                 .thenThrow(new IllegalStateException("Replica is unavailable"));
         when(values.get("consistency:demo")).thenReturn("primary-value");
@@ -99,7 +129,7 @@ class ConsistencyServiceTest {
                 new ModeRequest("REPLICA_PREFERRED", "unknown")
         )).hasMessageContaining("Недопустимое значение writeMode");
 
-        assertThat(service.getState().readMode()).isEqualTo("MASTER");
+        assertThat(service.getState().readMode()).isEqualTo("PRIMARY");
         assertThat(service.getState().writeMode()).isEqualTo("ASYNC");
     }
 
@@ -138,6 +168,7 @@ class ConsistencyServiceTest {
 
     @Test
     void detectsStaleValueOnReplica() {
+        when(replicaSelectionStrategy.select()).thenReturn(replicaOne);
         when(nodeProbeService.read("replica-1", "consistency:demo"))
                 .thenReturn("version-1");
         ExperimentRequest request = new ExperimentRequest(

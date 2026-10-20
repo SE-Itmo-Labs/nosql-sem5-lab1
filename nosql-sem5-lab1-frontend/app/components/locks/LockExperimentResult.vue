@@ -10,7 +10,7 @@ defineProps<{ results: ExecuteLockResponse[], running: boolean }>()
   <section class="card result-card">
     <div class="result-heading">
       <div><p>Результат</p><h3>Конкуренция запросов</h3></div>
-      <span>POST /api/v1/locks/execute</span>
+      <span>POST /api/v1/admin/laboratory/locks/execute</span>
     </div>
 
     <StatePanel v-if="running" kind="loading" icon="⋯" title="Lock удерживается" description="Один запрос выполняет критическую секцию, второй конкурирует за тот же ключ." />

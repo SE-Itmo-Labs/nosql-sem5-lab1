@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.seitmolabs.config.WebConfig;
 import org.seitmolabs.common.exceptions.GlobalExceptionHandler;
 import org.seitmolabs.modules.auth.controller.AuthController;
+import org.seitmolabs.modules.auth.authorization.RoleAuthorizationInterceptor;
 import org.seitmolabs.modules.auth.filters.SimpleAuthFilter;
 import org.seitmolabs.modules.auth.service.AuthService;
 import org.seitmolabs.modules.user.domain.User;
@@ -45,7 +46,8 @@ class HttpBasicsTest {
         AuthService authService = new AuthService(userRepository);
         mvc = MockMvcBuilders.standaloneSetup(new AuthController(authService))
                 .setControllerAdvice(new GlobalExceptionHandler())
-                .addFilters(new WebConfig().corsFilter(List.of("http://localhost:3000")).getFilter(),
+                .addFilters(new WebConfig(mock(RoleAuthorizationInterceptor.class))
+                                .corsFilter(List.of("http://localhost:3000")).getFilter(),
                         new SimpleAuthFilter(authService))
                 .build();
     }

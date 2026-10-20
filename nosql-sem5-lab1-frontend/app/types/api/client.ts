@@ -6,6 +6,7 @@ import type {
   TemporaryBlock,
 } from './blocks'
 import type { Category, CategoryResponse, SaveCategoryRequest } from './categories'
+import type { Movie, Screening, ScreeningSeats } from './catalog'
 import type { ConsistencyExperimentRequest, ConsistencyExperimentResponse } from './consistency'
 import type { PageQuery, PageResponse } from './common'
 import type {
@@ -24,6 +25,12 @@ import type {
 export interface ApiClient {
   auth: {
     login(request: LoginRequest): Promise<AuthResponse>
+  }
+  catalog: {
+    getMovies(): Promise<Movie[]>
+    getMovie(movieId: number): Promise<Movie>
+    getMovieScreenings(movieId: number): Promise<Screening[]>
+    getScreeningSeats(screeningId: number): Promise<ScreeningSeats>
   }
   notifications: {
     getAll(query?: NotificationQuery): Promise<PageResponse<Notification>>

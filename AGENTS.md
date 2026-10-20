@@ -4,9 +4,9 @@ If you would ever use AI agents in this project, these agents must obey rules th
 
 ## Termins
 
-- Owner - 
+- Owner - a human maintainer who defines product boundaries, approves production actions, and has final responsibility for the project.
 
-- AI bot - 
+- AI bot - an AI development assistant that analyzes, changes, and documents the project within the Owner's request and the rules of this file.
 
 ## General Information
 

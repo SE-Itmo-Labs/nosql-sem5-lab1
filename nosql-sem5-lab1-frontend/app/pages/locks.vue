@@ -5,7 +5,7 @@ import PageHeader from '~/components/ui/PageHeader.vue'
 
 defineOptions({ name: 'DistributedLocksPage' })
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Распределённый lock' })
+definePageMeta({ layout: 'dashboard', middleware: ['auth', 'admin'], title: 'Распределённый lock' })
 
 const { error, isRunning, results, runCompetition } = useDistributedLock()
 </script>

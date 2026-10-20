@@ -113,7 +113,13 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/${POSTGRES_DB}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      # В production оставляйте false: демонстрационные записи не должны
+      # создаваться при каждом развёртывании приложения.
+      - APP_DATA_INITIALIZER_ENABLED=${APP_DATA_INITIALIZER_ENABLED:-false}
     restart: on-failure
 
 volumes:
   postgres_data:
+    # Фиксированное имя не зависит от каталога и COMPOSE_PROJECT_NAME, поэтому
+    # пересборка приложения подключает ту же базу данных.
+    name: ${POSTGRES_VOLUME_NAME:-nosql-sem5-lab1_postgres_data}

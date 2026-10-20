@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.seitmolabs.common.dto.CreateNotificationRequest;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
+import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.repositories.NotificationRepository;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.repository.UserRepository;
@@ -31,7 +32,11 @@ class NotificationServiceImplTest {
     void setUp() {
         notificationRepository = mock(NotificationRepository.class);
         userRepository = mock(UserRepository.class);
-        service = new NotificationServiceImpl(notificationRepository, userRepository);
+        service = new NotificationServiceImpl(
+                notificationRepository,
+                userRepository,
+                new NotificationFactory()
+        );
     }
 
     @Test

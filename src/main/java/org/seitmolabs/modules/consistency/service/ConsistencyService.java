@@ -3,7 +3,6 @@ package org.seitmolabs.modules.consistency.service;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
 import org.seitmolabs.modules.consistency.dto.ExperimentRequest;
@@ -19,6 +18,9 @@ import org.seitmolabs.modules.consistency.enums.ReadMode;
 import org.seitmolabs.modules.consistency.enums.WriteMode;
 import org.seitmolabs.modules.consistency.enums.ExperimentMode;
 import org.seitmolabs.modules.consistency.enums.ExperimentReadTarget;
+import org.seitmolabs.modules.consistency.topology.RedisNodeClient;
+import org.seitmolabs.modules.consistency.topology.RedisNodeRegistry;
+import org.seitmolabs.modules.consistency.topology.ReplicaSelectionStrategy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -29,23 +31,28 @@ public class ConsistencyService {
 
     private static final String KEY_PREFIX = "consistency:";
 
-    private final StringRedisTemplate primaryTemplate;
+    private final RedisNodeRegistry nodeRegistry;
     private final NodeProbeService nodeProbeService;
-    private final AtomicInteger nextReplica = new AtomicInteger();
+    private final ReplicaSelectionStrategy replicaSelectionStrategy;
+    private final ReplicationTopologyService topologyService;
     private final long waitTimeoutMs;
     private final int waitReplicas;
 
-    private volatile ReadMode readMode = ReadMode.MASTER;
+    private volatile ReadMode readMode = ReadMode.PRIMARY;
     private volatile WriteMode writeMode = WriteMode.ASYNC;
 
     public ConsistencyService(
-            StringRedisTemplate primaryTemplate,
+            RedisNodeRegistry nodeRegistry,
             NodeProbeService nodeProbeService,
+            ReplicaSelectionStrategy replicaSelectionStrategy,
+            ReplicationTopologyService topologyService,
             @Value("${app.replication.wait-timeout-ms}") long waitTimeoutMs,
             @Value("${app.replication.wait-replicas}") int waitReplicas
     ) {
-        this.primaryTemplate = primaryTemplate;
+        this.nodeRegistry = nodeRegistry;
         this.nodeProbeService = nodeProbeService;
+        this.replicaSelectionStrategy = replicaSelectionStrategy;
+        this.topologyService = topologyService;
         this.waitTimeoutMs = waitTimeoutMs;
         this.waitReplicas = waitReplicas;
     }
@@ -79,7 +86,7 @@ public class ConsistencyService {
                     waitTimeoutMs
             ).replicasAcked();
         } else {
-            primaryTemplate.opsForValue().set(storageKey(request.key()), request.value());
+            primaryTemplate().opsForValue().set(storageKey(request.key()), request.value());
         }
 
         long elapsedMs = (System.nanoTime() - startedAt) / 1_000_000;
@@ -95,21 +102,21 @@ public class ConsistencyService {
     public ReadResponse read(String key) {
         String redisKey = storageKey(key);
 
-        if (readMode == ReadMode.MASTER) {
-            String value = primaryTemplate.opsForValue().get(redisKey);
-            return new ReadResponse(key, value, readMode.name(), NodeProbeService.PRIMARY);
+        if (readMode == ReadMode.PRIMARY) {
+            RedisNodeClient primary = nodeRegistry.primary();
+            String value = primary.template().opsForValue().get(redisKey);
+            return new ReadResponse(key, value, readMode.name(), primary.id().value());
         }
 
-        String node = nextReplica.getAndIncrement() % 2 == 0
-                ? NodeProbeService.REPLICA_1
-                : NodeProbeService.REPLICA_2;
-
         try {
-            String value = nodeProbeService.read(node, redisKey);
-            return new ReadResponse(key, value, readMode.name(), node);
+            RedisNodeClient replica = replicaSelectionStrategy.select();
+            String nodeId = replica.id().value();
+            String value = nodeProbeService.read(nodeId, redisKey);
+            return new ReadResponse(key, value, readMode.name(), nodeId);
         } catch (RuntimeException ex) {
-            String value = primaryTemplate.opsForValue().get(redisKey);
-            return new ReadResponse(key, value, readMode.name(), NodeProbeService.PRIMARY);
+            RedisNodeClient primary = nodeRegistry.primary();
+            String value = primary.template().opsForValue().get(redisKey);
+            return new ReadResponse(key, value, readMode.name(), primary.id().value());
         }
     }
 
@@ -118,12 +125,12 @@ public class ConsistencyService {
         return new NodesResponse(key, result.nodes());
     }
 
-    public ReplicaActionResponse detachReplica(int replicaNumber) {
-        return nodeProbeService.detach(replicaNumber);
+    public ReplicaActionResponse detachReplica(String nodeId) {
+        return topologyService.detach(nodeId);
     }
 
-    public ReplicaActionResponse attachReplica(int replicaNumber) {
-        return nodeProbeService.attach(replicaNumber);
+    public ReplicaActionResponse attachReplica(String nodeId) {
+        return topologyService.attach(nodeId);
     }
 
     public ExperimentResponse runExperiment(ExperimentRequest request) {
@@ -142,7 +149,7 @@ public class ConsistencyService {
             replicasAcked = result.replicasAcked();
         } else {
             long writeStartedAt = System.nanoTime();
-            primaryTemplate.opsForValue().set(redisKey, request.value());
+            primaryTemplate().opsForValue().set(redisKey, request.value());
             writeDurationMs = elapsedMs(writeStartedAt);
         }
 
@@ -151,10 +158,11 @@ public class ConsistencyService {
         String readValue;
 
         if (readTarget == ExperimentReadTarget.PRIMARY) {
-            sourceNode = NodeProbeService.PRIMARY;
-            readValue = primaryTemplate.opsForValue().get(redisKey);
+            RedisNodeClient primary = nodeRegistry.primary();
+            sourceNode = primary.id().value();
+            readValue = primary.template().opsForValue().get(redisKey);
         } else {
-            sourceNode = NodeProbeService.REPLICA_1;
+            sourceNode = replicaSelectionStrategy.select().id().value();
             readValue = nodeProbeService.read(sourceNode, redisKey);
         }
 
@@ -175,7 +183,7 @@ public class ConsistencyService {
     }
 
     private WaitResult writeAndWait(String key, String value, int replicas, long timeoutMs) {
-        return primaryTemplate.execute((RedisConnection connection) -> {
+        return primaryTemplate().execute((RedisConnection connection) -> {
             @SuppressWarnings("unchecked")
             RedisClusterAsyncCommands<byte[], byte[]> commands =
                     (RedisClusterAsyncCommands<byte[], byte[]>) connection.getNativeConnection();
@@ -201,6 +209,10 @@ public class ConsistencyService {
 
     private String storageKey(String key) {
         return KEY_PREFIX + key;
+    }
+
+    private StringRedisTemplate primaryTemplate() {
+        return nodeRegistry.primary().template();
     }
 
     private byte[] bytes(String value) {

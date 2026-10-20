@@ -4,19 +4,15 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.seitmolabs.modules.catalog.auditorium.domain.Auditorium;
 import org.seitmolabs.modules.catalog.auditorium.repository.AuditoriumRepository;
+import org.seitmolabs.modules.catalog.factory.ScreeningFactory;
+import org.seitmolabs.modules.catalog.factory.SeatLayoutFactory;
 import org.seitmolabs.modules.catalog.movie.domain.Movie;
 import org.seitmolabs.modules.catalog.movie.domain.MovieStatus;
 import org.seitmolabs.modules.catalog.movie.repository.MovieRepository;
-import org.seitmolabs.modules.catalog.screening.domain.Screening;
-import org.seitmolabs.modules.catalog.screening.domain.ScreeningStatus;
 import org.seitmolabs.modules.catalog.screening.repository.ScreeningRepository;
-import org.seitmolabs.modules.catalog.seat.domain.Seat;
-import org.seitmolabs.modules.catalog.seat.domain.SeatType;
 import org.seitmolabs.modules.catalog.seat.repository.SeatRepository;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
@@ -24,10 +20,15 @@ import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.enums.Role;
 import org.seitmolabs.modules.user.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@ConditionalOnProperty(
+        name = "app.data-initializer.enabled",
+        havingValue = "true"
+)
 public class DataInitializer {
 
     private static final ZoneId CINEMA_ZONE = ZoneId.of("Europe/Moscow");
@@ -39,7 +40,9 @@ public class DataInitializer {
             MovieRepository movieRepository,
             AuditoriumRepository auditoriumRepository,
             SeatRepository seatRepository,
-            ScreeningRepository screeningRepository
+            ScreeningRepository screeningRepository,
+            SeatLayoutFactory seatLayoutFactory,
+            ScreeningFactory screeningFactory
     ) {
         return args -> {
             createUserIfMissing(userRepository, "client01", "client123", "Тестовый клиент", Role.ROLE_USER);
@@ -80,19 +83,19 @@ public class DataInitializer {
             Auditorium mainHall = createAuditoriumIfMissing(auditoriumRepository, "Зал 1");
             Auditorium smallHall = createAuditoriumIfMissing(auditoriumRepository, "Зал 2");
 
-            createSeatsIfMissing(seatRepository, mainHall, 5, 8);
-            createSeatsIfMissing(seatRepository, smallHall, 4, 6);
+            createSeatsIfMissing(seatRepository, seatLayoutFactory, mainHall, 5, 8);
+            createSeatsIfMissing(seatRepository, seatLayoutFactory, smallHall, 4, 6);
 
             LocalDate tomorrow = LocalDate.now(CINEMA_ZONE).plusDays(1);
-            createScreeningIfMissing(screeningRepository, northernLights, mainHall,
+            createScreeningIfMissing(screeningRepository, screeningFactory, northernLights, mainHall,
                     atCinemaTime(tomorrow, 12, 0), new BigDecimal("450.00"));
-            createScreeningIfMissing(screeningRepository, lastSignal, mainHall,
+            createScreeningIfMissing(screeningRepository, screeningFactory, lastSignal, mainHall,
                     atCinemaTime(tomorrow, 16, 0), new BigDecimal("550.00"));
-            createScreeningIfMissing(screeningRepository, paperDragon, smallHall,
+            createScreeningIfMissing(screeningRepository, screeningFactory, paperDragon, smallHall,
                     atCinemaTime(tomorrow, 13, 0), new BigDecimal("350.00"));
-            createScreeningIfMissing(screeningRepository, northernLights, smallHall,
+            createScreeningIfMissing(screeningRepository, screeningFactory, northernLights, smallHall,
                     atCinemaTime(tomorrow.plusDays(1), 18, 0), new BigDecimal("500.00"));
-            createScreeningIfMissing(screeningRepository, lastSignal, mainHall,
+            createScreeningIfMissing(screeningRepository, screeningFactory, lastSignal, mainHall,
                     atCinemaTime(tomorrow.plusDays(1), 20, 0), new BigDecimal("600.00"));
         };
     }
@@ -159,6 +162,7 @@ public class DataInitializer {
 
     private void createSeatsIfMissing(
             SeatRepository repository,
+            SeatLayoutFactory factory,
             Auditorium auditorium,
             int rowCount,
             int seatsPerRow
@@ -167,32 +171,12 @@ public class DataInitializer {
             return;
         }
 
-        List<Seat> seats = new ArrayList<>();
-        for (int row = 1; row <= rowCount; row++) {
-            for (int number = 1; number <= seatsPerRow; number++) {
-                seats.add(Seat.builder()
-                        .auditorium(auditorium)
-                        .rowNumber(row)
-                        .seatNumber(number)
-                        .type(resolveSeatType(row, rowCount, number))
-                        .build());
-            }
-        }
-        repository.saveAll(seats);
-    }
-
-    private SeatType resolveSeatType(int row, int rowCount, int seatNumber) {
-        if (row == 1 && seatNumber <= 2) {
-            return SeatType.ACCESSIBLE;
-        }
-        if (row == rowCount) {
-            return SeatType.PREMIUM;
-        }
-        return SeatType.STANDARD;
+        repository.saveAll(factory.create(auditorium, rowCount, seatsPerRow));
     }
 
     private void createScreeningIfMissing(
             ScreeningRepository repository,
+            ScreeningFactory factory,
             Movie movie,
             Auditorium auditorium,
             Instant startsAt,
@@ -202,13 +186,7 @@ public class DataInitializer {
             return;
         }
 
-        repository.save(Screening.builder()
-                .movie(movie)
-                .auditorium(auditorium)
-                .startsAt(startsAt)
-                .basePrice(basePrice)
-                .status(ScreeningStatus.SCHEDULED)
-                .build());
+        repository.save(factory.createScheduled(movie, auditorium, startsAt, basePrice));
     }
 
     private Instant atCinemaTime(LocalDate date, int hour, int minute) {

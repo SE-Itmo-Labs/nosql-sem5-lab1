@@ -6,7 +6,7 @@ import PageHeader from '~/components/ui/PageHeader.vue'
 
 defineOptions({ name: 'CategoriesPage' })
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Категории' })
+definePageMeta({ layout: 'dashboard', middleware: ['auth', 'admin'], title: 'Категории' })
 
 const {
   actionError,

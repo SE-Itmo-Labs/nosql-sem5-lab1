@@ -4,12 +4,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import org.seitmolabs.modules.catalog.dto.AuditoriumResponse;
 import org.seitmolabs.modules.catalog.dto.MovieResponse;
 import org.seitmolabs.modules.catalog.dto.ScreeningResponse;
 import org.seitmolabs.modules.catalog.dto.ScreeningSeatsResponse;
 import org.seitmolabs.modules.catalog.dto.SeatAvailabilityStatus;
-import org.seitmolabs.modules.catalog.dto.SeatResponse;
+import org.seitmolabs.modules.catalog.mapper.CatalogResponseMapper;
 import org.seitmolabs.modules.catalog.movie.domain.Movie;
 import org.seitmolabs.modules.catalog.movie.domain.MovieStatus;
 import org.seitmolabs.modules.catalog.movie.repository.MovieRepository;
@@ -33,16 +32,17 @@ public class CatalogService {
     private final ScreeningRepository screeningRepository;
     private final SeatRepository seatRepository;
     private final SeatAvailabilityResolver seatAvailabilityResolver;
+    private final CatalogResponseMapper responseMapper;
 
     public List<MovieResponse> getMovies() {
         return movieRepository.findAllByStatusNotOrderByTitleAsc(MovieStatus.ARCHIVED)
                 .stream()
-                .map(this::toMovieResponse)
+                .map(responseMapper::toMovie)
                 .toList();
     }
 
     public MovieResponse getMovie(Long movieId) {
-        return toMovieResponse(findVisibleMovie(movieId));
+        return responseMapper.toMovie(findVisibleMovie(movieId));
     }
 
     public List<ScreeningResponse> getMovieScreenings(Long movieId) {
@@ -55,7 +55,7 @@ public class CatalogService {
                         ScreeningStatus.SCHEDULED
                 )
                 .stream()
-                .map(this::toScreeningResponse)
+                .map(responseMapper::toScreening)
                 .toList();
     }
 
@@ -72,28 +72,7 @@ public class CatalogService {
                 );
         Map<Long, SeatAvailabilityStatus> statuses = seatAvailabilityResolver.resolve(screening, seats);
 
-        List<SeatResponse> seatResponses = seats.stream()
-                .map(seat -> new SeatResponse(
-                        seat.getId(),
-                        seat.getRowNumber(),
-                        seat.getSeatNumber(),
-                        seat.getType(),
-                        statuses.getOrDefault(seat.getId(), SeatAvailabilityStatus.AVAILABLE)
-                ))
-                .toList();
-
-        return new ScreeningSeatsResponse(
-                screening.getId(),
-                screening.getMovie().getId(),
-                screening.getMovie().getTitle(),
-                screening.getStartsAt(),
-                screening.getBasePrice(),
-                new AuditoriumResponse(
-                        screening.getAuditorium().getId(),
-                        screening.getAuditorium().getName()
-                ),
-                seatResponses
-        );
+        return responseMapper.toSeatMap(screening, seats, statuses);
     }
 
     private Movie findVisibleMovie(Long movieId) {
@@ -109,28 +88,4 @@ public class CatalogService {
                 && screening.getStartsAt().isAfter(Instant.now());
     }
 
-    private MovieResponse toMovieResponse(Movie movie) {
-        return new MovieResponse(
-                movie.getId(),
-                movie.getSlug(),
-                movie.getTitle(),
-                movie.getDescription(),
-                movie.getDurationMinutes(),
-                movie.getAgeRating(),
-                movie.getStatus()
-        );
-    }
-
-    private ScreeningResponse toScreeningResponse(Screening screening) {
-        return new ScreeningResponse(
-                screening.getId(),
-                screening.getMovie().getId(),
-                screening.getMovie().getTitle(),
-                screening.getAuditorium().getId(),
-                screening.getAuditorium().getName(),
-                screening.getStartsAt(),
-                screening.getBasePrice(),
-                screening.getStatus()
-        );
-    }
 }

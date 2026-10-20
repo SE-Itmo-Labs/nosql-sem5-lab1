@@ -99,8 +99,8 @@ JWT и Spring Security не используются. После проверк�
 | Метод | URL | Результат |
 | --- | --- | --- |
 | `GET` | `/api/v1/notifications` | уведомления текущего пользователя |
-| `GET` | `/api/v1/notifications/{id}` | уведомление по ID |
-| `POST` | `/api/v1/notifications` | создать и отправить уведомление |
+| `GET` | `/api/v1/notifications/{id}` | своё уведомление по ID |
+| `POST` | `/api/v1/admin/notifications` | отправить уведомление выбранному клиенту; только `ADMIN` |
 
 Создание уведомления:
 
@@ -114,17 +114,18 @@ JWT и Spring Security не используются. После проверк�
 ```
 
 Ответ `201` содержит `id`, поля запроса, статус `SENT` и `createdAt`. Метод
-списка возвращает JSON-массив от новых уведомлений к старым.
+списка возвращает JSON-массив от новых уведомлений к старым. Чтение уведомления
+другого клиента возвращает ошибку доступа к ресурсу.
 
 ## Категории и кэш
 
 | Метод | URL | Результат |
 | --- | --- | --- |
 | `GET` | `/api/v1/categories` | список категорий |
-| `GET` | `/api/v1/categories/{id}` | категория и информация о кэше |
-| `POST` | `/api/v1/categories` | новая категория, ответ `201` |
-| `PUT` | `/api/v1/categories/{id}` | обновлённая категория |
-| `DELETE` | `/api/v1/categories/{id}` | удаление, ответ `204` |
+| `GET` | `/api/v1/admin/notification-categories/{id}` | категория и информация о кэше; только `ADMIN` |
+| `POST` | `/api/v1/admin/notification-categories` | новая категория, ответ `201`; только `ADMIN` |
+| `PUT` | `/api/v1/admin/notification-categories/{id}` | обновлённая категория; только `ADMIN` |
+| `DELETE` | `/api/v1/admin/notification-categories/{id}` | удаление, ответ `204`; только `ADMIN` |
 
 Тело создания и обновления:
 
@@ -179,9 +180,10 @@ JWT и Spring Security не используются. После проверк�
 
 ## Распределённая блокировка
 
-### `POST /api/v1/locks/execute`
+### `POST /api/v1/admin/laboratory/locks/execute`
 
-Пытается выполнить операцию внутри критической секции Redisson.
+Пытается выполнить операцию внутри критической секции Redisson. Метод доступен
+только администратору.
 
 ```json
 {
@@ -208,14 +210,14 @@ JWT и Spring Security не используются. После проверк�
 
 | Метод | URL | Назначение |
 | --- | --- | --- |
-| `GET` | `/api/v1/consistency/state` | выбранные режимы чтения и записи |
-| `PUT` | `/api/v1/consistency/mode` | изменить один или оба режима |
-| `POST` | `/api/v1/consistency/write` | записать значение в primary |
-| `GET` | `/api/v1/consistency/read/{key}` | прочитать в выбранном режиме |
-| `GET` | `/api/v1/consistency/nodes/{key}` | сравнить все три узла |
-| `POST` | `/api/v1/consistency/experiments` | выполнить измеряемый эксперимент |
-| `POST` | `/api/v1/consistency/replicas/{number}/detach` | отключить реплику 1 или 2 |
-| `POST` | `/api/v1/consistency/replicas/{number}/attach` | подключить реплику обратно |
+| `GET` | `/api/v1/admin/laboratory/consistency/state` | выбранные режимы чтения и записи |
+| `PUT` | `/api/v1/admin/laboratory/consistency/mode` | изменить один или оба режима |
+| `POST` | `/api/v1/admin/laboratory/consistency/write` | записать значение в primary |
+| `GET` | `/api/v1/admin/laboratory/consistency/read/{key}` | прочитать в выбранном режиме |
+| `GET` | `/api/v1/admin/laboratory/consistency/nodes/{key}` | сравнить настроенные узлы |
+| `POST` | `/api/v1/admin/laboratory/consistency/experiments` | выполнить измеряемый эксперимент |
+| `POST` | `/api/v1/admin/laboratory/consistency/nodes/{nodeId}/detach` | отключить выбранную реплику |
+| `POST` | `/api/v1/admin/laboratory/consistency/nodes/{nodeId}/attach` | подключить выбранную реплику обратно |
 
 Изменение режима:
 
@@ -226,8 +228,10 @@ JWT и Spring Security не используются. После проверк�
 }
 ```
 
-Для чтения доступны `MASTER` и `REPLICA_PREFERRED`, для записи — `ASYNC` и
-`WAIT_FOR_REPLICAS`. Поле, которое изменять не нужно, можно не передавать.
+Для чтения доступны `PRIMARY` и `REPLICA_PREFERRED`, для записи — `ASYNC` и
+`WAIT_FOR_REPLICAS`. Старое значение `MASTER` принимается как alias для
+`PRIMARY`. Поле, которое изменять не нужно, можно не передавать. Все методы
+раздела доступны только администратору.
 
 Простая запись:
 

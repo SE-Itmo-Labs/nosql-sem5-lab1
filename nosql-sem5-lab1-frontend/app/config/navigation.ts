@@ -1,3 +1,5 @@
+import type { UserRole } from '~/types/api'
+
 /** Описание одного раздела личного кабинета. */
 export interface NavigationItem {
   label: string
@@ -6,6 +8,7 @@ export interface NavigationItem {
   to: string
   icon: string
   accent: 'orange' | 'blue' | 'green' | 'violet' | 'slate'
+  audience: 'all' | 'admin'
 }
 
 /**
@@ -20,6 +23,16 @@ export const APP_NAVIGATION: readonly NavigationItem[] = [
     to: '/',
     icon: '⌂',
     accent: 'slate',
+    audience: 'all',
+  },
+  {
+    label: 'Афиша',
+    shortLabel: 'Афиша',
+    description: 'Фильмы, будущие сеансы и выбор мест в зале.',
+    to: '/movies',
+    icon: '◉',
+    accent: 'orange',
+    audience: 'all',
   },
   {
     label: 'Уведомления',
@@ -28,6 +41,7 @@ export const APP_NAVIGATION: readonly NavigationItem[] = [
     to: '/notifications',
     icon: '✦',
     accent: 'orange',
+    audience: 'all',
   },
   {
     label: 'Категории',
@@ -36,6 +50,7 @@ export const APP_NAVIGATION: readonly NavigationItem[] = [
     to: '/categories',
     icon: '▦',
     accent: 'blue',
+    audience: 'admin',
   },
   {
     label: 'Временная бронь',
@@ -44,6 +59,7 @@ export const APP_NAVIGATION: readonly NavigationItem[] = [
     to: '/blocks',
     icon: '◷',
     accent: 'green',
+    audience: 'all',
   },
   {
     label: 'Распределённый lock',
@@ -52,6 +68,7 @@ export const APP_NAVIGATION: readonly NavigationItem[] = [
     to: '/locks',
     icon: '◇',
     accent: 'violet',
+    audience: 'admin',
   },
   {
     label: 'Согласованность',
@@ -60,8 +77,13 @@ export const APP_NAVIGATION: readonly NavigationItem[] = [
     to: '/consistency',
     icon: '⇄',
     accent: 'slate',
+    audience: 'admin',
   },
 ] as const
+
+export const getNavigationForRole = (role?: UserRole): readonly NavigationItem[] => (
+  APP_NAVIGATION.filter(item => item.audience === 'all' || role === 'ROLE_ADMIN')
+)
 
 /** Возвращает конфигурацию страницы и сразу обнаруживает ошибочный URL. */
 export const getNavigationItem = (path: string): NavigationItem => {

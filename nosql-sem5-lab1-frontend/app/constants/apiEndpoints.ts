@@ -20,6 +20,13 @@ export const API_ENDPOINTS = {
     login: '/api/v1/auth/login',
   },
 
+  catalog: {
+    movies: '/api/v1/movies',
+    movie: (movieId: number) => `/api/v1/movies/${pathSegment(movieId)}`,
+    movieScreenings: (movieId: number) => `/api/v1/movies/${pathSegment(movieId)}/screenings`,
+    screeningSeats: (screeningId: number) => `/api/v1/screenings/${pathSegment(screeningId)}/seats`,
+  },
+
   /** Основной сценарий лабораторной — создание и чтение уведомлений. */
   notifications: {
     base: '/api/v1/notifications',
@@ -29,7 +36,8 @@ export const API_ENDPOINTS = {
   /** Справочник категорий, поверх которого backend реализует cache-aside. */
   categories: {
     base: '/api/v1/categories',
-    byId: (id: number) => `/api/v1/categories/${pathSegment(id)}`,
+    adminBase: '/api/v1/admin/notification-categories',
+    adminById: (id: number) => `/api/v1/admin/notification-categories/${pathSegment(id)}`,
   },
 
   /** Ключи с TTL для временного бронирования ресурса. */
@@ -40,11 +48,15 @@ export const API_ENDPOINTS = {
 
   /** Атомарный захват и безопасное освобождение распределенной блокировки. */
   locks: {
-    execute: '/api/v1/locks/execute',
+    execute: '/api/v1/admin/laboratory/locks/execute',
   },
 
   /** Управляемый эксперимент чтения из Redis primary или replica. */
   consistency: {
-    experiments: '/api/v1/consistency/experiments',
+    experiments: '/api/v1/admin/laboratory/consistency/experiments',
+  },
+
+  adminNotifications: {
+    base: '/api/v1/admin/notifications',
   },
 } as const

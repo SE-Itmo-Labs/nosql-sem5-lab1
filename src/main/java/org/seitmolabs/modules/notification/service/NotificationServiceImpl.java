@@ -1,12 +1,11 @@
 package org.seitmolabs.modules.notification.service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 import org.seitmolabs.common.dto.CreateNotificationRequest;
 import org.seitmolabs.modules.notification.domain.Notification;
-import org.seitmolabs.modules.notification.domain.NotificationStatus;
+import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.repositories.NotificationRepository;
 import org.seitmolabs.modules.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -20,6 +19,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final NotificationFactory notificationFactory;
 
     @Override
     public Notification create(CreateNotificationRequest request) {
@@ -27,14 +27,9 @@ public class NotificationServiceImpl implements NotificationService {
             throw new EntityNotFoundException("Пользователь не найден: " + request.userId());
         }
 
-        Notification notification = new Notification(
+        Notification notification = notificationFactory.createSent(
                 notificationRepository.nextId(),
-                request.userId(),
-                request.title(),
-                request.text(),
-                request.categoryId(),
-                NotificationStatus.SENT,
-                Instant.now()
+                request
         );
 
         notificationRepository.save(notification);
@@ -45,6 +40,15 @@ public class NotificationServiceImpl implements NotificationService {
     public Notification getById(Long id) {
         return notificationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Уведомление не найдено: " + id));
+    }
+
+    @Override
+    public Notification getByIdForUser(Long id, String userId) {
+        Notification notification = getById(id);
+        if (!notification.getUserId().equals(userId)) {
+            throw new EntityNotFoundException("Уведомление не найдено: " + id);
+        }
+        return notification;
     }
 
     @Override

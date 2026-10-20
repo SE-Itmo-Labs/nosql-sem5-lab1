@@ -1,10 +1,12 @@
 package org.seitmolabs.modules.block.controller;
 
 import org.seitmolabs.modules.auth.filters.SimpleAuthFilter;
+import org.seitmolabs.modules.auth.authorization.RequireRole;
 import org.seitmolabs.modules.block.DistributedLockDemoService;
 import org.seitmolabs.modules.block.dto.ExecuteLockRequest;
 import org.seitmolabs.modules.block.dto.ExecuteLockResponse;
 import org.seitmolabs.modules.user.domain.User;
+import org.seitmolabs.modules.user.enums.Role;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,8 +19,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/locks")
+@RequestMapping("/api/v1/admin/laboratory/locks")
 @RequiredArgsConstructor
+@RequireRole(Role.ROLE_ADMIN)
 @Tag(name = "Distributed locks", description = "Распределённая блокировка критической секции")
 public class DistributedLockController {
 

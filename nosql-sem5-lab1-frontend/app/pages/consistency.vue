@@ -5,7 +5,7 @@ import PageHeader from '~/components/ui/PageHeader.vue'
 
 defineOptions({ name: 'ConsistencyResearchPage' })
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Согласованность' })
+definePageMeta({ layout: 'dashboard', middleware: ['auth', 'admin'], title: 'Согласованность' })
 
 const { error, isRunning, result, runExperiment } = useConsistencyExperiment()
 </script>

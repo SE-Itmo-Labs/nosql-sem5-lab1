@@ -1,6 +1,7 @@
 import type { ApiClient } from '~/types/api'
 import { createMockAuthApi } from './authMock'
 import { createMockCategoriesApi } from './categoriesMock'
+import { createMockCatalogApi } from './catalogMock'
 import { createMockConsistencyApi } from './consistencyMock'
 import type { MockDatabaseStore } from './database'
 import { createMockLocksApi } from './locksMock'
@@ -10,6 +11,7 @@ import { createMockTemporaryBlocksApi } from './temporaryBlocksMock'
 /** Собирает небольшие доменные mock-модули в единый ApiClient. */
 export const createMockApiClient = (store: MockDatabaseStore): ApiClient => ({
   auth: createMockAuthApi(store),
+  catalog: createMockCatalogApi(store),
   notifications: createMockNotificationsApi(store),
   categories: createMockCategoriesApi(store),
   temporaryBlocks: createMockTemporaryBlocksApi(store),
