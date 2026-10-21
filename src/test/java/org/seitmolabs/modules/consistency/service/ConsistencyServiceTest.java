@@ -41,16 +41,23 @@ class ConsistencyServiceTest {
                 .auditorium(Auditorium.builder().id(2L).name("Зал 1").active(true).build())
                 .startsAt(Instant.parse("2026-10-22T12:00:00Z"))
                 .status(ScreeningStatus.SCHEDULED).build();
-        String projection = "screening=11|movie=7|status=SCHEDULED|startsAt=2026-10-22T12:00:00Z";
+        String projection = "screening=11|movie=7|status=SCHEDULED|startsAt=2026-10-22T12:00:00Z|version=1";
         when(screenings.findById(11L)).thenReturn(Optional.of(screening));
         when(registry.primary()).thenReturn(primary);
         when(primary.id()).thenReturn(new RedisNodeId("primary"));
         when(primary.template()).thenReturn(template);
         when(template.opsForValue()).thenReturn(values);
+        when(values.increment("laboratory:screening:11:version")).thenReturn(1L, 2L);
         when(values.get("laboratory:screening:11")).thenReturn(projection);
 
-        ConsistencyService service = new ConsistencyService(registry, mock(NodeProbeService.class),
-                mock(ReplicaSelectionStrategy.class), mock(ReplicationTopologyService.class), screenings);
+        NodeProbeService probe = mock(NodeProbeService.class);
+        ReplicaSelectionStrategy selection = mock(ReplicaSelectionStrategy.class);
+        RedisNodeClient replica = mock(RedisNodeClient.class);
+        when(selection.select()).thenReturn(replica);
+        when(replica.id()).thenReturn(new RedisNodeId("replica-1"));
+        when(probe.read("replica-1", "laboratory:screening:11")).thenReturn(projection);
+        ConsistencyService service = new ConsistencyService(registry, probe,
+                selection, mock(ReplicationTopologyService.class), screenings);
         ExperimentResponse response = service.runExperiment(
                 new ExperimentRequest(11L, "PRIMARY", "EVENTUAL", 500));
 
@@ -58,5 +65,11 @@ class ConsistencyServiceTest {
         assertThat(response.resourceType()).isEqualTo("SCREENING");
         assertThat(response.resourceId()).isEqualTo(11L);
         assertThat(response.consistent()).isTrue();
+
+        ExperimentResponse stale = service.runExperiment(
+                new ExperimentRequest(11L, "REPLICA", "EVENTUAL", 500));
+        assertThat(stale.writtenValue()).endsWith("|version=2");
+        assertThat(stale.readValue()).isEqualTo(projection);
+        assertThat(stale.consistent()).isFalse();
     }
 }
