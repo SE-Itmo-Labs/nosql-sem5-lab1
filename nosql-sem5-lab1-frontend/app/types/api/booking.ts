@@ -39,6 +39,9 @@ export interface Ticket {
   seatNumber: number
   price: number
   status: 'CONFIRMED' | 'CANCELLED'
+  movieTitle: string
+  startsAt: string
+  auditoriumName: string
 }
 
 export interface OrderProduct {

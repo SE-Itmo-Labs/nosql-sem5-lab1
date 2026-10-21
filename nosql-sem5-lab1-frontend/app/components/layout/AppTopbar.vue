@@ -35,8 +35,7 @@ const onLogout = async () => {
     </div>
 
     <div class="topbar-actions">
-      <!-- Режим данных всегда виден, чтобы mock нельзя было принять за backend. -->
-      <span class="mode-badge" :class="{ 'mode-badge--real': !isMockMode }">
+      <span v-if="user?.role === 'ROLE_ADMIN'" class="mode-badge" :class="{ 'mode-badge--real': !isMockMode }">
         <span class="mode-dot" aria-hidden="true" />
         {{ isMockMode ? 'Mock API' : 'Real API' }}
       </span>

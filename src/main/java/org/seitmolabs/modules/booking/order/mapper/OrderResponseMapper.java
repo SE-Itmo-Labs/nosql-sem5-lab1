@@ -39,7 +39,10 @@ public class OrderResponseMapper {
                 ticket.getSeat().getRowNumber(),
                 ticket.getSeat().getSeatNumber(),
                 ticket.getPriceSnapshot(),
-                ticket.getStatus().name()
+                ticket.getStatus().name(),
+                ticket.getScreening().getMovie().getTitle(),
+                ticket.getScreening().getStartsAt(),
+                ticket.getScreening().getAuditorium().getName()
         );
     }
 

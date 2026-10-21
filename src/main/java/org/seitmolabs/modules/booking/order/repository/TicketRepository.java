@@ -35,7 +35,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     @Query("""
             select ticket from Ticket ticket
-            join fetch ticket.screening
+            join fetch ticket.screening screening
+            join fetch screening.movie
+            join fetch screening.auditorium
             join fetch ticket.seat seat
             where ticket.order.id = :orderId
             order by seat.rowNumber, seat.seatNumber

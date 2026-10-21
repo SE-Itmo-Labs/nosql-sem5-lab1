@@ -148,6 +148,9 @@ export const createMockOrdersApi = (store: MockDatabaseStore): ApiClient['orders
         return {
           id: store.value.nextTicketId++,
           screeningId: screening.id,
+          movieTitle: screening.movieTitle,
+          startsAt: screening.startsAt,
+          auditoriumName: screening.auditoriumName,
           seatId,
           rowNumber: seat.rowNumber,
           seatNumber: seat.seatNumber,

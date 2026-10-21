@@ -5,22 +5,22 @@ defineOptions({ name: 'AuthLayout' })
 <template>
   <div class="auth-layout">
     <!-- Декоративная область объясняет назначение приложения до авторизации. -->
-    <section class="auth-intro" aria-label="Описание лабораторной работы">
+    <section class="auth-intro" aria-label="Кинотеатр">
       <NuxtLink class="auth-brand" to="/login">
         <span class="auth-brand-mark" aria-hidden="true">К</span>
-        <span>Кинотеатр · NoSQL Lab</span>
+        <span>Кинотеатр</span>
       </NuxtLink>
 
       <div class="auth-copy">
-        <p class="auth-eyebrow">Redis · вариант 1869847</p>
-        <h1>Личный кабинет, в котором механизмы Redis видны пользователю.</h1>
+        <p class="auth-eyebrow">Ваш следующий поход в кино</p>
+        <h1>Выберите фильм. Забронируйте лучшие места.</h1>
         <p>
-          Уведомления, TTL-бронирование, кэш справочника, распределённая
-          блокировка и исследование primary/replica собраны в одном интерфейсе.
+          Афиша, удобный выбор сеанса и мест, билеты и кинобар.
+          Все ваши заказы и сообщения кинотеатра — в личном кабинете.
         </p>
       </div>
 
-      <p class="auth-footnote">ИТМО · NoSQL · лабораторная работа №1</p>
+      <p class="auth-footnote">Билеты, заказы и уведомления в одном месте</p>
     </section>
 
     <!-- Форма остается самостоятельным slot и не знает о декоративной части. -->
