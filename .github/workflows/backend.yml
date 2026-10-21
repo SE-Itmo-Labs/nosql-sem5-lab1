@@ -21,6 +21,7 @@ jobs:
           POSTGRES_USER=${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          APP_DATA_INITIALIZER_ENABLED=true
           EOF
 
       # 2. Настраиваем Java 25 (используем Foojay для автоподкачки, если нужно)
