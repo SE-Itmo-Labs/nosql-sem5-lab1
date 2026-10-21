@@ -40,7 +40,7 @@ export default defineNuxtConfig({
     baseURL: '/nosql-sem5-lab1/',
   },
 
-  ssr: true,
+  ssr: false,
 
   modules: [
     '@nuxt/eslint',

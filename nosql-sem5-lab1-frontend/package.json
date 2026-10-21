@@ -5,8 +5,10 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+
     "generate": "nuxt generate",
     "preview": "nuxt preview",
+    "nuxi_preview": "serve .output/public --route /nosql-sem5-lab1/*",
     "postinstall": "nuxt prepare",
 
     "lint": "eslint .",

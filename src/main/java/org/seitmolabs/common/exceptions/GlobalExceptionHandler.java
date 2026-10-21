@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.seitmolabs.modules.auth.dto.response.ErrorResponse;
 import org.seitmolabs.modules.auth.exceptions.UnauthorizedException;
 import org.seitmolabs.modules.auth.authorization.ForbiddenException;
-import org.seitmolabs.modules.block.exceptions.BlockConflictException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -80,7 +79,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
-    @ExceptionHandler({ConflictException.class, BlockConflictException.class})
+    @ExceptionHandler(ConflictException.class)
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(Instant.now().toString())

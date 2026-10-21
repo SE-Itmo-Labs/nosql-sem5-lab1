@@ -17,6 +17,7 @@ defineProps<{ result: ConsistencyExperimentResponse | null, running: boolean }>(
         <div><small>Результат чтения</small><h3>{{ result.consistent ? 'Значения согласованы' : 'Реплика вернула старое значение' }}</h3></div>
       </div>
       <dl class="values">
+        <div><dt>Объект</dt><dd>{{ result.resourceLabel }} (№{{ result.resourceId }})</dd></div>
         <div><dt>Записано</dt><dd>{{ result.writtenValue }}</dd></div>
         <div><dt>Прочитано</dt><dd>{{ result.readValue ?? 'null' }}</dd></div>
         <div><dt>Источник</dt><dd>{{ result.sourceNode }}</dd></div>
@@ -27,7 +28,7 @@ defineProps<{ result: ConsistencyExperimentResponse | null, running: boolean }>(
         <div><strong>{{ result.waitDurationMs }}</strong><span>WAIT, мс</span></div>
         <div><strong>{{ result.readDurationMs }}</strong><span>чтение, мс</span></div>
       </div>
-      <p class="mode">{{ result.mode }} · {{ result.readTarget }} · {{ result.key }}</p>
+      <p class="mode">{{ result.resourceType }} · {{ result.mode }} · {{ result.readTarget }} · {{ result.key }}</p>
     </template>
   </section>
 </template>

@@ -10,9 +10,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Repository;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 @Repository
 @RequiredArgsConstructor
@@ -48,7 +48,7 @@ public class SeatHoldRepository {
             """, Long.class);
 
     private final StringRedisTemplate redisTemplate;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
     public boolean create(SeatHold hold, Duration ttl) {
         List<String> keys = keys(hold);
@@ -68,8 +68,8 @@ public class SeatHoldRepository {
             return Optional.empty();
         }
         try {
-            return Optional.of(objectMapper.readValue(json, SeatHold.class));
-        } catch (JsonProcessingException exception) {
+            return Optional.of(jsonMapper.readValue(json, SeatHold.class));
+        } catch (JacksonException exception) {
             throw new IllegalStateException("Не удалось прочитать удержание мест", exception);
         }
     }
@@ -93,8 +93,8 @@ public class SeatHoldRepository {
 
     private String serialize(SeatHold hold) {
         try {
-            return objectMapper.writeValueAsString(hold);
-        } catch (JsonProcessingException exception) {
+            return jsonMapper.writeValueAsString(hold);
+        } catch (JacksonException exception) {
             throw new IllegalStateException("Не удалось сохранить удержание мест", exception);
         }
     }

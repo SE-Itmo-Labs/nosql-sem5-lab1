@@ -10,11 +10,6 @@
 const pathSegment = (value: string | number) => encodeURIComponent(String(value))
 
 export const API_ENDPOINTS = {
-  /** Техническая проверка доступности приложения; не является бизнес-методом. */
-  system: {
-    hello: '/hello',
-  },
-
   /** Авторизация использует уже выбранный backend-префикс /api/v1/auth. */
   auth: {
     login: '/api/v1/auth/login',

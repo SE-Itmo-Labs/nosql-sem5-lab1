@@ -35,9 +35,10 @@ dependencies {
 
     // JPA (postgres)
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.flywaydb:flyway-core")
-    runtimeOnly("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.postgresql:postgresql")
+
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
     // Validation (RegisterRequest/LoginRequest)
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -47,6 +48,7 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
 
 java {
     toolchain {

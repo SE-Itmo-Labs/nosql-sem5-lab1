@@ -206,53 +206,26 @@ JWT и Spring Security не используются. После проверк�
 
 | Метод | URL | Назначение |
 | --- | --- | --- |
-| `GET` | `/api/v1/admin/laboratory/consistency/state` | выбранные режимы чтения и записи |
-| `PUT` | `/api/v1/admin/laboratory/consistency/mode` | изменить один или оба режима |
-| `POST` | `/api/v1/admin/laboratory/consistency/write` | записать значение в primary |
-| `GET` | `/api/v1/admin/laboratory/consistency/read/{key}` | прочитать в выбранном режиме |
-| `GET` | `/api/v1/admin/laboratory/consistency/nodes/{key}` | сравнить настроенные узлы |
-| `POST` | `/api/v1/admin/laboratory/consistency/experiments` | выполнить измеряемый эксперимент |
+| `POST` | `/api/v1/admin/laboratory/consistency/experiments` | записать и прочитать проекцию существующего сеанса |
 | `POST` | `/api/v1/admin/laboratory/consistency/nodes/{nodeId}/detach` | отключить выбранную реплику |
 | `POST` | `/api/v1/admin/laboratory/consistency/nodes/{nodeId}/attach` | подключить выбранную реплику обратно |
 
-Изменение режима:
+Тело эксперимента:
 
 ```json
 {
-  "readMode": "REPLICA_PREFERRED",
-  "writeMode": "WAIT_FOR_REPLICAS"
-}
-```
-
-Для чтения доступны `PRIMARY` и `REPLICA_PREFERRED`, для записи — `ASYNC` и
-`WAIT_FOR_REPLICAS`. Старое значение `MASTER` принимается как alias для
-`PRIMARY`. Поле, которое изменять не нужно, можно не передавать. Все методы
-раздела доступны только администратору.
-
-Простая запись:
-
-```json
-{
-  "key": "demo",
-  "value": "version-1"
-}
-```
-
-Один эксперимент со своими параметрами:
-
-```json
-{
-  "key": "demo",
-  "value": "version-2",
+  "screeningId": 1,
   "readTarget": "REPLICA",
   "mode": "EVENTUAL",
   "waitTimeoutMs": 500
 }
 ```
 
-`readTarget` принимает `PRIMARY` или `REPLICA`, а `mode` — `EVENTUAL` или
-`WAIT_FOR_REPLICA`. Ответ содержит записанное и прочитанное значения, узел,
-число подтверждений, `consistent` и длительности записи, ожидания и чтения.
+Backend проверяет сеанс в PostgreSQL и сам строит ключ
+`laboratory:screening:{id}` и диагностическое значение. `readTarget` принимает
+`PRIMARY` или `REPLICA`, а `mode` — `EVENTUAL` или `WAIT_FOR_REPLICA`. Ответ
+содержит предметный объект, записанное и прочитанное значения, узел,
+подтверждения и длительности. Проекция не участвует в бронировании.
 
 ## Swagger
 
