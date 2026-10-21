@@ -3,7 +3,7 @@ import type { Notification } from '~/types/api'
 
 defineOptions({ name: 'NotificationHistoryCard' })
 
-defineProps<{
+const props = defineProps<{
   notification: Notification
   categoryName: string
   busy: boolean
@@ -15,6 +15,50 @@ const emit = defineEmits<{
   delete: []
 }>()
 
+const card = ref<HTMLElement | null>(null)
+const isVisible = ref(false)
+let observer: IntersectionObserver | undefined
+let readTimer: ReturnType<typeof setTimeout> | undefined
+let attempted = false
+
+const cancelRead = () => {
+  clearTimeout(readTimer)
+  readTimer = undefined
+}
+
+const scheduleRead = () => {
+  cancelRead()
+  if (!isVisible.value || document.visibilityState !== 'visible' || attempted
+    || props.busy || !props.allowActions || props.notification.status === 'READ') return
+
+  readTimer = setTimeout(() => {
+    attempted = true
+    emit('read')
+  }, 2000)
+}
+
+onMounted(() => {
+  if (!card.value) return
+  observer = new IntersectionObserver(([entry]) => {
+    if (!entry) return
+    const visible = entry.isIntersecting && entry.intersectionRect.height
+      >= Math.min(entry.boundingClientRect.height, entry.rootBounds?.height ?? window.innerHeight) / 2
+    if (visible === isVisible.value) return
+    isVisible.value = visible
+    if (!visible) attempted = false
+    scheduleRead()
+  }, { threshold: Array.from({ length: 21 }, (_, index) => index / 20) })
+  observer.observe(card.value)
+  document.addEventListener('visibilitychange', scheduleRead)
+})
+
+watch(() => [props.busy, props.allowActions, props.notification.status], scheduleRead)
+onBeforeUnmount(() => {
+  cancelRead()
+  observer?.disconnect()
+  document.removeEventListener('visibilitychange', scheduleRead)
+})
+
 const dateFormatter = new Intl.DateTimeFormat('ru-RU', {
   dateStyle: 'medium',
   timeStyle: 'short',
@@ -24,7 +68,11 @@ const formatDate = (value: string): string => dateFormatter.format(new Date(valu
 </script>
 
 <template>
-  <article class="notification-card">
+  <article
+    ref="card"
+    class="notification-card"
+    :class="{ 'notification-card--new': notification.status !== 'READ' }"
+  >
     <div class="notification-marker" :class="`notification-marker--${notification.status.toLowerCase()}`">
       {{ notification.status === 'READ' ? '✓' : '✦' }}
     </div>
@@ -32,7 +80,7 @@ const formatDate = (value: string): string => dateFormatter.format(new Date(valu
     <div class="notification-body">
       <div class="notification-meta">
         <span class="status-pill" :class="`status-pill--${notification.status.toLowerCase()}`">
-          {{ notification.status === 'READ' ? 'Прочитано' : 'Отправлено' }}
+          {{ notification.status === 'READ' ? 'Прочитано' : 'Новое' }}
         </span>
         <span>{{ categoryName }}</span>
         <time :datetime="notification.createdAt">{{ formatDate(notification.createdAt) }}</time>
@@ -44,19 +92,10 @@ const formatDate = (value: string): string => dateFormatter.format(new Date(valu
     <!-- Изменяющие действия блокируются на время запроса от повторного клика. -->
     <div v-if="allowActions" class="notification-actions">
       <button
-        v-if="notification.status !== 'READ'"
-        class="notification-action"
-        type="button"
-        :disabled="busy"
-        @click="emit('read')"
-      >
-        Прочитано
-      </button>
-      <button
         class="notification-action notification-action--danger"
         type="button"
         :disabled="busy"
-        @click="emit('delete')"
+        @click.stop="emit('delete')"
       >
         Удалить
       </button>
@@ -74,6 +113,10 @@ const formatDate = (value: string): string => dateFormatter.format(new Date(valu
   border-radius: var(--radius-md);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
+}
+
+.notification-card--new {
+  border-left: 3px solid var(--color-primary);
 }
 
 .notification-marker {

@@ -4,7 +4,6 @@ import type {
   Notification,
   NotificationQuery,
   NotificationStats,
-  NotificationStatus,
   PageResponse,
 } from '~/types/api'
 
@@ -12,7 +11,6 @@ import type {
 export interface NotificationFilters {
   search: string
   categoryId: number | null
-  status: NotificationStatus | null
 }
 
 type NotificationDraft = CreateNotificationRequest
@@ -53,11 +51,11 @@ export const useNotifications = () => {
   const filters = reactive<NotificationFilters>({
     search: '',
     categoryId: null,
-    status: null,
   })
   const isLoading = ref(true)
   const isSubmitting = ref(false)
   const busyNotificationId = ref<number | null>(null)
+  const readingIds = new Set<number>()
   const loadError = ref('')
   const actionError = ref('')
   const feedback = ref('')
@@ -70,24 +68,30 @@ export const useNotifications = () => {
     userId: user.value?.login,
     q: filters.search.trim() || undefined,
     categoryId: filters.categoryId ?? undefined,
-    status: filters.status ?? undefined,
     ...(includePage ? { page: pageData.value.page, size: pageData.value.size } : {}),
   })
 
-  /** Загружает список и метрики вместе, чтобы они всегда отражали один фильтр. */
-  const loadNotifications = async () => {
+  const loadNotifications = async (silent = false) => {
     const requestId = ++latestRequest
-    isLoading.value = true
+    if (!silent) isLoading.value = true
     loadError.value = ''
 
     try {
       const [nextPage, nextStats] = await Promise.all([
         api.notifications.getAll(createQuery(true)),
-        api.notifications.getStats(createQuery(false)),
+        canSendNotifications.value
+          ? api.notifications.getStats(createQuery(false))
+          : Promise.resolve(createEmptyStats()),
       ])
 
       // Более старый медленный ответ не должен перезаписать свежий результат.
       if (requestId === latestRequest) {
+        const lastPage = Math.max(0, nextPage.totalPages - 1)
+        if (nextPage.page > lastPage) {
+          pageData.value.page = lastPage
+          await loadNotifications(silent)
+          return
+        }
         pageData.value = nextPage
         stats.value = nextStats
       }
@@ -120,11 +124,9 @@ export const useNotifications = () => {
     await loadNotifications()
   }
 
-  const resetFilters = async () => {
+  const resetFilters = () => {
     filters.search = ''
     filters.categoryId = null
-    filters.status = null
-    await applyFilters()
   }
 
   const goToPage = async (page: number) => {
@@ -160,23 +162,31 @@ export const useNotifications = () => {
   }
 
   const markAsRead = async (notification: Notification) => {
-    busyNotificationId.value = notification.id
-    actionError.value = ''
+    if (notification.status === 'READ' || readingIds.has(notification.id)
+      || busyNotificationId.value === notification.id) return
+    readingIds.add(notification.id)
+    const requestId = latestRequest
 
     try {
       await api.notifications.update(notification.id, { status: 'READ' })
-      feedback.value = `Уведомление «${notification.title}» отмечено прочитанным`
-      await loadNotifications()
+      notification.status = 'READ'
+      const displayed = pageData.value.content.find(item => item.id === notification.id)
+      if (displayed) displayed.status = 'READ'
+      if (canSendNotifications.value && requestId === latestRequest) {
+        stats.value.sent = Math.max(0, stats.value.sent - 1)
+        stats.value.read += 1
+      }
     }
     catch (cause) {
       actionError.value = getErrorMessage(cause)
     }
     finally {
-      busyNotificationId.value = null
+      readingIds.delete(notification.id)
     }
   }
 
   const deleteNotification = async (notification: Notification) => {
+    if (busyNotificationId.value !== null || readingIds.has(notification.id)) return
     if (!globalThis.confirm(`Удалить уведомление «${notification.title}»?`)) return
 
     busyNotificationId.value = notification.id
@@ -199,6 +209,24 @@ export const useNotifications = () => {
       busyNotificationId.value = null
     }
   }
+
+  let searchTimer: ReturnType<typeof setTimeout> | undefined
+
+  const cancelSearch = () => clearTimeout(searchTimer)
+
+  watch(() => filters.search, () => {
+    cancelSearch()
+    latestRequest += 1
+    searchTimer = setTimeout(() => { void applyFilters() }, 300)
+  })
+  watch(() => filters.categoryId, () => {
+    cancelSearch()
+    void applyFilters()
+  })
+  onBeforeUnmount(() => {
+    cancelSearch()
+    latestRequest += 1
+  })
 
   onMounted(initialize)
   watch(notificationRefreshVersion, () => { void loadNotifications() })
