@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { APP_NAVIGATION } from '~/config/navigation'
+import { getNavigationForRole } from '~/config/navigation'
 
 defineProps<{
   open: boolean
@@ -10,6 +10,8 @@ const emit = defineEmits<{
 }>()
 
 const route = useRoute()
+const { user } = useAuth()
+const navigation = computed(() => getNavigationForRole(user.value?.role))
 
 /** Главная считается активной только при точном совпадении, вложенные — по префиксу. */
 const isActive = (path: string): boolean => path === '/'
@@ -32,7 +34,7 @@ const isActive = (path: string): boolean => path === '/'
     <nav class="navigation">
       <p class="navigation-label">Личный кабинет</p>
       <NuxtLink
-        v-for="item in APP_NAVIGATION"
+        v-for="item in navigation"
         :key="item.to"
         :to="item.to"
         class="navigation-link"

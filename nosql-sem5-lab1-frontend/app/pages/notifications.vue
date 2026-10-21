@@ -14,6 +14,7 @@ const {
   applyFilters,
   busyNotificationId,
   canManageHistory,
+  canSendNotifications,
   categories,
   composerVersion,
   createNotification,
@@ -29,7 +30,6 @@ const {
   pageData,
   resetFilters,
   stats,
-  user,
 } = useNotifications()
 </script>
 
@@ -38,9 +38,9 @@ const {
     <PageHeader
       eyebrow="Основной сценарий"
       title="Уведомления"
-      description="Отправляйте сообщения клиенту кинотеатра и отслеживайте их состояние. Список одинаково работает с локальными данными и Spring Boot API."
+      description="Получайте системные сообщения кинотеатра и отслеживайте их состояние. Ручная отправка доступна администратору."
     >
-      <template #actions>
+      <template v-if="canSendNotifications" #actions>
         <a class="btn btn-primary" href="#notification-composer">Новое уведомление</a>
       </template>
     </PageHeader>
@@ -50,7 +50,7 @@ const {
     <p v-if="feedback" class="page-message page-message--success" role="status">{{ feedback }}</p>
     <p v-if="actionError" class="page-message page-message--error" role="alert">{{ actionError }}</p>
 
-    <div class="notifications-layout">
+    <div class="notifications-layout" :class="{ 'notifications-layout--single': !canSendNotifications }">
       <main class="notifications-content">
         <NotificationFilters
           v-model:search="filters.search"
@@ -78,9 +78,10 @@ const {
 
       <!-- key очищает форму только после подтвержденной отправки. -->
       <NotificationComposer
+        v-if="canSendNotifications"
         :key="composerVersion"
         :categories="categories"
-        :username="user?.login ?? '—'"
+        default-recipient="client01"
         :submitting="isSubmitting"
         @submit="createNotification"
       />
@@ -99,6 +100,8 @@ const {
 .notifications-content {
   min-width: 0;
 }
+
+.notifications-layout--single { grid-template-columns: 1fr; }
 
 .page-message {
   margin: 0 0 14px;

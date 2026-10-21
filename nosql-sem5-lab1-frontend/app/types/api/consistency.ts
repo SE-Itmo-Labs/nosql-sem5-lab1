@@ -9,8 +9,7 @@ export type ReplicationMode = 'EVENTUAL' | 'WAIT_FOR_REPLICA'
 
 /** Параметры воспроизводимого эксперимента записи и последующего чтения. */
 export interface ConsistencyExperimentRequest {
-  key: string
-  value: string
+  screeningId: number
   readTarget: RedisReadTarget
   mode: ReplicationMode
   waitTimeoutMs: number
@@ -18,6 +17,9 @@ export interface ConsistencyExperimentRequest {
 
 /** Метрики и фактические значения, которые frontend покажет пользователю. */
 export interface ConsistencyExperimentResponse {
+  resourceType: 'SCREENING'
+  resourceId: number
+  resourceLabel: string
   key: string
   writtenValue: string
   readValue: string | null

@@ -40,21 +40,28 @@ Lab1, NoSQL. Снагин Станислав, Александрова Мила�
 В проекте реализованы:
 
 - Spring Boot backend на JDK 25 и Nuxt frontend;
-- хранение уведомлений, временных блокировок и кэша в Redis;
+- хранение уведомлений, удержаний мест и кэша в Redis;
 - PostgreSQL для пользователей и исходного справочника категорий;
+- постоянный PostgreSQL volume и версионированные миграции Flyway;
+- каталог фильмов, залов, мест и будущих сеансов в PostgreSQL;
+- клиентская афиша, карточки фильмов, список сеансов и выбор мест;
+- атомарное удержание мест, кинобар и транзакционное подтверждение заказа;
 - атомарная отправка уведомления;
+- надёжная доставка системных уведомлений через PostgreSQL outbox;
 - cache-aside с TTL и инвалидацией;
-- временная блокировка с TTL и распределённая блокировка Redisson;
-- primary Redis и две асинхронные реплики;
+- удержание мест с TTL и распределённая блокировка Redisson при покупке;
+- конфигурируемая топология Redis с primary и асинхронными репликами;
 - режим записи с `WAIT`, отключение и восстановление реплик для эксперимента;
 - AOF и RDB для восстановления Redis;
-- упрощённый вход тестовых пользователей без Spring Security;
+- упрощённый вход тестовых пользователей и разделение доступа `CLIENT/ADMIN`;
 - Swagger/OpenAPI, unit-тесты и интеграционные тесты Testcontainers.
 
 ## Быстрый запуск
 
 ```bash
 cp credentials.env.example credentials.env
+# Для локальных тестовых пользователей и афиши при необходимости задайте:
+# APP_DATA_INITIALIZER_ENABLED=true
 ./gradlew clean build
 docker compose --env-file credentials.env up -d --build
 ```
@@ -65,7 +72,8 @@ docker compose --env-file credentials.env up -d --build
 - Swagger UI: <http://localhost:16767/swagger-ui/index.html>
 - OpenAPI JSON: <http://localhost:16767/v3/api-docs>
 
-Тестовые пользователи:
+Тестовые пользователи создаются только при
+`APP_DATA_INITIALIZER_ENABLED=true`:
 
 - `client01` / `client123`;
 - `admin` / `123`.
@@ -78,4 +86,6 @@ docker compose --env-file credentials.env up -d --build
 | [Архитектура backend](docs/BACKEND_ARCHITECTURE.md) | Структура Java-кода, Redis-ключи и реализация сценариев |
 | [Архитектура frontend](docs/FRONTEND_ARCHITECTURE.md) | Структура Nuxt-приложения и режимы API |
 | [Контракт REST API](docs/API_CONTRACT.md) | Реализованные эндпоинты и примеры JSON |
+| [Предметная модель](docs/DOMAIN_MODEL.md) | Владение данными, статусы и правила бронирования |
 | [Отчёт](docs/LAB_REPORT.md) | Выполнение требований, эксперимент и выводы |
+| [Маршрут защиты](docs/DEMO_SCENARIO.md) | Последовательность демонстрации и ожидаемые результаты |

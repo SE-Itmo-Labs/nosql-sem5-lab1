@@ -10,41 +10,53 @@
 const pathSegment = (value: string | number) => encodeURIComponent(String(value))
 
 export const API_ENDPOINTS = {
-  /** Техническая проверка доступности приложения; не является бизнес-методом. */
-  system: {
-    hello: '/hello',
-  },
-
   /** Авторизация использует уже выбранный backend-префикс /api/v1/auth. */
   auth: {
     login: '/api/v1/auth/login',
+  },
+
+  catalog: {
+    movies: '/api/v1/movies',
+    movie: (movieId: number) => `/api/v1/movies/${pathSegment(movieId)}`,
+    movieScreenings: (movieId: number) => `/api/v1/movies/${pathSegment(movieId)}/screenings`,
+    screeningSeats: (screeningId: number) => `/api/v1/screenings/${pathSegment(screeningId)}/seats`,
+  },
+
+  seatHolds: {
+    base: '/api/v1/seat-holds',
+    byId: (holdId: string) => `/api/v1/seat-holds/${pathSegment(holdId)}`,
+  },
+
+  products: {
+    base: '/api/v1/products',
+  },
+
+  orders: {
+    base: '/api/v1/orders',
+    byId: (orderId: number) => `/api/v1/orders/${pathSegment(orderId)}`,
+    cancel: (orderId: number) => `/api/v1/orders/${pathSegment(orderId)}/cancel`,
   },
 
   /** Основной сценарий лабораторной — создание и чтение уведомлений. */
   notifications: {
     base: '/api/v1/notifications',
     byId: (id: number) => `/api/v1/notifications/${pathSegment(id)}`,
+    read: (id: number) => `/api/v1/notifications/${pathSegment(id)}/read`,
   },
 
   /** Справочник категорий, поверх которого backend реализует cache-aside. */
   categories: {
     base: '/api/v1/categories',
-    byId: (id: number) => `/api/v1/categories/${pathSegment(id)}`,
-  },
-
-  /** Ключи с TTL для временного бронирования ресурса. */
-  temporaryBlocks: {
-    base: '/api/v1/blocks',
-    byResource: (resourceKey: string) => `/api/v1/blocks/${pathSegment(resourceKey)}`,
-  },
-
-  /** Атомарный захват и безопасное освобождение распределенной блокировки. */
-  locks: {
-    execute: '/api/v1/locks/execute',
+    adminBase: '/api/v1/admin/notification-categories',
+    adminById: (id: number) => `/api/v1/admin/notification-categories/${pathSegment(id)}`,
   },
 
   /** Управляемый эксперимент чтения из Redis primary или replica. */
   consistency: {
-    experiments: '/api/v1/consistency/experiments',
+    experiments: '/api/v1/admin/laboratory/consistency/experiments',
+  },
+
+  adminNotifications: {
+    base: '/api/v1/admin/notifications',
   },
 } as const

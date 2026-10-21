@@ -1,7 +1,7 @@
 package org.seitmolabs.modules.consistency.dto;
 
 public record ReplicaActionResponse(
-        int node,
+        String nodeId,
         String action,
         String role,
         String linkUp

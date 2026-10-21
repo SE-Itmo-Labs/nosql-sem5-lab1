@@ -3,13 +3,11 @@ package org.seitmolabs.modules.consistency.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record ExperimentRequest(
-        @NotBlank
-        String key,
-
-        @NotBlank
-        String value,
+        @NotNull
+        Long screeningId,
 
         @NotBlank
         String readTarget,

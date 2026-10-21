@@ -1,13 +1,14 @@
 package org.seitmolabs.modules.notification.service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 import org.seitmolabs.common.dto.CreateNotificationRequest;
 import org.seitmolabs.modules.notification.domain.Notification;
-import org.seitmolabs.modules.notification.domain.NotificationStatus;
+import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.repositories.NotificationRepository;
+import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
+import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final NotificationFactory notificationFactory;
+    private final CategoryDbRepository categoryRepository;
 
     @Override
     public Notification create(CreateNotificationRequest request) {
@@ -27,14 +30,9 @@ public class NotificationServiceImpl implements NotificationService {
             throw new EntityNotFoundException("Пользователь не найден: " + request.userId());
         }
 
-        Notification notification = new Notification(
+        Notification notification = notificationFactory.createSent(
                 notificationRepository.nextId(),
-                request.userId(),
-                request.title(),
-                request.text(),
-                request.categoryId(),
-                NotificationStatus.SENT,
-                Instant.now()
+                request
         );
 
         notificationRepository.save(notification);
@@ -48,10 +46,41 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public Notification getByIdForUser(Long id, String userId) {
+        Notification notification = getById(id);
+        if (!notification.getUserId().equals(userId)) {
+            throw new EntityNotFoundException("Уведомление не найдено: " + id);
+        }
+        return notification;
+    }
+
+    @Override
     public List<Notification> getByUserId(String userId) {
         return notificationRepository.findIdsByUserId(userId).stream()
                 .map(notificationRepository::findById)
                 .flatMap(Optional::stream)
                 .toList();
+    }
+
+    @Override
+    public Notification markRead(Long id, String userId) {
+        Notification notification = getByIdForUser(id, userId);
+        return notificationRepository.markRead(notification);
+    }
+
+    @Override
+    public void delete(Long id, String userId) {
+        notificationRepository.delete(getByIdForUser(id, userId));
+    }
+
+    @Override
+    public void deliver(OutboxEvent event) {
+        Long categoryId = categoryRepository.findByName(event.getCategoryName())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Категория уведомления не найдена: " + event.getCategoryName()))
+                .getId();
+        Notification notification = notificationFactory.createSystem(
+                notificationRepository.nextId(), event, categoryId);
+        notificationRepository.saveSystem(notification);
     }
 }

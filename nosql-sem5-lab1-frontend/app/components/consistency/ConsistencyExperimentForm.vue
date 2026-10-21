@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import type { ConsistencyExperimentRequest } from '~/types/api'
+import type { ConsistencyExperimentRequest, Screening } from '~/types/api'
 
 defineOptions({ name: 'ConsistencyExperimentForm' })
-defineProps<{ running: boolean }>()
+const props = defineProps<{ running: boolean, screenings: Screening[] }>()
 const emit = defineEmits<{ run: [request: ConsistencyExperimentRequest] }>()
 
 const form = reactive<ConsistencyExperimentRequest>({
-  key: 'consistency:demo',
-  value: `version-${Date.now()}`,
+  screeningId: 0,
   readTarget: 'REPLICA',
   mode: 'EVENTUAL',
   waitTimeoutMs: 500,
@@ -17,8 +16,8 @@ const validationError = ref('')
 /** Не отправляет значения, которые backend заведомо отклонит с 400. */
 const submit = () => {
   validationError.value = ''
-  const request = { ...form, key: form.key.trim(), value: form.value.trim() }
-  if (!request.key || !request.value) validationError.value = 'Ключ и значение не могут быть пустыми'
+  const request = { ...form }
+  if (!props.screenings.some(screening => screening.id === request.screeningId)) validationError.value = 'Выберите реальный сеанс'
   else if (!Number.isInteger(request.waitTimeoutMs) || request.waitTimeoutMs < 1 || request.waitTimeoutMs > 5000) {
     validationError.value = 'Таймаут WAIT должен быть целым числом от 1 до 5000 мс'
   }
@@ -31,8 +30,7 @@ const submit = () => {
     <p class="section-label">Primary → replica</p>
     <h3 class="card-title">Параметры чтения</h3>
     <form @submit.prevent="submit">
-      <label class="field"><span class="field-label">Ключ</span><input v-model="form.key" class="field-input" required></label>
-      <label class="field"><span class="field-label">Новое значение</span><input v-model="form.value" class="field-input" required></label>
+      <label class="field"><span class="field-label">Сеанс кинотеатра</span><select v-model.number="form.screeningId" class="field-input" required><option :value="0" disabled>Выберите сеанс</option><option v-for="screening in screenings" :key="screening.id" :value="screening.id">{{ screening.movieTitle }} · {{ new Date(screening.startsAt).toLocaleString('ru-RU') }}</option></select></label>
       <div class="form-row">
         <label class="field"><span class="field-label">Читать из</span><select v-model="form.readTarget" class="field-input"><option value="PRIMARY">PRIMARY</option><option value="REPLICA">REPLICA</option></select></label>
         <label class="field"><span class="field-label">Режим записи</span><select v-model="form.mode" class="field-input"><option value="EVENTUAL">EVENTUAL</option><option value="WAIT_FOR_REPLICA">WAIT_FOR_REPLICA</option></select></label>

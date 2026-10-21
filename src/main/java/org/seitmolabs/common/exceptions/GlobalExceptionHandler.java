@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.seitmolabs.modules.auth.dto.response.ErrorResponse;
 import org.seitmolabs.modules.auth.exceptions.UnauthorizedException;
-import org.seitmolabs.modules.block.exceptions.BlockConflictException;
+import org.seitmolabs.modules.auth.authorization.ForbiddenException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -42,6 +42,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException ex, HttpServletRequest request) {
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(Instant.now().toString())
+                .status(HttpStatus.FORBIDDEN.value())
+                .error("Forbidden")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
@@ -67,8 +79,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
-    @ExceptionHandler(BlockConflictException.class)
-    public ResponseEntity<ErrorResponse> handleConflict(BlockConflictException ex, HttpServletRequest request) {
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResponse> handleConflict(RuntimeException ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(Instant.now().toString())
                 .status(HttpStatus.CONFLICT.value())

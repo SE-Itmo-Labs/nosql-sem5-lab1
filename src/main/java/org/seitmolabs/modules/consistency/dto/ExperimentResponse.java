@@ -1,6 +1,9 @@
 package org.seitmolabs.modules.consistency.dto;
 
 public record ExperimentResponse(
+        String resourceType,
+        Long resourceId,
+        String resourceLabel,
         String key,
         String writtenValue,
         String readValue,

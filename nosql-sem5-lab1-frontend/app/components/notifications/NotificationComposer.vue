@@ -3,20 +3,21 @@ import type { Category, CreateNotificationRequest } from '~/types/api'
 
 defineOptions({ name: 'NotificationComposerForm' })
 
-defineProps<{
+const props = defineProps<{
   categories: Category[]
-  username: string
+  defaultRecipient: string
   submitting: boolean
 }>()
 
 const emit = defineEmits<{
-  submit: [draft: Omit<CreateNotificationRequest, 'userId'>]
+  submit: [draft: CreateNotificationRequest]
 }>()
 
 const form = reactive({
   title: '',
   text: '',
   categoryId: '' as number | '',
+  userId: props.defaultRecipient,
 })
 const validationError = ref('')
 
@@ -26,13 +27,15 @@ const submitForm = () => {
   const title = form.title.trim()
   const text = form.text.trim()
 
-  if (!title || !text || form.categoryId === '') {
-    validationError.value = 'Заполните заголовок, текст и категорию'
+  const userId = form.userId.trim()
+  if (!title || !text || !userId || form.categoryId === '') {
+    validationError.value = 'Заполните получателя, заголовок, текст и категорию'
     return
   }
 
-  emit('submit', { title, text, categoryId: Number(form.categoryId) })
+  emit('submit', { userId, title, text, categoryId: Number(form.categoryId) })
 }
+
 </script>
 
 <template>
@@ -48,7 +51,7 @@ const submitForm = () => {
     <form class="composer-form" @submit.prevent="submitForm">
       <label class="field">
         <span class="field-label">Получатель</span>
-        <input class="field-input" type="text" :value="username" disabled>
+        <input v-model="form.userId" class="field-input" type="text" autocomplete="off" required>
       </label>
 
       <label class="field">

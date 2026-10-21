@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import FeatureCard from '~/components/feature/FeatureCard.vue'
 import PageHeader from '~/components/ui/PageHeader.vue'
-import { APP_NAVIGATION } from '~/config/navigation'
+import { getNavigationForRole } from '~/config/navigation'
 
 defineOptions({ name: 'DashboardOverviewPage' })
 
@@ -12,7 +12,7 @@ definePageMeta({
 })
 
 const { user } = useAuth()
-const featureLinks = APP_NAVIGATION.filter(item => item.to !== '/')
+const featureLinks = computed(() => getNavigationForRole(user.value?.role).filter(item => item.to !== '/'))
 const isMockMode = useRuntimeConfig().public.apiMode === 'mock'
 const implementedFeatures = 3
 </script>

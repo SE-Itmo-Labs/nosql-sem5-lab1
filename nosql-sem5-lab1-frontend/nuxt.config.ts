@@ -18,10 +18,20 @@ export default defineNuxtConfig({
       routes: [
         '/',
         '/login',
+        '/movies',
+        '/movies/1',
+        '/movies/2',
+        '/movies/3',
+        '/screenings/1',
+        '/screenings/2',
+        '/screenings/3',
+        '/screenings/4',
+        '/screenings/5',
+        '/checkout',
+        '/orders',
+        '/orders/1',
         '/notifications',
         '/categories',
-        '/blocks',
-        '/locks',
         '/consistency'
       ]
     }
@@ -30,7 +40,7 @@ export default defineNuxtConfig({
     baseURL: '/nosql-sem5-lab1/',
   },
 
-  ssr: true,
+  ssr: false,
 
   modules: [
     '@nuxt/eslint',

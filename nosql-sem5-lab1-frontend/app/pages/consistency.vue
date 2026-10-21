@@ -2,20 +2,28 @@
 import ConsistencyExperimentForm from '~/components/consistency/ConsistencyExperimentForm.vue'
 import ConsistencyExperimentResult from '~/components/consistency/ConsistencyExperimentResult.vue'
 import PageHeader from '~/components/ui/PageHeader.vue'
+import type { Screening } from '~/types/api'
 
 defineOptions({ name: 'ConsistencyResearchPage' })
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Согласованность' })
+definePageMeta({ layout: 'dashboard', middleware: ['auth', 'admin'], title: 'Согласованность' })
 
 const { error, isRunning, result, runExperiment } = useConsistencyExperiment()
+const api = useApi()
+const screenings = ref<Screening[]>([])
+
+onMounted(async () => {
+  const movies = await api.catalog.getMovies()
+  screenings.value = (await Promise.all(movies.map(movie => api.catalog.getMovieScreenings(movie.id)))).flat()
+})
 </script>
 
 <template>
   <div>
-    <PageHeader eyebrow="Redis replication" title="Согласованность чтения и записи" description="Сравните немедленное чтение primary или replica с записью, ожидающей подтверждения Redis WAIT." />
+    <PageHeader eyebrow="Лаборатория Redis" title="Согласованность проекции сеанса" description="Эксперимент копирует проекцию реального сеанса в изолированный Redis-ключ и сравнивает чтение primary и replica." />
     <p v-if="error" class="form-error" role="alert">{{ error }}</p>
     <div class="experiment-layout">
-      <ConsistencyExperimentForm :running="isRunning" @run="runExperiment" />
+      <ConsistencyExperimentForm :running="isRunning" :screenings="screenings" @run="runExperiment" />
       <ConsistencyExperimentResult :result="result" :running="isRunning" />
     </div>
   </div>

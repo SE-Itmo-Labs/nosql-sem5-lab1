@@ -5,22 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.redisson.Redisson;
-import org.redisson.api.RedissonClient;
-import org.redisson.config.Config;
-import org.seitmolabs.modules.block.Block;
-import org.seitmolabs.modules.block.BlockRepository;
-import org.seitmolabs.modules.block.DistributedLockService;
+import org.seitmolabs.modules.booking.hold.domain.SeatHold;
+import org.seitmolabs.modules.booking.hold.repository.SeatHoldRepository;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.categories.repositories.CategoryCacheRepository;
 import org.seitmolabs.modules.notification.domain.Notification;
@@ -47,7 +38,6 @@ class RedisRepositoriesIntegrationTest {
     private static LettuceConnectionFactory connectionFactory;
     private static StringRedisTemplate redisTemplate;
     private static JsonMapper jsonMapper;
-    private static RedissonClient redissonClient;
 
     @BeforeAll
     static void connect() {
@@ -58,16 +48,10 @@ class RedisRepositoriesIntegrationTest {
         redisTemplate.afterPropertiesSet();
         jsonMapper = JsonMapper.builder().findAndAddModules().build();
 
-        Config config = new Config();
-        config.useSingleServer().setAddress(
-                "redis://" + REDIS.getHost() + ":" + REDIS.getMappedPort(6379)
-        );
-        redissonClient = Redisson.create(config);
     }
 
     @AfterAll
     static void disconnect() {
-        redissonClient.shutdown();
         connectionFactory.destroy();
     }
 
@@ -102,17 +86,18 @@ class RedisRepositoriesIntegrationTest {
     }
 
     @Test
-    void temporaryBlockExpiresAndCannotBeOverwritten() throws InterruptedException {
-        BlockRepository repository = new BlockRepository(redisTemplate, jsonMapper);
-        Block block = new Block("seat:7-12", "client01", 1, Instant.now());
+    void seatHoldIsAtomicAndExpires() throws InterruptedException {
+        SeatHoldRepository repository = new SeatHoldRepository(redisTemplate, jsonMapper);
+        SeatHold first = new SeatHold("hold-1", 1L, 5L, List.of(10L, 11L),
+                Instant.now(), Instant.now().plusMillis(250));
+        SeatHold conflicting = new SeatHold("hold-2", 2L, 5L, List.of(11L, 12L),
+                Instant.now(), Instant.now().plusSeconds(1));
 
-        assertThat(repository.trySave(block)).isTrue();
-        assertThat(repository.trySave(block)).isFalse();
-        assertThat(repository.findByResourceKey("seat:7-12")).contains(block);
-
-        waitUntilBlockExpires(repository, "seat:7-12");
-
-        assertThat(repository.findByResourceKey("seat:7-12")).isEmpty();
+        assertThat(repository.create(first, Duration.ofMillis(250))).isTrue();
+        assertThat(repository.create(conflicting, Duration.ofSeconds(1))).isFalse();
+        assertThat(repository.isHeld(5L, 12L)).isFalse();
+        Thread.sleep(350);
+        assertThat(repository.findById(first.id())).isEmpty();
     }
 
     @Test
@@ -134,43 +119,4 @@ class RedisRepositoriesIntegrationTest {
         assertThat(repository.findAll()).isEmpty();
     }
 
-    @Test
-    void distributedLockAllowsOnlyOneExecution() throws Exception {
-        DistributedLockService service = new DistributedLockService(redissonClient);
-        CountDownLatch entered = new CountDownLatch(1);
-        CountDownLatch release = new CountDownLatch(1);
-
-        try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
-            Future<Boolean> first = executor.submit(() -> service.executeWithLock(
-                    "notification:1",
-                    () -> holdLock(entered, release)
-            ));
-
-            assertThat(entered.await(3, TimeUnit.SECONDS)).isTrue();
-            assertThat(service.executeWithLock("notification:1", () -> { })).isFalse();
-
-            release.countDown();
-            assertThat(first.get(3, TimeUnit.SECONDS)).isTrue();
-        }
-    }
-
-    private void waitUntilBlockExpires(BlockRepository repository, String resourceKey)
-            throws InterruptedException {
-        for (int attempt = 0; attempt < 30; attempt++) {
-            if (repository.findByResourceKey(resourceKey).isEmpty()) {
-                return;
-            }
-            Thread.sleep(100);
-        }
-    }
-
-    private void holdLock(CountDownLatch entered, CountDownLatch release) {
-        entered.countDown();
-        try {
-            release.await(3, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("Ожидание блокировки прервано", e);
-        }
-    }
 }

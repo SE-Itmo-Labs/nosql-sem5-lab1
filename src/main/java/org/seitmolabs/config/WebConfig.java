@@ -10,9 +10,23 @@ import org.springframework.core.Ordered;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import org.seitmolabs.modules.auth.authorization.RoleAuthorizationInterceptor;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
-public class WebConfig {
+@RequiredArgsConstructor
+public class WebConfig implements WebMvcConfigurer {
+
+    private final RoleAuthorizationInterceptor roleAuthorizationInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(roleAuthorizationInterceptor);
+    }
 
     @Bean
     public FilterRegistrationBean<CorsFilter> corsFilter(

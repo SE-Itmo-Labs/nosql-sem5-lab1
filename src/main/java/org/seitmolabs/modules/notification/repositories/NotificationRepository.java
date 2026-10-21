@@ -3,6 +3,7 @@ package org.seitmolabs.modules.notification.repositories;
 import lombok.RequiredArgsConstructor;
 
 import org.seitmolabs.modules.notification.domain.Notification;
+import org.seitmolabs.modules.notification.domain.NotificationStatus;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Repository;
@@ -20,6 +21,7 @@ public class NotificationRepository {
     private static final String KEY_PREFIX = "notification:";
     private static final String USER_INDEX_PREFIX = "notification:user:";
     private static final String SEQ_KEY = "notification:seq";
+    private static final String EVENT_PREFIX = "notification:event:";
     private static final DefaultRedisScript<Long> SAVE_SCRIPT = new DefaultRedisScript<>(
             "redis.call('SET', KEYS[1], ARGV[1]); " +
                     "redis.call('ZADD', KEYS[2], ARGV[2], ARGV[3]); " +
@@ -51,6 +53,39 @@ public class NotificationRepository {
         } catch (JacksonException e) {
             throw new IllegalStateException("Не удалось сохранить уведомление", e);
         }
+    }
+
+    public void saveSystem(Notification notification) {
+        try {
+            String json = jsonMapper.writeValueAsString(notification);
+            DefaultRedisScript<Long> script = new DefaultRedisScript<>(
+                    "if redis.call('EXISTS', KEYS[3]) == 1 then return 0 end; "
+                            + "redis.call('SET', KEYS[1], ARGV[1]); "
+                            + "redis.call('ZADD', KEYS[2], ARGV[2], ARGV[3]); "
+                            + "redis.call('SET', KEYS[3], ARGV[3]); return 1;",
+                    Long.class);
+            redis.execute(script, List.of(KEY_PREFIX + notification.getId(),
+                    USER_INDEX_PREFIX + notification.getUserId(),
+                    EVENT_PREFIX + notification.getSourceEventId()), json,
+                    String.valueOf(notification.getCreatedAt().toEpochMilli()),
+                    String.valueOf(notification.getId()));
+        } catch (JacksonException exception) {
+            throw new IllegalStateException("Не удалось сохранить системное уведомление", exception);
+        }
+    }
+
+    public Notification markRead(Notification notification) {
+        notification.setStatus(NotificationStatus.READ);
+        save(notification);
+        return notification;
+    }
+
+    public void delete(Notification notification) {
+        redis.execute(new DefaultRedisScript<>(
+                        "redis.call('DEL', KEYS[1]); redis.call('ZREM', KEYS[2], ARGV[1]); return 1;",
+                        Long.class),
+                List.of(KEY_PREFIX + notification.getId(), USER_INDEX_PREFIX + notification.getUserId()),
+                String.valueOf(notification.getId()));
     }
 
     public Optional<Notification> findById(Long id) {
