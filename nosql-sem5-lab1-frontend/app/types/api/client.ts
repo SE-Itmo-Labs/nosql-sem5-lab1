@@ -45,6 +45,7 @@ export interface ApiClient {
     create(request: CreateOrderRequest): Promise<CinemaOrder>
     getAll(): Promise<CinemaOrder[]>
     getById(orderId: number): Promise<CinemaOrder>
+    cancel(orderId: number): Promise<CinemaOrder>
   }
   notifications: {
     getAll(query?: NotificationQuery): Promise<PageResponse<Notification>>

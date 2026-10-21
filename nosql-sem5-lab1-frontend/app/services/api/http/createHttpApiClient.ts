@@ -60,6 +60,7 @@ export const createHttpApiClient = (options: HttpApiClientOptions): ApiClient =>
       create: request => http.post<CinemaOrder>(API_ENDPOINTS.orders.base, request),
       getAll: () => http.get<CinemaOrder[]>(API_ENDPOINTS.orders.base),
       getById: orderId => http.get<CinemaOrder>(API_ENDPOINTS.orders.byId(orderId)),
+      cancel: orderId => http.post<CinemaOrder>(API_ENDPOINTS.orders.cancel(orderId)),
     },
 
     notifications: {
@@ -70,18 +71,11 @@ export const createHttpApiClient = (options: HttpApiClientOptions): ApiClient =>
       ),
       getById: id => http.get<Notification>(API_ENDPOINTS.notifications.byId(id)),
       create: request => http.post<Notification>(API_ENDPOINTS.adminNotifications.base, request),
-      update: (id, _request) => Promise.reject(createApiClientError(
-        501,
-        'Not Implemented',
-        'Текущий backend пока не поддерживает изменение уведомлений',
-        API_ENDPOINTS.notifications.byId(id),
-      )),
-      delete: id => Promise.reject(createApiClientError(
-        501,
-        'Not Implemented',
-        'Текущий backend пока не поддерживает удаление уведомлений',
-        API_ENDPOINTS.notifications.byId(id),
-      )),
+      update: (id, request) => request.status === 'READ'
+        ? http.post<Notification>(API_ENDPOINTS.notifications.read(id))
+        : Promise.reject(createApiClientError(400, 'Bad Request',
+          'Backend поддерживает только отметку о прочтении', API_ENDPOINTS.notifications.byId(id))),
+      delete: id => http.delete(API_ENDPOINTS.notifications.byId(id)),
       getStats: async query => aggregateNotificationStats(await getNotifications(), query),
     },
 

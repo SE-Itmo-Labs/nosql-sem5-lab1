@@ -64,4 +64,7 @@ public class CinemaOrder {
 
     @Column(name = "confirmed_at", nullable = false)
     private Instant confirmedAt;
+
+    @Column(name = "cancelled_at")
+    private Instant cancelledAt;
 }

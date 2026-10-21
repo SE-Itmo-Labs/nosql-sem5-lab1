@@ -10,6 +10,7 @@ public record OrderResponse(
         BigDecimal totalAmount,
         Instant createdAt,
         Instant confirmedAt,
+        Instant cancelledAt,
         List<TicketResponse> tickets,
         List<OrderProductResponse> products
 ) {

@@ -13,6 +13,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.seitmolabs.common.dto.CreateNotificationRequest;
+import org.seitmolabs.modules.categories.dto.CategoryResponse;
+import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
@@ -27,6 +29,7 @@ class NotificationServiceImplTest {
     private NotificationRepository notificationRepository;
     private UserRepository userRepository;
     private NotificationServiceImpl service;
+    private CategoryDbRepository categoryDbRepository;
 
     @BeforeEach
     void setUp() {
@@ -35,7 +38,8 @@ class NotificationServiceImplTest {
         service = new NotificationServiceImpl(
                 notificationRepository,
                 userRepository,
-                new NotificationFactory()
+                new NotificationFactory(),
+                categoryDbRepository
         );
     }
 

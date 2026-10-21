@@ -7,6 +7,8 @@ import org.seitmolabs.common.dto.CreateNotificationRequest;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.repositories.NotificationRepository;
+import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
+import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final NotificationFactory notificationFactory;
+    private final CategoryDbRepository categoryRepository;
 
     @Override
     public Notification create(CreateNotificationRequest request) {
@@ -57,5 +60,27 @@ public class NotificationServiceImpl implements NotificationService {
                 .map(notificationRepository::findById)
                 .flatMap(Optional::stream)
                 .toList();
+    }
+
+    @Override
+    public Notification markRead(Long id, String userId) {
+        Notification notification = getByIdForUser(id, userId);
+        return notificationRepository.markRead(notification);
+    }
+
+    @Override
+    public void delete(Long id, String userId) {
+        notificationRepository.delete(getByIdForUser(id, userId));
+    }
+
+    @Override
+    public void deliver(OutboxEvent event) {
+        Long categoryId = categoryRepository.findByName(event.getCategoryName())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Категория уведомления не найдена: " + event.getCategoryName()))
+                .getId();
+        Notification notification = notificationFactory.createSystem(
+                notificationRepository.nextId(), event, categoryId);
+        notificationRepository.saveSystem(notification);
     }
 }

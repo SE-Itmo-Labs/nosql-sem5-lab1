@@ -18,6 +18,7 @@ import org.seitmolabs.modules.catalog.screening.domain.ScreeningStatus;
 import org.seitmolabs.modules.catalog.screening.repository.ScreeningRepository;
 import org.seitmolabs.modules.catalog.seat.domain.Seat;
 import org.seitmolabs.modules.catalog.seat.repository.SeatRepository;
+import org.seitmolabs.modules.notification.outbox.service.OutboxEventService;
 import org.seitmolabs.modules.user.domain.User;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,7 @@ public class SeatHoldService {
     private final ScreeningRepository screeningRepository;
     private final SeatRepository seatRepository;
     private final TicketRepository ticketRepository;
+    private final OutboxEventService outboxEventService;
 
     public SeatHoldResponse create(CreateSeatHoldRequest request, User user) {
         Screening screening = requireBookableScreening(request.screeningId());
@@ -55,6 +57,12 @@ public class SeatHoldService {
         SeatHold hold = holdFactory.create(user.getId(), screening.getId(), seatIds);
         if (!holdRepository.create(hold, holdFactory.holdDuration())) {
             throw new ConflictException("Одно или несколько мест уже удерживаются другим клиентом");
+        }
+        try {
+            outboxEventService.enqueueHoldCreated(hold, user.getUsername());
+        } catch (RuntimeException exception) {
+            holdRepository.release(hold);
+            throw exception;
         }
         return toResponse(hold);
     }

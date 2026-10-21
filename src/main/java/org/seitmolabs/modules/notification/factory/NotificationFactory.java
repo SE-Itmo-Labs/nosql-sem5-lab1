@@ -6,6 +6,7 @@ import java.time.Instant;
 import org.seitmolabs.common.dto.CreateNotificationRequest;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
+import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.springframework.stereotype.Component;
 
 /** Creates notifications with a single policy for status and timestamps. */
@@ -30,7 +31,13 @@ public class NotificationFactory {
                 request.text(),
                 request.categoryId(),
                 NotificationStatus.SENT,
-                Instant.now(clock)
+                Instant.now(clock),
+                null
         );
+    }
+
+    public Notification createSystem(Long id, OutboxEvent event, Long categoryId) {
+        return new Notification(id, event.getUsername(), event.getTitle(), event.getMessage(),
+                categoryId, NotificationStatus.SENT, Instant.now(clock), event.getId().toString());
     }
 }

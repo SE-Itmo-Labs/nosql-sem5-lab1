@@ -25,6 +25,7 @@ public class OrderResponseMapper {
                 order.getTotalAmount(),
                 order.getCreatedAt(),
                 order.getConfirmedAt(),
+                order.getCancelledAt(),
                 tickets.stream().map(this::toTicket).toList(),
                 products.stream().map(this::toProduct).toList()
         );

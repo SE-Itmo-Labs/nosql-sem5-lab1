@@ -16,6 +16,13 @@ const cleanupExpiredHolds = (store: MockDatabaseStore) => {
   })
 }
 
+const addSystemNotification = (store: MockDatabaseStore, userId: string, title: string, text: string) => {
+  store.value.notifications.unshift({
+    id: store.value.nextNotificationId++, userId, title, text, categoryId: 2,
+    status: 'SENT', createdAt: new Date().toISOString(), sourceEventId: crypto.randomUUID(),
+  })
+}
+
 const publicHold = (hold: MockSeatHold) => ({
   holdId: hold.holdId,
   screeningId: hold.screeningId,
@@ -64,6 +71,8 @@ export const createMockSeatHoldsApi = (store: MockDatabaseStore): ApiClient['sea
       status: 'ACTIVE',
     }
     store.value.seatHolds[hold.holdId] = hold
+    addSystemNotification(store, user.username, 'Места временно удерживаются',
+      `Сеанс №${hold.screeningId}, места: ${hold.seatIds.join(', ')}.`)
     return publicHold(hold)
   },
 
@@ -156,6 +165,8 @@ export const createMockOrdersApi = (store: MockDatabaseStore): ApiClient['orders
     }
     store.value.orders.unshift(order)
     Reflect.deleteProperty(store.value.seatHolds, hold.holdId)
+    addSystemNotification(store, user.username, 'Заказ подтверждён',
+      `Заказ №${order.id} подтверждён. Сумма: ${order.totalAmount}.`)
     return order
   },
 
@@ -170,6 +181,27 @@ export const createMockOrdersApi = (store: MockDatabaseStore): ApiClient['orders
     const user = requireUser(store)
     const order = store.value.orders.find(candidate => candidate.id === orderId && candidate.userId === user.id)
     if (!order) throw createApiClientError(404, 'Not Found', 'Заказ не найден', API_ENDPOINTS.orders.byId(orderId))
+    return order
+  },
+
+  async cancel(orderId) {
+    await waitForMockResponse()
+    const user = requireUser(store)
+    const order = store.value.orders.find(candidate => candidate.id === orderId && candidate.userId === user.id)
+    if (!order) throw createApiClientError(404, 'Not Found', 'Заказ не найден', API_ENDPOINTS.orders.byId(orderId))
+    if (order.status === 'CANCELLED') return order
+    const tooLate = order.tickets.some((ticket) => {
+      const screening = store.value.screenings.find(candidate => candidate.id === ticket.screeningId)
+      return !screening || Date.parse(screening.startsAt) <= Date.now() + 30 * 60_000
+    })
+    if (tooLate) {
+      throw createApiClientError(409, 'Conflict',
+        'Заказ можно отменить не позднее чем за 30 минут до сеанса', API_ENDPOINTS.orders.cancel(orderId))
+    }
+    order.status = 'CANCELLED'
+    order.cancelledAt = new Date().toISOString()
+    order.tickets.forEach((ticket) => { ticket.status = 'CANCELLED' })
+    addSystemNotification(store, user.username, 'Заказ отменён', `Заказ №${order.id} отменён.`)
     return order
   },
 })

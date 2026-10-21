@@ -39,12 +39,14 @@ export const API_ENDPOINTS = {
   orders: {
     base: '/api/v1/orders',
     byId: (orderId: number) => `/api/v1/orders/${pathSegment(orderId)}`,
+    cancel: (orderId: number) => `/api/v1/orders/${pathSegment(orderId)}/cancel`,
   },
 
   /** Основной сценарий лабораторной — создание и чтение уведомлений. */
   notifications: {
     base: '/api/v1/notifications',
     byId: (id: number) => `/api/v1/notifications/${pathSegment(id)}`,
+    read: (id: number) => `/api/v1/notifications/${pathSegment(id)}/read`,
   },
 
   /** Справочник категорий, поверх которого backend реализует cache-aside. */

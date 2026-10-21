@@ -25,9 +25,10 @@ src/main/java/org/seitmolabs/
     ├── auth/                         # демонстрационный вход без Spring Security
     ├── user/                         # пользователь и GET /users/me
     ├── catalog/                      # фильмы, залы, места и сеансы
-    ├── notification/                 # основной объект, хранение в Redis
+    ├── notification/                 # Redis-уведомления и PostgreSQL outbox
     ├── categories/                   # PostgreSQL + cache-aside в Redis
-    ├── block/                        # TTL и распределённая блокировка
+    ├── booking/                      # удержания, заказы, билеты и блокировки мест
+    ├── product/                      # товары кинобара
     └── consistency/                  # настраиваемая Redis-топология и эксперименты
 ```
 
@@ -71,6 +72,7 @@ Spring Security и JWT намеренно не используются: для 
 | Удержание мест | Redis | `hold:{holdId}` и `seat-hold:{screeningId}:{seatId}` с TTL |
 | Заказы, билеты, кинобар | PostgreSQL | нормализованные таблицы и снимки цен |
 | Блокировки оформления | Redis/Redisson | `booking:seat:{screeningId}:{seatId}` |
+| События доставки | PostgreSQL | таблица `outbox_events` |
 | Экспериментальные значения | Redis primary/replicas | `consistency:{key}` |
 
 JSON выбран для объектов, потому что он сохраняет модель целиком и остаётся
@@ -91,9 +93,8 @@ PostgreSQL хранит файлы в Docker volume с фиксированны�
 
 Статус доступности не хранится в `Seat`, потому что одно физическое место имеет
 разное состояние на разных сеансах. `CatalogService` получает места зала, а
-`SeatAvailabilityResolver` добавляет статус для выбранного сеанса. На текущей
-итерации резолвер возвращает `AVAILABLE`; следующие модули добавят `HELD` из
-Redis и `BOOKED` из PostgreSQL.
+`SeatAvailabilityResolver` добавляет статус для выбранного сеанса: `HELD` из
+Redis и `BOOKED` из PostgreSQL имеют приоритет над `AVAILABLE`.
 
 Методы каталога возвращают только неархивные фильмы и будущие сеансы со статусом
 `SCHEDULED`. DTO отделены от JPA-сущностей, поэтому ленивые связи и внутренняя
@@ -113,6 +114,10 @@ Redis и `BOOKED` из PostgreSQL.
 Список читается от новых уведомлений к старым. `NotificationFactory` собирает
 согласованную Redis-модель. Клиент читает только свои уведомления, а ручная
 отправка вынесена в административный `/api/v1/admin/notifications`.
+
+Системные события `SEAT_HOLD_CREATED`, `ORDER_CONFIRMED` и `ORDER_CANCELLED`
+сохраняются в `outbox_events`. Планировщик повторяет недоставленные записи, а
+Lua-операция использует `notification:event:{eventId}` для защиты от дублей.
 
 ## Cache-aside для категорий
 

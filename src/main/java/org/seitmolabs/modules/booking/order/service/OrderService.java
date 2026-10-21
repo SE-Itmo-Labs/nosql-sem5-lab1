@@ -1,6 +1,7 @@
 package org.seitmolabs.modules.booking.order.service;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.seitmolabs.modules.booking.hold.domain.SeatHold;
 import org.seitmolabs.modules.booking.hold.service.SeatHoldService;
 import org.seitmolabs.modules.booking.order.domain.CinemaOrder;
 import org.seitmolabs.modules.booking.order.domain.OrderProduct;
+import org.seitmolabs.modules.booking.order.domain.OrderStatus;
 import org.seitmolabs.modules.booking.order.domain.Ticket;
 import org.seitmolabs.modules.booking.order.domain.TicketStatus;
 import org.seitmolabs.modules.booking.order.dto.CreateOrderRequest;
@@ -29,6 +31,7 @@ import org.seitmolabs.modules.catalog.seat.domain.Seat;
 import org.seitmolabs.modules.catalog.seat.repository.SeatRepository;
 import org.seitmolabs.modules.product.domain.Product;
 import org.seitmolabs.modules.product.repository.ProductRepository;
+import org.seitmolabs.modules.notification.outbox.service.OutboxEventService;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -53,6 +56,7 @@ public class OrderService {
     private final SeatOrderLockService lockService;
     private final OrderFactory orderFactory;
     private final OrderResponseMapper responseMapper;
+    private final OutboxEventService outboxEventService;
     private final TransactionTemplate transactionTemplate;
 
     public OrderResponse confirm(CreateOrderRequest request, User currentUser) {
@@ -90,6 +94,30 @@ public class OrderService {
         CinemaOrder order = orderRepository.findByIdAndUserId(orderId, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Заказ не найден: " + orderId));
         return getResponse(order);
+    }
+
+    public OrderResponse cancelOwnOrder(Long orderId, User user) {
+        return transactionTemplate.execute(status -> {
+            CinemaOrder order = orderRepository.findForUpdate(orderId, user.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Заказ не найден: " + orderId));
+            if (order.getStatus() == OrderStatus.CANCELLED) {
+                return getResponse(order);
+            }
+            List<Ticket> tickets = ticketRepository.findAllForOrder(orderId);
+            Instant cancellationDeadline = Instant.now().plus(Duration.ofMinutes(30));
+            if (tickets.stream().anyMatch(ticket -> !ticket.getScreening().getStartsAt()
+                    .isAfter(cancellationDeadline))) {
+                throw new ConflictException("Заказ можно отменить не позднее чем за 30 минут до сеанса");
+            }
+            order.setStatus(OrderStatus.CANCELLED);
+            order.setCancelledAt(Instant.now());
+            tickets.forEach(ticket -> ticket.setStatus(TicketStatus.CANCELLED));
+            ticketRepository.saveAll(tickets);
+            orderRepository.save(order);
+            outboxEventService.enqueueOrderCancelled(order);
+            return responseMapper.toResponse(order, tickets,
+                    orderProductRepository.findAllForOrder(order.getId()));
+        });
     }
 
     private OrderResponse createOrder(CreateOrderRequest request, User currentUser, SeatHold hold) {
@@ -140,6 +168,7 @@ public class OrderService {
         List<OrderProduct> orderProducts = orderProductRepository.saveAll(products.entrySet().stream()
                 .map(entry -> orderFactory.createProduct(order, entry.getKey(), entry.getValue()))
                 .toList());
+        outboxEventService.enqueueOrderConfirmed(order, hold.seatIds());
         return responseMapper.toResponse(order, tickets, orderProducts);
     }
 

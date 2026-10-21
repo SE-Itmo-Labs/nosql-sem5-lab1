@@ -44,9 +44,8 @@ const getErrorMessage = (cause: unknown): string => (
  */
 export const useNotifications = () => {
   const api = useApi()
-  const config = useRuntimeConfig().public
   const { user, restore } = useAuth()
-  const canManageHistory = config.apiMode === 'mock'
+  const canManageHistory = true
   const canSendNotifications = computed(() => user.value?.role === 'ROLE_ADMIN')
   const categories = ref<Category[]>([])
   const pageData = ref<PageResponse<Notification>>(createEmptyPage())
@@ -64,6 +63,7 @@ export const useNotifications = () => {
   const feedback = ref('')
   const composerVersion = ref(0)
   let latestRequest = 0
+  const notificationRefreshVersion = useState('notification-refresh-version', () => 0)
 
   /** Собирает query единообразно для списка и агрегированной статистики. */
   const createQuery = (includePage: boolean): NotificationQuery => ({
@@ -201,6 +201,7 @@ export const useNotifications = () => {
   }
 
   onMounted(initialize)
+  watch(notificationRefreshVersion, () => { void loadNotifications() })
 
   return {
     actionError,

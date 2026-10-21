@@ -12,6 +12,7 @@ export interface Notification {
   categoryId: number
   status: NotificationStatus
   createdAt: IsoDateTime
+  sourceEventId?: string | null
 }
 
 /** Тело запроса на создание и отправку уведомления. */

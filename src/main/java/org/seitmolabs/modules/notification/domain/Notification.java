@@ -11,6 +11,11 @@ import java.time.Instant;
 @AllArgsConstructor
 public class Notification {
 
+    public Notification(Long id, String userId, String title, String text, Long categoryId,
+            NotificationStatus status, Instant createdAt) {
+        this(id, userId, title, text, categoryId, status, createdAt, null);
+    }
+
     private Long id;
 
     private String userId;
@@ -24,4 +29,6 @@ public class Notification {
     private NotificationStatus status;
 
     private Instant createdAt;
+
+    private String sourceEventId;
 }

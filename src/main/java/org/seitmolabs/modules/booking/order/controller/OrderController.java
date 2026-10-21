@@ -49,4 +49,12 @@ public class OrderController {
     ) {
         return orderService.getOwnOrder(orderId, user);
     }
+
+    @PostMapping("/{orderId}/cancel")
+    public OrderResponse cancelOwnOrder(
+            @PathVariable Long orderId,
+            @RequestAttribute(SimpleAuthFilter.CURRENT_USER_ATTRIBUTE) User user
+    ) {
+        return orderService.cancelOwnOrder(orderId, user);
+    }
 }

@@ -55,6 +55,7 @@ export interface CinemaOrder {
   totalAmount: number
   createdAt: string
   confirmedAt: string
+  cancelledAt?: string | null
   tickets: Ticket[]
   products: OrderProduct[]
 }
