@@ -27,6 +27,20 @@ export const API_ENDPOINTS = {
     screeningSeats: (screeningId: number) => `/api/v1/screenings/${pathSegment(screeningId)}/seats`,
   },
 
+  seatHolds: {
+    base: '/api/v1/seat-holds',
+    byId: (holdId: string) => `/api/v1/seat-holds/${pathSegment(holdId)}`,
+  },
+
+  products: {
+    base: '/api/v1/products',
+  },
+
+  orders: {
+    base: '/api/v1/orders',
+    byId: (orderId: number) => `/api/v1/orders/${pathSegment(orderId)}`,
+  },
+
   /** Основной сценарий лабораторной — создание и чтение уведомлений. */
   notifications: {
     base: '/api/v1/notifications',
@@ -38,17 +52,6 @@ export const API_ENDPOINTS = {
     base: '/api/v1/categories',
     adminBase: '/api/v1/admin/notification-categories',
     adminById: (id: number) => `/api/v1/admin/notification-categories/${pathSegment(id)}`,
-  },
-
-  /** Ключи с TTL для временного бронирования ресурса. */
-  temporaryBlocks: {
-    base: '/api/v1/blocks',
-    byResource: (resourceKey: string) => `/api/v1/blocks/${pathSegment(resourceKey)}`,
-  },
-
-  /** Атомарный захват и безопасное освобождение распределенной блокировки. */
-  locks: {
-    execute: '/api/v1/admin/laboratory/locks/execute',
   },
 
   /** Управляемый эксперимент чтения из Redis primary или replica. */

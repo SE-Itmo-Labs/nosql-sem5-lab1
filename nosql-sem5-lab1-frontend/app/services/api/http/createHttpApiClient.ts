@@ -7,10 +7,11 @@ import type {
   ConsistencyExperimentResponse,
   Movie,
   Notification,
-  ExecuteLockResponse,
   Screening,
   ScreeningSeats,
-  TemporaryBlock,
+  SeatHold,
+  Product,
+  CinemaOrder,
 } from '~/types/api'
 import { createApiClientError } from '../ApiClientError'
 import { aggregateNotificationStats, paginateNotifications } from '../notificationCollection'
@@ -45,6 +46,22 @@ export const createHttpApiClient = (options: HttpApiClientOptions): ApiClient =>
       ),
     },
 
+    seatHolds: {
+      create: request => http.post<SeatHold>(API_ENDPOINTS.seatHolds.base, request),
+      getById: holdId => http.get<SeatHold>(API_ENDPOINTS.seatHolds.byId(holdId)),
+      release: holdId => http.delete(API_ENDPOINTS.seatHolds.byId(holdId)),
+    },
+
+    products: {
+      getAvailable: () => http.get<Product[]>(API_ENDPOINTS.products.base),
+    },
+
+    orders: {
+      create: request => http.post<CinemaOrder>(API_ENDPOINTS.orders.base, request),
+      getAll: () => http.get<CinemaOrder[]>(API_ENDPOINTS.orders.base),
+      getById: orderId => http.get<CinemaOrder>(API_ENDPOINTS.orders.byId(orderId)),
+    },
+
     notifications: {
       getAll: async query => paginateNotifications(await getNotifications(), query),
       getByUser: async (userId, query) => paginateNotifications(
@@ -74,18 +91,6 @@ export const createHttpApiClient = (options: HttpApiClientOptions): ApiClient =>
       create: request => http.post<Category>(API_ENDPOINTS.categories.adminBase, request),
       update: (id, request) => http.put<Category>(API_ENDPOINTS.categories.adminById(id), request),
       delete: id => http.delete(API_ENDPOINTS.categories.adminById(id)),
-    },
-
-    temporaryBlocks: {
-      create: request => http.post<TemporaryBlock>(API_ENDPOINTS.temporaryBlocks.base, request),
-      getByResource: resourceKey => http.get<TemporaryBlock>(
-        API_ENDPOINTS.temporaryBlocks.byResource(resourceKey),
-      ),
-      release: resourceKey => http.delete(API_ENDPOINTS.temporaryBlocks.byResource(resourceKey)),
-    },
-
-    locks: {
-      execute: request => http.post<ExecuteLockResponse>(API_ENDPOINTS.locks.execute, request),
     },
 
     consistency: {

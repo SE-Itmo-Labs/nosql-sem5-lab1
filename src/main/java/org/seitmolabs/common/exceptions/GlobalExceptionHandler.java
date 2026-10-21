@@ -80,8 +80,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
-    @ExceptionHandler(BlockConflictException.class)
-    public ResponseEntity<ErrorResponse> handleConflict(BlockConflictException ex, HttpServletRequest request) {
+    @ExceptionHandler({ConflictException.class, BlockConflictException.class})
+    public ResponseEntity<ErrorResponse> handleConflict(RuntimeException ex, HttpServletRequest request) {
         ErrorResponse error = ErrorResponse.builder()
                 .timestamp(Instant.now().toString())
                 .status(HttpStatus.CONFLICT.value())

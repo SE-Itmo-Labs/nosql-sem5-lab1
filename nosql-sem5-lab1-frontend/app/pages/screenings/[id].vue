@@ -11,6 +11,9 @@ const route = useRoute()
 const screeningId = Number(route.params.id)
 const { error, isLoading, loadSeatMap, seatMap } = useCatalog()
 const { selection, selectedSeatIds, selectScreening, toggleSeat } = useBookingSelection()
+const api = useApi()
+const isHolding = ref(false)
+const holdError = ref('')
 
 watch(seatMap, (value) => {
   if (value) selectScreening(value)
@@ -19,6 +22,26 @@ onMounted(() => loadSeatMap(screeningId))
 
 const selectedSeats = computed(() => seatMap.value?.seats.filter(seat => selectedSeatIds.value.has(seat.id)) ?? [])
 const total = computed(() => selectedSeats.value.length * (seatMap.value?.basePrice ?? 0))
+
+const createHold = async () => {
+  if (!selection.value.screening || !selection.value.seatIds.length) return
+  isHolding.value = true
+  holdError.value = ''
+  try {
+    const hold = await api.seatHolds.create({
+      screeningId: selection.value.screening.screeningId,
+      seatIds: selection.value.seatIds,
+    })
+    await navigateTo({ path: '/checkout', query: { holdId: hold.holdId } })
+  }
+  catch (cause) {
+    holdError.value = cause instanceof Error ? cause.message : 'Не удалось удержать выбранные места'
+    await loadSeatMap(screeningId)
+  }
+  finally {
+    isHolding.value = false
+  }
+}
 </script>
 
 <template>
@@ -44,9 +67,12 @@ const total = computed(() => selectedSeats.value.length * (seatMap.value?.basePr
           <span>Итого</span>
           <strong>{{ formatPrice(total) }}</strong>
         </div>
-        <button class="btn btn-primary" type="button" :disabled="!selection.seatIds.length">Продолжить</button>
+        <button class="btn btn-primary" type="button" :disabled="!selection.seatIds.length || isHolding" @click="createHold">
+          {{ isHolding ? 'Удерживаем…' : 'Продолжить' }}
+        </button>
       </section>
-      <p class="iteration-note">На следующей итерации кнопка создаст временное удержание мест в Redis.</p>
+      <p v-if="holdError" class="hold-error" role="alert">{{ holdError }}</p>
+      <p class="iteration-note">После продолжения места удерживаются на сервере в течение пяти минут.</p>
     </template>
   </div>
 </template>
@@ -58,5 +84,6 @@ const total = computed(() => selectedSeats.value.length * (seatMap.value?.basePr
 .selection-summary span { color: var(--color-text-muted); font-size: 10px; font-weight: 750; text-transform: uppercase; }
 .selection-summary strong { overflow: hidden; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
 .iteration-note { margin: 12px 0 0; color: var(--color-text-muted); font-size: 12px; text-align: right; }
+.hold-error { margin: 12px 0 0; color: var(--color-error); font-size: 13px; text-align: right; }
 @media (max-width: 760px) { .selection-summary { grid-template-columns: 1fr 1fr; } .selection-summary div:nth-child(2) { grid-column: 1 / -1; } }
 </style>

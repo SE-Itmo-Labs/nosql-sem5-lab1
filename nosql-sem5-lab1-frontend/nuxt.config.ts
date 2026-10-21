@@ -27,10 +27,11 @@ export default defineNuxtConfig({
         '/screenings/3',
         '/screenings/4',
         '/screenings/5',
+        '/checkout',
+        '/orders',
+        '/orders/1',
         '/notifications',
         '/categories',
-        '/blocks',
-        '/locks',
         '/consistency'
       ]
     }

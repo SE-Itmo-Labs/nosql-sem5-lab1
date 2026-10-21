@@ -16,6 +16,8 @@ import org.seitmolabs.modules.catalog.screening.repository.ScreeningRepository;
 import org.seitmolabs.modules.catalog.seat.repository.SeatRepository;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
+import org.seitmolabs.modules.product.domain.Product;
+import org.seitmolabs.modules.product.repository.ProductRepository;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.enums.Role;
 import org.seitmolabs.modules.user.repository.UserRepository;
@@ -41,6 +43,7 @@ public class DataInitializer {
             AuditoriumRepository auditoriumRepository,
             SeatRepository seatRepository,
             ScreeningRepository screeningRepository,
+            ProductRepository productRepository,
             SeatLayoutFactory seatLayoutFactory,
             ScreeningFactory screeningFactory
     ) {
@@ -51,6 +54,10 @@ public class DataInitializer {
             createCategoryIfMissing(categoryRepository, "Сеансы", "Изменения времени и зала");
             createCategoryIfMissing(categoryRepository, "Бронирование", "Изменения состояния билета");
             createCategoryIfMissing(categoryRepository, "Акции", "Скидки и специальные предложения");
+
+            createProductIfMissing(productRepository, "Попкорн солёный", new BigDecimal("290.00"));
+            createProductIfMissing(productRepository, "Кола 0,5 л", new BigDecimal("220.00"));
+            createProductIfMissing(productRepository, "Начос с соусом", new BigDecimal("340.00"));
 
             Movie northernLights = createMovieIfMissing(
                     movieRepository,
@@ -148,6 +155,21 @@ public class DataInitializer {
                 .ageRating(ageRating)
                 .status(status)
                 .build()));
+    }
+
+    private void createProductIfMissing(
+            ProductRepository repository,
+            String name,
+            BigDecimal price
+    ) {
+        if (repository.existsByName(name)) {
+            return;
+        }
+        repository.save(Product.builder()
+                .name(name)
+                .price(price)
+                .available(true)
+                .build());
     }
 
     private Auditorium createAuditoriumIfMissing(

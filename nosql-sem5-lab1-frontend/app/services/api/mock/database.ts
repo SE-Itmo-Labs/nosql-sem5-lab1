@@ -5,7 +5,9 @@ import type {
   Notification,
   Screening,
   ScreeningSeat,
-  TemporaryBlock,
+  SeatHold,
+  Product,
+  CinemaOrder,
 } from '~/types/api'
 
 /**
@@ -27,9 +29,14 @@ export interface MockCategoryCacheRecord {
 }
 
 /** Внутреннее состояние распределенной блокировки. */
-export interface MockLockRecord {
-  resourceKey: string
-  owner: string
+export interface MockSeatHold extends SeatHold {
+  userId: number
+}
+
+export interface MockOrder extends CinemaOrder {
+  userId: number
+  holdId: string
+  idempotencyKey: string
 }
 
 /**
@@ -42,15 +49,18 @@ export interface MockDatabase {
   screenings: Screening[]
   auditoriums: Auditorium[]
   seatsByAuditorium: Record<number, ScreeningSeat[]>
+  products: Product[]
+  seatHolds: Record<string, MockSeatHold>
+  orders: MockOrder[]
   notifications: Notification[]
   categories: Category[]
   categoryCache: Record<number, MockCategoryCacheRecord>
-  temporaryBlocks: Record<string, TemporaryBlock>
-  locks: Record<string, MockLockRecord>
   primaryValues: Record<string, string>
   replicaValues: Record<string, string>
   nextNotificationId: number
   nextCategoryId: number
+  nextOrderId: number
+  nextTicketId: number
   currentUsername: string | null
 }
 
@@ -145,6 +155,13 @@ export const createMockDatabase = (): MockDatabase => {
       1: createSeats(5, 8),
       2: createSeats(4, 6).map(seat => ({ ...seat, id: seat.id + 100 })),
     },
+    products: [
+      { id: 1, name: 'Попкорн солёный', price: 290, available: true },
+      { id: 2, name: 'Кола 0,5 л', price: 220, available: true },
+      { id: 3, name: 'Начос с соусом', price: 340, available: true },
+    ],
+    seatHolds: {},
+    orders: [],
     categories: [
       { id: 1, name: 'Системное', description: 'Служебные сообщения кинотеатра' },
       { id: 2, name: 'Бронирование', description: 'Изменения состояния билета' },
@@ -171,12 +188,12 @@ export const createMockDatabase = (): MockDatabase => {
       },
     ],
     categoryCache: {},
-    temporaryBlocks: {},
-    locks: {},
     primaryValues: {},
     replicaValues: {},
     nextNotificationId: 3,
     nextCategoryId: 4,
+    nextOrderId: 1,
+    nextTicketId: 1,
     currentUsername: null,
   }
 }
