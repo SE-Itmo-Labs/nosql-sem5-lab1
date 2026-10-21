@@ -52,7 +52,6 @@ public class DataInitializer {
             createUserIfMissing(userRepository, "admin", "123", "Администратор", Role.ROLE_ADMIN);
 
             createCategoryIfMissing(categoryRepository, "Сеансы", "Изменения времени и зала");
-            createCategoryIfMissing(categoryRepository, "Бронирование", "Изменения состояния билета");
             createCategoryIfMissing(categoryRepository, "Акции", "Скидки и специальные предложения");
 
             createProductIfMissing(productRepository, "Попкорн солёный", new BigDecimal("290.00"));

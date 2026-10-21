@@ -3,6 +3,7 @@ export interface Category {
   id: number
   name: string
   description: string
+  systemCode?: string | null
 }
 
 /** Поля категории без серверного идентификатора. */

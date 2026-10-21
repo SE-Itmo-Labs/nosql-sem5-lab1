@@ -2,6 +2,7 @@ package org.seitmolabs.modules.categories.services;
 
 import lombok.RequiredArgsConstructor;
 
+import org.seitmolabs.common.exceptions.ConflictException;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.categories.dto.CategoryCacheInfo;
 import org.seitmolabs.modules.categories.dto.CategoryRequest;
@@ -71,8 +72,10 @@ public class CategoryService {
     }
 
     public void delete(Long id) {
-        if (!dbRepository.existsById(id)) {
-            throw new EntityNotFoundException("Категория не найдена: " + id);
+        Category category = dbRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Категория не найдена: " + id));
+        if (category.getSystemCode() != null) {
+            throw new ConflictException("Системная категория нужна для автоматических уведомлений и не может быть удалена");
         }
 
         dbRepository.deleteById(id);
