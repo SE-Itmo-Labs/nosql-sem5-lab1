@@ -1,0 +1,199 @@
+# Запуск и разработка
+
+Проект состоит из Spring Boot backend, Nuxt frontend, PostgreSQL и трёх
+экземпляров Redis: primary и двух реплик.
+
+## Требования
+
+- JDK 25;
+- Docker с Docker Compose;
+- Node.js 22.19 или актуальная версия Node.js 24;
+- npm.
+
+Проверить активную версию Java можно командами:
+
+```bash
+javac --version
+./gradlew --version
+```
+
+## Полный запуск через Docker
+
+Создайте файл с параметрами PostgreSQL и запустите сборку:
+
+```bash
+cp credentials.env.example credentials.env
+./gradlew clean build
+docker compose --env-file credentials.env up -d --build
+docker compose --env-file credentials.env ps
+```
+
+PostgreSQL использует именованный Docker volume
+`nosql-sem5-lab1_postgres_data`. Его имя задаётся через
+`POSTGRES_VOLUME_NAME` и не зависит от имени Compose-проекта. Поэтому `build`,
+`up --build`, пересоздание `spring-app` и обновление образа PostgreSQL повторно
+подключают ту же базу.
+
+Перед первым обновлением уже работающего production-окружения выполните
+`docker volume ls` и укажите фактическое прежнее имя тома в
+`POSTGRES_VOLUME_NAME`. Обычно для этого репозитория оно равно значению по
+умолчанию выше. Не запускайте обновлённый Compose с другим именем: Docker
+создаст новый пустой volume, а старые данные останутся в прежнем.
+
+| Сервис | Адрес или порт |
+| --- | --- |
+| Spring Boot API | <http://localhost:16767> |
+| PostgreSQL | `localhost:5432` |
+| Redis primary | `localhost:6379` |
+| Redis replica 1 | `localhost:6380` |
+| Redis replica 2 | `localhost:6381` |
+
+Логи приложения:
+
+```bash
+docker compose --env-file credentials.env logs -f spring-app
+```
+
+## Тестовые пользователи
+
+При первом запуске backend создаёт две учётные записи:
+
+| Роль | Логин | Пароль |
+| --- | --- | --- |
+| Клиент | `client01` | `client123` |
+| Администратор | `admin` | `123` |
+
+Идемпотентный инициализатор также создаёт учебную афишу: три фильма, два зала,
+места и пять будущих сеансов. Время сеансов рассчитывается в часовом поясе
+`Europe/Moscow`. Повторный запуск в тот же день не дублирует эти записи.
+
+Инициализатор управляется параметром `APP_DATA_INITIALIZER_ENABLED` и по
+умолчанию отключён. Для первого локального запуска временно задайте `true`, если
+нужны тестовые пользователи и афиша. В production оставляйте `false`, чтобы
+развёртывание не создавало пользователей, категории и новые демонстрационные
+сеансы.
+
+## Миграции PostgreSQL
+
+Схемой управляет Flyway. Миграции находятся в
+`src/main/resources/db/migration` и выполняются до проверки JPA-моделей.
+Hibernate работает с `ddl-auto=validate` и сам не создаёт и не изменяет таблицы.
+
+Для каждого изменения модели добавляйте новый неизменяемый файл, например
+`V2__add_orders.sql`. Не редактируйте миграцию, уже применённую в production.
+Flyway хранит историю в таблице `flyway_schema_history` и выполняет только ещё
+не применённые версии.
+
+Для базы, созданной прежней версией приложения, включён baseline версии `0`.
+Flyway регистрирует существующую схему, после чего безопасно применяет `V1` с
+идемпотентными операциями `IF NOT EXISTS`. Перед первым production-обновлением
+следует сделать резервную копию volume.
+
+Регистрация, JWT и Spring Security в лабораторной не используются. Защищённые
+запросы принимают два заголовка:
+
+```text
+X-Username: client01
+X-Password: client123
+```
+
+Обычные методы каталога и личного кабинета доступны обоим пользователям.
+Изменение категорий, ручная отправка уведомлений и эксперимент согласованности
+на проекции сеанса находятся под `/api/v1/admin/**` и требуют роль
+администратора. Недостаточная роль возвращает `403 Forbidden`.
+
+Проверка входа:
+
+```bash
+curl -X POST http://localhost:16767/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"client01","password":"client123"}'
+```
+
+## Swagger
+
+- Swagger UI: <http://localhost:16767/swagger-ui/index.html>
+- OpenAPI JSON: <http://localhost:16767/v3/api-docs>
+
+В Swagger нажмите `Authorize` и заполните `X-Username` и `X-Password`. Метод
+входа можно вызвать без этих данных.
+
+## Тесты
+
+```bash
+./gradlew test
+```
+
+Интеграционные тесты используют Testcontainers, поэтому для них должен работать
+Docker. Тестовый Redis создаётся отдельно и не изменяет локальные данные проекта.
+
+## Локальный запуск backend
+
+PostgreSQL и Redis удобнее оставить в Docker, а Spring Boot запустить из IDE или
+Gradle. Адреса по умолчанию соответствуют портам из таблицы выше.
+
+```bash
+docker compose --env-file credentials.env up -d postgresql redis-db redis-replica-1 redis-replica-2
+set -a
+source credentials.env
+set +a
+SERVER_PORT=16767 ./gradlew bootRun
+```
+
+## Frontend
+
+```bash
+cd nosql-sem5-lab1-frontend
+cp .env.example .env
+npm ci
+npm run dev
+```
+
+Для работы без backend:
+
+```dotenv
+NUXT_PUBLIC_API_MODE=mock
+NUXT_PUBLIC_API_BASE=http://localhost:16767
+```
+
+Для запросов к Spring Boot:
+
+```dotenv
+NUXT_PUBLIC_API_MODE=real
+NUXT_PUBLIC_API_BASE=http://localhost:16767
+```
+
+## Проверка Redis
+
+```bash
+docker exec -it redis_container redis-cli
+docker exec -it redis_replica1_container redis-cli
+docker exec -it redis_replica2_container redis-cli
+```
+
+Команда `INFO replication` показывает роль узла и состояние подключения реплик.
+
+Приложение читает лабораторную топологию из списка
+`app.redis-topology.nodes[*]` в `application.properties`. Каждый узел имеет
+стабильный `id`, роль `PRIMARY` или `REPLICA`, адрес и порт. Для добавления
+реплики достаточно добавить следующий элемент списка и передать его адрес через
+переменные окружения; Java-сервисы не содержат ограничения на две реплики.
+
+Для ручной проверки персистентности можно записать контрольный ключ, подождать
+не меньше секунды, перезапустить primary и прочитать ключ:
+
+```bash
+docker exec redis_container redis-cli SET persistence:test saved
+docker compose restart redis-db
+docker exec redis_container redis-cli GET persistence:test
+```
+
+Команда `docker compose down -v` удаляет Docker volumes, включая постоянную базу
+PostgreSQL. Для обычного обновления используйте `docker compose down` без `-v`
+либо сразу `docker compose up -d --build`. Данные primary также хранятся в
+подключённой папке `redis_data/`, поэтому её не следует удалять перед проверкой
+восстановления.
+
+Подробности приведены в [контракте REST API](API_CONTRACT.md),
+[архитектуре backend](BACKEND_ARCHITECTURE.md) и
+[отчёте](LAB_REPORT.md).

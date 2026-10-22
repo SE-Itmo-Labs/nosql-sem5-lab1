@@ -1,0 +1,30 @@
+{
+  "name": "nosql-sem5-lab1-frontend",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "nuxi_preview": "serve .output/public --route /nosql-sem5-lab1/*",
+    "postinstall": "nuxt prepare",
+
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "@nuxt/eslint": "^1.17.0",
+    "@nuxt/icon": "^2.5.1",
+    "@nuxt/image": "^2.1.0",
+    "@nuxt/scripts": "^1.3.9",
+    "eslint": "^10.11.0",
+    "nuxt": "^4.5.2",
+    "vue": "^3.5.43",
+    "vue-router": "^5.3.1"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
