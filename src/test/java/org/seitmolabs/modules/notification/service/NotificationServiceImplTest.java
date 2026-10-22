@@ -5,20 +5,24 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.argThat;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.seitmolabs.common.dto.CreateNotificationRequest;
 import org.seitmolabs.modules.categories.dto.CategoryResponse;
+import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.repositories.NotificationRepository;
+import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.repository.UserRepository;
 
@@ -35,6 +39,7 @@ class NotificationServiceImplTest {
     void setUp() {
         notificationRepository = mock(NotificationRepository.class);
         userRepository = mock(UserRepository.class);
+        categoryDbRepository = mock(CategoryDbRepository.class);
         service = new NotificationServiceImpl(
                 notificationRepository,
                 userRepository,
@@ -92,6 +97,25 @@ class NotificationServiceImplTest {
         List<Notification> result = service.getByUserId("client01");
 
         assertThat(result).containsExactly(first, second);
+    }
+
+    @Test
+    void deliversPendingEventAfterSystemCategoryWasRenamed() {
+        Category renamed = new Category(7L, "Мои билеты", "Описание", Category.BOOKING_CODE);
+        UUID eventId = UUID.randomUUID();
+        OutboxEvent event = OutboxEvent.builder().id(eventId).username("client01")
+                .title("Заказ подтверждён").message("Заказ №1")
+                .categoryName("Бронирование").build();
+        when(categoryDbRepository.findBySystemCode(Category.BOOKING_CODE))
+                .thenReturn(Optional.of(renamed));
+        when(notificationRepository.nextId()).thenReturn(10L);
+
+        service.deliver(event);
+
+        verify(notificationRepository).saveSystem(argThat(notification ->
+                notification.getCategoryId().equals(7L)
+                        && notification.getUserId().equals("client01")
+                        && notification.getSourceEventId().equals(eventId.toString())));
     }
 
     private Notification notification(Long id, String title) {

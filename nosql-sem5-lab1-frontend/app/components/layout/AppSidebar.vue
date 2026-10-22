@@ -26,7 +26,7 @@ const isActive = (path: string): boolean => path === '/'
       <span class="brand-mark" aria-hidden="true">К</span>
       <span>
         <strong class="brand-name">Кинотеатр</strong>
-        <span class="brand-caption">NoSQL Lab · Redis</span>
+        <span class="brand-caption">Билеты и сеансы</span>
       </span>
     </NuxtLink>
 
@@ -46,10 +46,9 @@ const isActive = (path: string): boolean => path === '/'
       </NuxtLink>
     </nav>
 
-    <!-- Подпись объясняет учебное назначение экранов на защите лабораторной. -->
     <div class="sidebar-note">
-      <strong>Вариант 1869847</strong>
-      <span>Уведомления, TTL, кэш, lock и согласованность.</span>
+      <strong>Ваш поход в кино</strong>
+      <span>Выберите сеанс, забронируйте места и найдите билеты в своих заказах.</span>
     </div>
   </aside>
 </template>

@@ -9,6 +9,7 @@ import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.repositories.NotificationRepository;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
+import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -75,9 +76,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void deliver(OutboxEvent event) {
-        Long categoryId = categoryRepository.findByName(event.getCategoryName())
+        Long categoryId = categoryRepository.findBySystemCode(Category.BOOKING_CODE)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "Категория уведомления не найдена: " + event.getCategoryName()))
+                        "Системная категория уведомлений не найдена: " + Category.BOOKING_CODE))
                 .getId();
         Notification notification = notificationFactory.createSystem(
                 notificationRepository.nextId(), event, categoryId);

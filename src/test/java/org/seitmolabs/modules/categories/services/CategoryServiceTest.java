@@ -1,6 +1,7 @@
 package org.seitmolabs.modules.categories.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -17,6 +18,7 @@ import org.seitmolabs.modules.categories.dto.CategoryRequest;
 import org.seitmolabs.modules.categories.dto.CategoryResponse;
 import org.seitmolabs.modules.categories.repositories.CategoryCacheRepository;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
+import org.seitmolabs.common.exceptions.ConflictException;
 
 class CategoryServiceTest {
 
@@ -88,13 +90,29 @@ class CategoryServiceTest {
 
     @Test
     void deleteInvalidatesItemAndListCache() {
-        when(dbRepository.existsById(1L)).thenReturn(true);
+        when(dbRepository.findById(1L)).thenReturn(Optional.of(category()));
 
         service.delete(1L);
 
         verify(dbRepository).deleteById(1L);
         verify(cacheRepository).delete(1L);
         verify(cacheRepository).deleteList();
+    }
+
+    @Test
+    void systemCategoryCanBeRenamedButNotDeleted() {
+        Category category = category();
+        category.setSystemCode(Category.BOOKING_CODE);
+        when(dbRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(dbRepository.save(category)).thenReturn(category);
+
+        service.update(1L, new CategoryRequest("Мои билеты", "Новое описание"));
+
+        assertThat(category.getName()).isEqualTo("Мои билеты");
+        assertThat(category.getSystemCode()).isEqualTo(Category.BOOKING_CODE);
+        assertThatThrownBy(() -> service.delete(1L)).isInstanceOf(ConflictException.class);
+        verify(dbRepository, never()).deleteById(1L);
+        verify(cacheRepository, never()).delete(1L);
     }
 
     private Category category() {

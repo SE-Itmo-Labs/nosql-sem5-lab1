@@ -71,7 +71,7 @@ export const createMockCategoriesApi = (store: MockDatabaseStore): ApiClient['ca
       throw createApiClientError(404, 'Not Found', 'Категория не найдена', API_ENDPOINTS.categories.byId(id))
     }
 
-    const category: Category = { id, ...request }
+    const category: Category = { ...store.value.categories[index]!, id, ...request }
     store.value.categories[index] = category
     Reflect.deleteProperty(store.value.categoryCache, id)
     return { ...category }
@@ -85,6 +85,11 @@ export const createMockCategoriesApi = (store: MockDatabaseStore): ApiClient['ca
       throw createApiClientError(404, 'Not Found', 'Категория не найдена', API_ENDPOINTS.categories.byId(id))
     }
 
+    if (store.value.categories[index]?.systemCode) {
+      throw createApiClientError(409, 'Conflict',
+        'Системная категория нужна для автоматических уведомлений и не может быть удалена',
+        API_ENDPOINTS.categories.byId(id))
+    }
     store.value.categories.splice(index, 1)
     Reflect.deleteProperty(store.value.categoryCache, id)
   },

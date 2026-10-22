@@ -164,7 +164,7 @@ export const createMockDatabase = (): MockDatabase => {
     orders: [],
     categories: [
       { id: 1, name: 'Системное', description: 'Служебные сообщения кинотеатра' },
-      { id: 2, name: 'Бронирование', description: 'Изменения состояния билета' },
+      { id: 2, name: 'Бронирование', systemCode: 'BOOKING', description: 'Изменения состояния билета' },
       { id: 3, name: 'Премьера', description: 'Новые фильмы и специальные показы' },
     ],
     notifications: [

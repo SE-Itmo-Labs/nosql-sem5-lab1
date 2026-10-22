@@ -11,7 +11,6 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Уведомл
 
 const {
   actionError,
-  applyFilters,
   busyNotificationId,
   canManageHistory,
   canSendNotifications,
@@ -36,16 +35,16 @@ const {
 <template>
   <div>
     <PageHeader
-      eyebrow="Основной сценарий"
+      eyebrow="Личный кабинет"
       title="Уведомления"
-      description="Получайте системные сообщения кинотеатра и отслеживайте их состояние. Ручная отправка доступна администратору."
+      description="Сообщения о бронировании, подтверждении и отмене ваших заказов."
     >
       <template v-if="canSendNotifications" #actions>
         <a class="btn btn-primary" href="#notification-composer">Новое уведомление</a>
       </template>
     </PageHeader>
 
-    <NotificationStats :stats="stats" :loading="isLoading" />
+    <NotificationStats v-if="canSendNotifications" :stats="stats" :loading="isLoading" />
 
     <p v-if="feedback" class="page-message page-message--success" role="status">{{ feedback }}</p>
     <p v-if="actionError" class="page-message page-message--error" role="alert">{{ actionError }}</p>
@@ -55,10 +54,8 @@ const {
         <NotificationFilters
           v-model:search="filters.search"
           v-model:category-id="filters.categoryId"
-          v-model:status="filters.status"
           :categories="categories"
-          :loading="isLoading"
-          @apply="applyFilters"
+          :show-categories="canSendNotifications"
           @reset="resetFilters"
         />
 
@@ -68,8 +65,9 @@ const {
           :loading="isLoading"
           :error="loadError"
           :busy-id="busyNotificationId"
+          :actions-busy="busyNotificationId !== null"
           :allow-actions="canManageHistory"
-          @retry="loadNotifications"
+          @retry="loadNotifications()"
           @page="goToPage"
           @read="markAsRead"
           @delete="deleteNotification"

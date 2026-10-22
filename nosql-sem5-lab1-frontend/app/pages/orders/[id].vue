@@ -2,7 +2,7 @@
 import PageHeader from '~/components/ui/PageHeader.vue'
 import StatePanel from '~/components/ui/StatePanel.vue'
 import type { CinemaOrder } from '~/types/api'
-import { formatPrice } from '~/utils/cinemaFormatters'
+import { formatPrice, formatScreeningDate, formatScreeningTime } from '~/utils/cinemaFormatters'
 
 defineOptions({ name: 'OrderDetailsPage' })
 definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Заказ' })
@@ -45,7 +45,17 @@ const cancel = async () => {
         <template v-if="order.status === 'CONFIRMED'" #actions><button class="btn btn-secondary" type="button" :disabled="cancelling" @click="cancel">{{ cancelling ? 'Отменяем…' : 'Отменить заказ' }}</button></template>
       </PageHeader>
       <p v-if="error" class="page-error" role="alert">{{ error }}</p>
-      <section class="card details"><h2>Билеты</h2><div v-for="ticket in order.tickets" :key="ticket.id" class="line"><span>Ряд {{ ticket.rowNumber }}, место {{ ticket.seatNumber }}</span><strong>{{ formatPrice(ticket.price) }}</strong></div></section>
+      <section class="card details">
+        <h2>Билеты</h2>
+        <div v-for="ticket in order.tickets" :key="ticket.id" class="line">
+          <div class="ticket-info">
+            <strong>{{ ticket.movieTitle }}</strong>
+            <span>{{ formatScreeningDate(ticket.startsAt) }} · {{ formatScreeningTime(ticket.startsAt) }} · {{ ticket.auditoriumName }}</span>
+            <span>Ряд {{ ticket.rowNumber }}, место {{ ticket.seatNumber }}</span>
+          </div>
+          <strong>{{ formatPrice(ticket.price) }}</strong>
+        </div>
+      </section>
       <section v-if="order.products.length" class="card details"><h2>Кинобар</h2><div v-for="item in order.products" :key="item.productId" class="line"><span>{{ item.name }} × {{ item.quantity }}</span><strong>{{ formatPrice(item.lineTotal) }}</strong></div></section>
       <section class="card total"><span>Итого</span><strong>{{ formatPrice(order.totalAmount) }}</strong></section>
     </template>
@@ -54,5 +64,6 @@ const cancel = async () => {
 
 <style scoped>
 .back-link{display:inline-block;margin-bottom:20px;color:var(--color-text-secondary);font-size:13px;text-decoration:none}.details{margin-bottom:14px;padding:22px}.details h2{margin:0 0 14px;font-size:18px}.line,.total{display:flex;justify-content:space-between;gap:16px}.line{padding:11px 0;border-top:1px solid var(--color-border-soft)}.total{padding:22px;font-size:20px}.total span{color:var(--color-text-muted)}
+.ticket-info { display: flex; flex-direction: column; gap: 6px; }
 .page-error{margin:0 0 14px;color:var(--color-error)}
 </style>

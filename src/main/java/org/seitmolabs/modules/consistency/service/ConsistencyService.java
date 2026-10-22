@@ -49,7 +49,8 @@ public class ConsistencyService {
         ExperimentMode mode = ExperimentMode.from(request.mode());
         ExperimentReadTarget readTarget = ExperimentReadTarget.from(request.readTarget());
         String key = KEY_PREFIX + screening.getId();
-        String value = projection(screening);
+        Long version = primaryTemplate().opsForValue().increment(key + ":version");
+        String value = projection(screening) + "|version=" + version;
 
         long writeDurationMs;
         long waitDurationMs = 0;

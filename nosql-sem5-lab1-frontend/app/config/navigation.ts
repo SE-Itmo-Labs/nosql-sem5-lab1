@@ -17,15 +17,6 @@ export interface NavigationItem {
  */
 export const APP_NAVIGATION: readonly NavigationItem[] = [
   {
-    label: 'Обзор',
-    shortLabel: 'Главная',
-    description: 'Состояние лабораторных сценариев и быстрые переходы.',
-    to: '/',
-    icon: '⌂',
-    accent: 'slate',
-    audience: 'all',
-  },
-  {
     label: 'Афиша',
     shortLabel: 'Афиша',
     description: 'Фильмы, будущие сеансы и выбор мест в зале.',

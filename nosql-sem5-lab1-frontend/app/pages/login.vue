@@ -9,7 +9,6 @@ definePageMeta({
 
 const { login } = useAuth()
 const router = useRouter()
-const isMockMode = useRuntimeConfig().public.apiMode === 'mock'
 const form = reactive({ login: '', password: '' })
 const error = ref('')
 const loading = ref(false)
@@ -44,10 +43,6 @@ const onSubmit = async () => {
       <h2>Вход в кабинет</h2>
       <p>Используйте учётные данные клиента кинотеатра.</p>
     </header>
-
-    <p class="login-mode" :class="{ 'login-mode--real': !isMockMode }">
-      {{ isMockMode ? 'Демо-доступ: client01 / client123' : 'Вход через Spring Boot API' }}
-    </p>
 
     <form class="login-form" @submit.prevent="onSubmit">
       <label class="field">

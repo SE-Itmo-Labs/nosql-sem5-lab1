@@ -11,6 +11,7 @@ const props = defineProps<{
   loading: boolean
   error: string
   busyId: number | null
+  actionsBusy: boolean
   allowActions: boolean
 }>()
 
@@ -30,10 +31,9 @@ const categoryNames = computed(() => new Map(
   <section class="history" aria-label="История уведомлений">
     <div class="history-heading">
       <div>
-        <p>История отправки</p>
-        <h3>Уведомления клиента</h3>
+        <h3>Ваши сообщения</h3>
       </div>
-      <span v-if="!loading && !error">{{ page.totalElements }} записей</span>
+      <span v-if="!loading && !error">Найдено: {{ page.totalElements }}</span>
     </div>
 
     <StatePanel
@@ -41,14 +41,14 @@ const categoryNames = computed(() => new Map(
       kind="loading"
       icon="⋯"
       title="Загружаем уведомления"
-      description="Получаем список и актуальную статистику через ApiClient."
+      description="Загружаем ваши сообщения."
     />
 
     <StatePanel
       v-else-if="error"
       kind="error"
       icon="!"
-      title="Не удалось загрузить историю"
+      title="Не удалось загрузить уведомления"
       :description="error"
     >
       <template #actions>
@@ -61,7 +61,7 @@ const categoryNames = computed(() => new Map(
       kind="empty"
       icon="○"
       title="Уведомлений не найдено"
-      description="Измените фильтры или отправьте первое уведомление через форму."
+      description="Здесь появятся сообщения о ваших бронированиях и заказах. Если включены фильтры, попробуйте изменить их."
     />
 
     <div v-else class="notification-list">
@@ -70,7 +70,7 @@ const categoryNames = computed(() => new Map(
         :key="notification.id"
         :notification="notification"
         :category-name="categoryNames.get(notification.categoryId) ?? `Категория #${notification.categoryId}`"
-        :busy="busyId === notification.id"
+        :busy="actionsBusy || busyId === notification.id"
         :allow-actions="allowActions"
         @read="emit('read', notification)"
         @delete="emit('delete', notification)"
@@ -98,16 +98,8 @@ const categoryNames = computed(() => new Map(
   margin: 24px 0 14px;
 }
 
-.history-heading p,
 .history-heading h3 {
   margin: 0;
-}
-
-.history-heading p {
-  color: var(--color-text-muted);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
 }
 
 .history-heading h3 {

@@ -16,7 +16,10 @@ export const createMockConsistencyApi = (
     const screening = store.value.screenings.find(candidate => candidate.id === request.screeningId)
     if (!screening) throw new Error('Сеанс для эксперимента не найден')
     const key = `laboratory:screening:${screening.id}`
-    const value = `screening=${screening.id}|movie=${screening.movieId}|status=${screening.status}|startsAt=${screening.startsAt}`
+    const versionKey = `${key}:version`
+    const version = Number(store.value.primaryValues[versionKey] ?? 0) + 1
+    store.value.primaryValues[versionKey] = String(version)
+    const value = `screening=${screening.id}|movie=${screening.movieId}|status=${screening.status}|startsAt=${screening.startsAt}|version=${version}`
     const previousReplicaValue = store.value.replicaValues[key] ?? null
     store.value.primaryValues[key] = value
 

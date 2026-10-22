@@ -2,7 +2,7 @@
 import PageHeader from '~/components/ui/PageHeader.vue'
 import StatePanel from '~/components/ui/StatePanel.vue'
 import type { CinemaOrder, Product, ScreeningSeats, SeatHold } from '~/types/api'
-import { formatPrice } from '~/utils/cinemaFormatters'
+import { formatPrice, formatScreeningDate, formatScreeningTime } from '~/utils/cinemaFormatters'
 
 defineOptions({ name: 'CheckoutPage' })
 definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Оформление заказа' })
@@ -116,6 +116,11 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
       <section class="card checkout-card">
         <div class="hold-heading"><div><span>Места удерживаются</span><strong>{{ countdown }}</strong></div><button class="btn btn-secondary" type="button" @click="release">Освободить</button></div>
         <p v-if="remainingSeconds === 0" class="page-error">Время удержания истекло. <NuxtLink :to="`/screenings/${hold.screeningId}`">Выберите места снова</NuxtLink>.</p>
+        <div v-if="screening" class="screening-summary">
+          <h2>{{ screening.movieTitle }}</h2>
+          <p>{{ formatScreeningDate(screening.startsAt) }} · {{ formatScreeningTime(screening.startsAt) }} · {{ screening.auditorium.name }}</p>
+          <p>{{ screening.seats.filter(seat => hold.seatIds.includes(seat.id)).map(seat => `Ряд ${seat.rowNumber}, место ${seat.seatNumber}`).join('; ') }}</p>
+        </div>
         <div class="summary-row"><span>Билеты · {{ hold.seatIds.length }}</span><strong>{{ formatPrice(ticketTotal) }}</strong></div>
       </section>
       <section class="card checkout-card">
@@ -132,6 +137,8 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
 </template>
 
 <style scoped>
+.screening-summary { margin-top: 18px; }
+.screening-summary h2 { margin-bottom: 8px; }
 .checkout-card { margin-bottom: 16px; padding: 22px; }
 .checkout-card h2 { margin: 0 0 18px; font-size: 20px; }
 .hold-heading,.summary-row,.product-row,.total-card { display:flex; align-items:center; justify-content:space-between; gap:16px; }
