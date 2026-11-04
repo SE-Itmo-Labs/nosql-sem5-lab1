@@ -1,7 +1,7 @@
 package org.seitmolabs.modules.auth.service;
 
 import org.seitmolabs.modules.auth.dto.request.LoginRequest;
-import org.seitmolabs.modules.auth.dto.request.RegistgerRequest;
+import org.seitmolabs.modules.auth.dto.request.RegisterRequest;
 import org.seitmolabs.modules.auth.exceptions.RegistrationException;
 import org.seitmolabs.modules.auth.exceptions.UnauthorizedException;
 import org.seitmolabs.modules.user.domain.User;
@@ -32,7 +32,7 @@ public class AuthService {
         return user;
     }
 
-    public User register(RegistgerRequest request) {
+    public User register(RegisterRequest request) {
 
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new RegistrationException(USER_EXISTS);
@@ -46,7 +46,7 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
-
+        
         return user;
     }
 }
