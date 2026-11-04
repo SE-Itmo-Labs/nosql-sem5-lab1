@@ -66,6 +66,13 @@ cp credentials.env.example credentials.env
 docker compose --env-file credentials.env up -d --build
 ```
 
+## Попасть в БД
+
+```bash
+docker compose --env-file credentials.env exec postgresql \
+  sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+```
+
 После запуска:
 
 - API: <http://localhost:16767>
