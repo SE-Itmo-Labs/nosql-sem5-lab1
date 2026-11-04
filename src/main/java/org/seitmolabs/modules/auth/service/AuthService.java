@@ -1,5 +1,6 @@
 package org.seitmolabs.modules.auth.service;
 
+import org.seitmolabs.common.exceptions.ConflictException;
 import org.seitmolabs.modules.auth.dto.request.LoginRequest;
 import org.seitmolabs.modules.auth.dto.request.RegisterRequest;
 import org.seitmolabs.modules.auth.exceptions.RegistrationException;
@@ -35,7 +36,7 @@ public class AuthService {
     public User register(RegisterRequest request) {
 
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new RegistrationException(USER_EXISTS);
+            throw new ConflictException(USER_EXISTS);
         }
 
         User user = User.builder()
@@ -46,7 +47,7 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
-        
+
         return user;
     }
 }

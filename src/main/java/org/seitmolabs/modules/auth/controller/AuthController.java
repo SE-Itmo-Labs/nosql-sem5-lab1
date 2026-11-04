@@ -23,7 +23,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    @Operation(summary = "Войти с тестовой учётной записью")
+    @Operation(summary = "Войти")
     @SecurityRequirements
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         User user = authService.authenticate(request);
@@ -31,6 +31,9 @@ public class AuthController {
         return AuthResponse.from(user);
     }
 
+    @PostMapping("/register")
+    @Operation(summary = "Зарегистрироваться")
+    @SecurityRequirements 
     public AuthResponse register(@Valid @RequestBody RegistgerRequest request) {
         User user = authService.register(request);
         
