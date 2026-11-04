@@ -24,14 +24,14 @@ public class RedissonConfig {
 
 //        SentinelServersConfig servers = config.useSentinelServers().setMasterName(topology.getNodes().get(0).getId());
 
-        SentinelServersConfig servers = config.useSentinelServers().setMasterName(topology.getNodes().getFirst().getId());
+        SentinelServersConfig servers = config.useMasterSlaveServers();
 
         for (Node topologyNode : topology.getNodes()) {
-
             String address = RedisNodeAddressBuilder.build(topologyNode);
 
             switch (topologyNode.getRole()) {
-                case REPLICA -> servers.addSentinelAddress(address);
+                case PRIMARY -> servers.setMasterAddress(address);
+                case REPLICA -> servers.addSlaveAddress(address);
             }
         }
 
