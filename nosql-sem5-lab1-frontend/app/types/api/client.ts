@@ -1,4 +1,4 @@
-import type { AuthResponse, LoginRequest } from './auth'
+import type { AuthResponse, LoginRequest, RegisterRequest } from './auth'
 import type { Category, CategoryResponse, SaveCategoryRequest } from './categories'
 import type { Movie, Screening, ScreeningSeats } from './catalog'
 import type {
@@ -26,6 +26,7 @@ import type {
 export interface ApiClient {
   auth: {
     login(request: LoginRequest): Promise<AuthResponse>
+    register(request: RegisterRequest): Promise<AuthResponse>
   }
   catalog: {
     getMovies(): Promise<Movie[]>

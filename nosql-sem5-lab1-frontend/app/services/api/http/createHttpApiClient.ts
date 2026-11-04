@@ -33,6 +33,10 @@ export const createHttpApiClient = (options: HttpApiClientOptions): ApiClient =>
   return {
     auth: {
       login: request => http.post<AuthResponse>(API_ENDPOINTS.auth.login, request),
+      // Отправляем только поля публичного контракта, без роли и подтверждения пароля.
+      register: ({ username, password, displayName }) => http.post<AuthResponse>(
+        API_ENDPOINTS.auth.register, { username, password, displayName },
+      ),
     },
 
     catalog: {
