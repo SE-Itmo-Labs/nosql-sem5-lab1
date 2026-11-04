@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter 
 @Setter
 @NotNull
-@NotBlank  RegisterRequest
+@NotBlank
 public class RegistgerRequest {
     
     @Size(min=5,max=40)

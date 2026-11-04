@@ -24,7 +24,7 @@ public class RedissonConfig {
 
 //        SentinelServersConfig servers = config.useSentinelServers().setMasterName(topology.getNodes().get(0).getId());
 
-        SentinelServersConfig servers = config.useMasterSlaveServers();
+        MasterSlaveServersConfig servers = config.useMasterSlaveServers();
 
         for (Node topologyNode : topology.getNodes()) {
             String address = RedisNodeAddressBuilder.build(topologyNode);
