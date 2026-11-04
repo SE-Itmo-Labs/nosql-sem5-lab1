@@ -28,6 +28,7 @@ public class RoleAuthorizationInterceptor implements HandlerInterceptor {
                 method.getMethod(),
                 RequireRole.class
         );
+
         if (requirement == null) {
             requirement = AnnotatedElementUtils.findMergedAnnotation(
                     method.getBeanType(),
@@ -39,9 +40,11 @@ public class RoleAuthorizationInterceptor implements HandlerInterceptor {
         }
 
         User user = (User) request.getAttribute(SimpleAuthFilter.CURRENT_USER_ATTRIBUTE);
+
         if (user == null || user.getRole() != requirement.value()) {
-            throw new ForbiddenException("Недостаточно прав для выполнения операции");
+            throw new ForbiddenException();
         }
+        
         return true;
     }
 }
