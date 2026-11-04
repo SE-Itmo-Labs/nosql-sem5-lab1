@@ -42,7 +42,6 @@ dependencies {
 
     // Validation (RegisterRequest/LoginRequest)
     implementation("org.springframework.boot:spring-boot-starter-validation")
-
 }
 
 tasks.test {
