@@ -14,6 +14,6 @@ public record CreateNotificationRequest(
         String text,
 
         @NotNull
-        Long categoryId
+        long categoryId
 ) {
 }

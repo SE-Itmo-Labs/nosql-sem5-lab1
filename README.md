@@ -87,6 +87,10 @@ docker compose --env-file credentials.env exec postgresql \
 
 ## Документация
 
+Reddison docs - https://redisson.pro/docs/
+Spring docs - https://docs.spring.io/spring-framework/reference/index.html
+
+
 | Документ | Содержание |
 | --- | --- |
 | [Запуск и разработка](docs/DEVELOPMENT.md) | JDK 25, Docker, frontend, тесты и ручные проверки |

@@ -3,7 +3,6 @@ package org.seitmolabs.modules.auth.service;
 import org.seitmolabs.common.exceptions.ConflictException;
 import org.seitmolabs.modules.auth.dto.request.LoginRequest;
 import org.seitmolabs.modules.auth.dto.request.RegisterRequest;
-import org.seitmolabs.modules.auth.exceptions.RegistrationException;
 import org.seitmolabs.modules.auth.exceptions.UnauthorizedException;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.enums.Role;
