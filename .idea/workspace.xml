@@ -5,24 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b7f75c7c-39d2-44ec-b24c-c71b8d581f98" name="Changes" comment="">
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/.idea/gradle.xml" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/.idea/misc.xml" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/.idea/misc.xml" afterDir="false" />
       <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/.idea/workspace.xml" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/README.md" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/README.md" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/common/dto/CreateNotificationRequest.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/common/dto/CreateNotificationRequest.java" afterDir="false" />
       <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/config/RedissonConfig.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/config/RedissonConfig.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/auth/service/AuthService.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/auth/service/AuthService.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/catalog/seat/repository/SeatRepository.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/catalog/seat/repository/SeatRepository.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/resources/application.properties" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/common/dto/CreateNotificationRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/common/dto/CreateNotificationRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/config/RedissonConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/config/RedissonConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/auth/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/auth/service/AuthService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/seat/repository/SeatRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/seat/repository/SeatRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -105,24 +91,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;code-analysis&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/developer/Programs/JDK/jdk-25.0.5+8&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;/home/developer/Projects/github/SE-Itmo-Labs/nosql-sem5-lab1/src/main/java/org/seitmolabs/Main.java&quot;,
-    &quot;python.packages.toolwindow.project.migrated.to.right.top.v2&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "code-analysis",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/developer/Projects/github/ssnagin/nosql-sem5-lab1",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "/home/developer/Projects/github/SE-Itmo-Labs/nosql-sem5-lab1/src/main/java/org/seitmolabs/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "python.packages.toolwindow.project.migrated.to.right.top.v2": "true",
+    "settings.editor.selected.configurable": "preferences.lookFeel"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
