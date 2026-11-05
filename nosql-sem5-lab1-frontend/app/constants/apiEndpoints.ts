@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
   /** Авторизация использует уже выбранный backend-префикс /api/v1/auth. */
   auth: {
     login: '/api/v1/auth/login',
+    register: '/api/v1/auth/register',
   },
 
   catalog: {
