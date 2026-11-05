@@ -37,18 +37,23 @@ public class SeatHoldService {
     private final OutboxEventService outboxEventService;
 
     public SeatHoldResponse create(CreateSeatHoldRequest request, User user) {
+
         Screening screening = requireBookableScreening(request.screeningId());
+
         List<Long> seatIds = request.seatIds().stream().distinct().sorted().toList();
+
         if (seatIds.size() != request.seatIds().size()) {
             throw new BadRequestException("Список мест содержит дубликаты");
         }
 
         List<Seat> seats = seatRepository.findAllByIdIn(seatIds);
+
         if (seats.size() != seatIds.size()
                 || seats.stream().anyMatch(seat -> !seat.getAuditorium().getId()
                 .equals(screening.getAuditorium().getId()))) {
             throw new BadRequestException("Выбраны места, не принадлежащие залу сеанса");
         }
+
         if (ticketRepository.existsConfirmedByScreeningIdAndSeatIdIn(
                 screening.getId(), seatIds, TicketStatus.CONFIRMED)) {
             throw new ConflictException("Одно или несколько мест уже куплены");
