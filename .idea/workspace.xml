@@ -4,40 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b7f75c7c-39d2-44ec-b24c-c71b8d581f98" name="Changes" comment="">
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/.idea/workspace.xml" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/docs/API_CONTRACT.md" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/docs/API_CONTRACT.md" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/docs/DEMO_SCENARIO.md" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/docs/DEMO_SCENARIO.md" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/docs/FRONTEND_ARCHITECTURE.md" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/docs/FRONTEND_ARCHITECTURE.md" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/components/consistency/HoldReplicationCheck.vue" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/components/consistency/HoldReplicationCheck.vue" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/constants/apiEndpoints.ts" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/constants/apiEndpoints.ts" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/pages/screenings/[id].vue" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/pages/screenings/[id].vue" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/services/api/http/createHttpApiClient.ts" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/services/api/http/createHttpApiClient.ts" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/services/api/mock/consistencyMock.ts" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/services/api/mock/consistencyMock.ts" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/types/api/client.ts" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/types/api/client.ts" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/types/api/consistency.ts" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/types/api/consistency.ts" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/controller/ConsistencyController.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/controller/ConsistencyController.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/service/HoldReplicationService.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/service/HoldReplicationService.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/API_CONTRACT.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/API_CONTRACT.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/DEMO_SCENARIO.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/DEMO_SCENARIO.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/FRONTEND_ARCHITECTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/FRONTEND_ARCHITECTURE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/components/consistency/HoldReplicationCheck.vue" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/components/consistency/HoldReplicationCheck.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/constants/apiEndpoints.ts" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/constants/apiEndpoints.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/pages/screenings/[id].vue" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/pages/screenings/[id].vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/services/api/http/createHttpApiClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/services/api/http/createHttpApiClient.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/services/api/mock/consistencyMock.ts" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/services/api/mock/consistencyMock.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/types/api/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/types/api/client.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/types/api/consistency.ts" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/types/api/consistency.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/controller/ConsistencyController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/controller/ConsistencyController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/service/HoldReplicationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/service/HoldReplicationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" afterDir="false" />
-    </list>
+    <list default="true" id="b7f75c7c-39d2-44ec-b24c-c71b8d581f98" name="Changes" comment="feat: add replica-s status check (but i don't         understand if it was made correctly)" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -129,61 +96,61 @@
   <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="$USER_HOME$/.gradle/wrapper/dists/gradle-8.14-bin/38aieal9i53h9rfe7vjup95b9/gradle-8.14" javaHome="/usr/lib/jvm/default-java" gradleVersion="8.14" />
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.2284578625573501" />
-      <entry key="MS500" value="1.7443226275832697" />
-      <entry key="S2" value="1.9289415547447082" />
-      <entry key="S5" value="2.026351725521223" />
-      <entry key="S10" value="2.4516766038544873" />
-      <entry key="S30" value="4.022048000148949" />
-      <entry key="S60" value="5.524722928648613" />
-      <entry key="M2" value="7.608735397447742" />
-      <entry key="M5" value="10.201151684618731" />
-      <entry key="M10" value="12.497642986169488" />
-      <entry key="M15" value="16.441835597847934" />
-      <entry key="M30" value="34.051179004209686" />
-      <entry key="H1" value="67.18079710055727" />
-      <entry key="H2" value="111.1936592812179" />
-      <entry key="H4" value="153.52751052079552" />
-      <entry key="D1" value="215.97616844755527" />
-      <entry key="W1" value="232.8511916416149" />
+      <entry key="MS100" value="1.01002676482471" />
+      <entry key="MS500" value="1.3983202930775405" />
+      <entry key="S2" value="1.8373550763882742" />
+      <entry key="S5" value="2.93937545399058" />
+      <entry key="S10" value="6.583505444788494" />
+      <entry key="S30" value="19.179386056386868" />
+      <entry key="S60" value="26.98845993970438" />
+      <entry key="M2" value="32.34030772501022" />
+      <entry key="M5" value="36.23161534184799" />
+      <entry key="M10" value="38.60359676243966" />
+      <entry key="M15" value="41.190055038680086" />
+      <entry key="M30" value="53.449057358602104" />
+      <entry key="H1" value="83.2532723537744" />
+      <entry key="H2" value="129.37396945580758" />
+      <entry key="H4" value="177.4428555518372" />
+      <entry key="D1" value="251.2907664228011" />
+      <entry key="W1" value="271.27951225905724" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="1.2343323607662958E-115" />
-      <entry key="S2" value="1.8743816710266216E-29" />
-      <entry key="S5" value="3.229558914820437E-12" />
-      <entry key="S10" value="1.7970973581919365E-6" />
-      <entry key="S30" value="0.012157861786687258" />
-      <entry key="S60" value="0.1102626944468969" />
-      <entry key="M2" value="0.33205855338482926" />
-      <entry key="M5" value="0.6541321340276811" />
-      <entry key="M10" value="1.3239824504725568" />
-      <entry key="M15" value="3.0155763859120706" />
-      <entry key="M30" value="10.695350270780606" />
-      <entry key="H1" value="24.015645233725618" />
-      <entry key="H2" value="40.08738930418663" />
-      <entry key="H4" value="54.78298442488116" />
-      <entry key="D1" value="76.63852065262826" />
-      <entry key="W1" value="82.82786066803193" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="5.1310759454158635E-141" />
+      <entry key="S10" value="7.163152898979508E-71" />
+      <entry key="S30" value="4.153058740606715E-24" />
+      <entry key="S60" value="2.037905478820734E-12" />
+      <entry key="M2" value="1.427553488111661E-6" />
+      <entry key="M5" value="0.004666771870222759" />
+      <entry key="M10" value="0.11182985765964892" />
+      <entry key="M15" value="0.5805246913266432" />
+      <entry key="M30" value="4.692671931601375" />
+      <entry key="H1" value="15.907680143369928" />
+      <entry key="H2" value="32.62601781513325" />
+      <entry key="H4" value="49.42240045831697" />
+      <entry key="D1" value="75.33442380861132" />
+      <entry key="W1" value="82.62503153618354" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.4476092928863589" />
-      <entry key="MS500" value="1.4824798304246865" />
-      <entry key="S2" value="1.8558505900154327" />
-      <entry key="S5" value="1.9964033422475302" />
-      <entry key="S10" value="2.4364260516497724" />
-      <entry key="S30" value="4.02858118656484" />
-      <entry key="S60" value="5.63084894105733" />
-      <entry key="M2" value="7.9372868984376135" />
-      <entry key="M5" value="10.853031205521994" />
-      <entry key="M10" value="13.818925049418786" />
-      <entry key="M15" value="19.45248728242873" />
-      <entry key="M30" value="44.736437636881405" />
-      <entry key="H1" value="91.18389447230005" />
-      <entry key="H2" value="151.26960550238243" />
-      <entry key="H4" value="208.30223736315367" />
-      <entry key="D1" value="292.61265899781404" />
-      <entry key="W1" value="315.67873538647194" />
+      <entry key="MS100" value="0.9815671639425076" />
+      <entry key="MS500" value="1.3835128863521118" />
+      <entry key="S2" value="1.8279073947447773" />
+      <entry key="S5" value="2.92229759281002" />
+      <entry key="S10" value="6.565717734829429" />
+      <entry key="S30" value="19.168549784958444" />
+      <entry key="S60" value="26.981937624124676" />
+      <entry key="M2" value="32.33670046727533" />
+      <entry key="M5" value="36.23472726530213" />
+      <entry key="M10" value="38.714412120478116" />
+      <entry key="M15" value="41.769103534290636" />
+      <entry key="M30" value="58.13703546823465" />
+      <entry key="H1" value="99.15250743020589" />
+      <entry key="H2" value="161.99060718233062" />
+      <entry key="H4" value="226.85777297150963" />
+      <entry key="D1" value="326.6231890908631" />
+      <entry key="W1" value="353.90422685049674" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -313,5 +280,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat: show consistency status while making order" />
+    <MESSAGE value="feat: add replica-s status check (but i don't         understand if it was made correctly)" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: add replica-s status check (but i don't         understand if it was made correctly)" />
   </component>
 </project>
