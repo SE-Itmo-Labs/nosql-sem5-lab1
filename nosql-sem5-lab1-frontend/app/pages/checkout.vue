@@ -9,6 +9,7 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Оформле
 
 const route = useRoute()
 const api = useApi()
+const { clearSelection } = useBookingSelection()
 const hold = ref<SeatHold | null>(null)
 const screening = ref<ScreeningSeats | null>(null)
 const products = ref<Product[]>([])
@@ -77,6 +78,7 @@ const confirm = async () => {
         .filter(([, quantity]) => quantity > 0)
         .map(([productId, quantity]) => ({ productId: Number(productId), quantity })),
     })
+    clearSelection()
     notificationRefreshVersion.value += 1
   }
   catch (cause) {

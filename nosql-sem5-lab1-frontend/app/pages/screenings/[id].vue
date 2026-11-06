@@ -17,20 +17,23 @@ const holdError = ref('')
 
 watch(seatMap, (value) => {
   if (value) selectScreening(value)
-})
+}, { flush: 'sync' })
 onMounted(() => loadSeatMap(screeningId))
 
 const selectedSeats = computed(() => seatMap.value?.seats.filter(seat => selectedSeatIds.value.has(seat.id)) ?? [])
 const total = computed(() => selectedSeats.value.length * (seatMap.value?.basePrice ?? 0))
 
 const createHold = async () => {
-  if (!selection.value.screening || !selection.value.seatIds.length) return
+  if (isHolding.value || !seatMap.value) return
+  // Проверяем выбор по последней загруженной схеме перед отправкой.
+  selectScreening(seatMap.value)
+  if (!selection.value.seatIds.length) return
   isHolding.value = true
   holdError.value = ''
   try {
     const hold = await api.seatHolds.create({
-      screeningId: selection.value.screening.screeningId,
-      seatIds: selection.value.seatIds,
+      screeningId: seatMap.value.screeningId,
+      seatIds: [...selection.value.seatIds],
     })
     await navigateTo({ path: '/checkout', query: { holdId: hold.holdId } })
   }
