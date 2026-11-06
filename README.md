@@ -73,6 +73,15 @@ docker compose --env-file credentials.env exec postgresql \
   sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 ```
 
+## Попасть в Redis
+
+`redis_container`, `redis_replica1_container`, `redis_replica2_container` 
+
+```bash
+docker exec -it redis_container redis-cli
+
+```
+
 После запуска:
 
 - API: <http://localhost:16767>
