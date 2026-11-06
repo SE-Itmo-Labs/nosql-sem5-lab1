@@ -9,6 +9,10 @@ import org.seitmolabs.common.exceptions.ConflictException;
 import org.seitmolabs.modules.booking.hold.domain.SeatHold;
 import org.seitmolabs.modules.booking.hold.dto.CreateSeatHoldRequest;
 import org.seitmolabs.modules.booking.hold.dto.SeatHoldResponse;
+import org.seitmolabs.modules.booking.hold.dto.HoldReplicationMode;
+import org.seitmolabs.modules.booking.hold.dto.ExperimentalHoldResponse;
+import org.seitmolabs.modules.user.enums.Role;
+import org.seitmolabs.modules.auth.authorization.ForbiddenException;
 import org.seitmolabs.modules.booking.hold.factory.SeatHoldFactory;
 import org.seitmolabs.modules.booking.hold.repository.SeatHoldRepository;
 import org.seitmolabs.modules.booking.order.domain.TicketStatus;
@@ -55,6 +59,15 @@ public class SeatHoldService {
 //    }
 
     public SeatHoldResponse create(CreateSeatHoldRequest request, User user) {
+        return createHold(request, user, null).hold();
+    }
+
+    public ExperimentalHoldResponse createExperimental(CreateSeatHoldRequest request, User user, HoldReplicationMode mode) {
+        if (user.getRole() != Role.ROLE_ADMIN) throw new ForbiddenException();
+        return createHold(request, user, mode);
+    }
+
+    private ExperimentalHoldResponse createHold(CreateSeatHoldRequest request, User user, HoldReplicationMode mode) {
 
         Screening screening = requireBookableScreening(request.screeningId());
 
@@ -84,7 +97,9 @@ public class SeatHoldService {
                 user.getUsername()
         );
 
-        boolean created = holdRepository.createWithEvent(hold, event);
+        var measured = mode == null ? null : holdRepository.createWithReplicationCheck(
+                hold, event, mode == HoldReplicationMode.WAIT_FOR_REPLICA);
+        boolean created = mode == null ? holdRepository.createWithEvent(hold, event) : measured.created();
 
         if (!created) {
             throw new ConflictException(
@@ -92,7 +107,10 @@ public class SeatHoldService {
             );
         }
 
-        return toResponse(hold);
+        return new ExperimentalHoldResponse(toResponse(hold), mode,
+                measured == null ? null : measured.replicasAcked(),
+                measured == null ? 0 : measured.waitDurationMs(),
+                measured == null ? "NOT_REQUESTED" : measured.waitStatus());
     }
 
     public SeatHoldResponse getOwn(String holdId, User user) {

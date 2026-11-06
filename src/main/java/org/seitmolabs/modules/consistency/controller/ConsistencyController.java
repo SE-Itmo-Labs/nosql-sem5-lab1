@@ -1,6 +1,10 @@
 package org.seitmolabs.modules.consistency.controller;
 
 import org.seitmolabs.modules.consistency.dto.ExperimentRequest;
+import org.seitmolabs.modules.booking.hold.dto.CreateExperimentalHoldRequest;
+import org.seitmolabs.modules.booking.hold.dto.CreateSeatHoldRequest;
+import org.seitmolabs.modules.booking.hold.dto.ExperimentalHoldResponse;
+import org.seitmolabs.modules.booking.hold.service.SeatHoldService;
 import org.seitmolabs.modules.consistency.dto.ExperimentResponse;
 import org.seitmolabs.modules.consistency.dto.ReplicaActionResponse;
 import org.seitmolabs.modules.consistency.dto.HoldReplicationResponse;
@@ -32,6 +36,14 @@ public class ConsistencyController {
 
     private final ConsistencyService consistencyService;
     private final HoldReplicationService holdReplicationService;
+    private final SeatHoldService seatHoldService;
+
+    @PostMapping("/holds")
+    public ExperimentalHoldResponse createExperimentalHold(@Valid @RequestBody CreateExperimentalHoldRequest request,
+            @RequestAttribute(SimpleAuthFilter.CURRENT_USER_ATTRIBUTE) User user) {
+        return seatHoldService.createExperimental(
+                new CreateSeatHoldRequest(request.screeningId(), request.seatIds()), user, request.mode());
+    }
 
     @Operation(summary = "Проверить репликацию своего удержания")
     @GetMapping("/holds/{holdId}")

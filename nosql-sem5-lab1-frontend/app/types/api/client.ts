@@ -8,7 +8,7 @@ import type {
   Product,
   SeatHold,
 } from './booking'
-import type { ConsistencyExperimentRequest, ConsistencyExperimentResponse, HoldReplicationResponse } from './consistency'
+import type { ConsistencyExperimentRequest, ConsistencyExperimentResponse, ExperimentalHoldResponse, HoldReplicationResponse, ReplicationMode } from './consistency'
 import type { PageQuery, PageResponse } from './common'
 import type {
   CreateNotificationRequest,
@@ -65,6 +65,7 @@ export interface ApiClient {
     delete(id: number): Promise<void>
   }
   consistency: {
+    createExperimentalHold(request: CreateSeatHoldRequest & { mode: ReplicationMode }): Promise<ExperimentalHoldResponse>
     runExperiment(request: ConsistencyExperimentRequest): Promise<ConsistencyExperimentResponse>
     inspectHold(holdId: string): Promise<HoldReplicationResponse>
   }

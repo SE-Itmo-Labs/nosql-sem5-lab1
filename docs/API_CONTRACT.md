@@ -222,6 +222,16 @@ JWT и Spring Security не используются. После проверк�
 
 ## Исследование согласованности Redis
 
+`POST /api/v1/admin/laboratory/consistency/holds` создаёт настоящее удержание
+для администратора: `screeningId`, `seatIds`, `mode` (`EVENTUAL` или
+`WAIT_FOR_REPLICA`). В режиме ожидания `WAIT 1 500` следует за Lua на том же
+подключении. Ответ содержит `hold`, `mode`, `replicasAcked`, `waitDurationMs`
+и `waitStatus` (`NOT_REQUESTED`, `ACKNOWLEDGED`, `NOT_ACKNOWLEDGED`, `UNKNOWN`).
+При таймауте или ошибке ожидания уже созданное удержание не отменяется.
+Результат показывается на странице оформления в текущей сессии и после
+перезагрузки страницы не сохраняется. Подтверждение одной реплики не означает,
+что конкретная выбранная реплика получила запись.
+
 Администратор может проверить собственное активное удержание через
 `GET /api/v1/admin/laboratory/consistency/holds/{holdId}`. Ответ содержит
 ID удержания и список узлов с ролью, статусом (`PRESENT`, `MATCH`, `MISSING`,

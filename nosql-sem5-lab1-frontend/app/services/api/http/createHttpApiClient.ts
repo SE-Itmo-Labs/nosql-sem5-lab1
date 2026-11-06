@@ -5,6 +5,7 @@ import type {
   Category,
   CategoryResponse,
   ConsistencyExperimentResponse,
+  ExperimentalHoldResponse,
   HoldReplicationResponse,
   Movie,
   Notification,
@@ -93,6 +94,7 @@ export const createHttpApiClient = (options: HttpApiClientOptions): ApiClient =>
     },
 
     consistency: {
+      createExperimentalHold: request => http.post<ExperimentalHoldResponse>(API_ENDPOINTS.consistency.holds, request),
       inspectHold: holdId => http.get<HoldReplicationResponse>(API_ENDPOINTS.consistency.hold(holdId)),
       runExperiment: request => http.post<ConsistencyExperimentResponse>(
         API_ENDPOINTS.consistency.experiments,

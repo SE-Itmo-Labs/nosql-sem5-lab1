@@ -24,7 +24,7 @@ public class HoldReplicationService {
     private final StringRedisTemplate primary;
 
     public HoldReplicationResponse inspect(String holdId, User user) {
-        
+
         // Authorize against the business primary before touching diagnostic nodes.
         holds.requireOwned(holdId, user);
         String key = "hold:" + holdId;

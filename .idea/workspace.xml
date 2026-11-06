@@ -9,24 +9,34 @@
       <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/docs/API_CONTRACT.md" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/docs/API_CONTRACT.md" afterDir="false" />
       <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/docs/DEMO_SCENARIO.md" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/docs/DEMO_SCENARIO.md" afterDir="false" />
       <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/docs/FRONTEND_ARCHITECTURE.md" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/docs/FRONTEND_ARCHITECTURE.md" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/components/consistency/HoldReplicationCheck.vue" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/components/consistency/HoldReplicationCheck.vue" afterDir="false" />
       <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/constants/apiEndpoints.ts" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/constants/apiEndpoints.ts" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/pages/checkout.vue" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/pages/checkout.vue" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/pages/screenings/[id].vue" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/pages/screenings/[id].vue" afterDir="false" />
       <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/services/api/http/createHttpApiClient.ts" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/services/api/http/createHttpApiClient.ts" afterDir="false" />
       <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/services/api/mock/consistencyMock.ts" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/services/api/mock/consistencyMock.ts" afterDir="false" />
       <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/types/api/client.ts" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/types/api/client.ts" afterDir="false" />
       <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/types/api/consistency.ts" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/nosql-sem5-lab1-frontend/app/types/api/consistency.ts" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" afterDir="false" />
       <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/controller/ConsistencyController.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/controller/ConsistencyController.java" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/service/HoldReplicationService.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/service/HoldReplicationService.java" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/API_CONTRACT.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/API_CONTRACT.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/DEMO_SCENARIO.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/DEMO_SCENARIO.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/FRONTEND_ARCHITECTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/FRONTEND_ARCHITECTURE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/components/consistency/HoldReplicationCheck.vue" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/components/consistency/HoldReplicationCheck.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/constants/apiEndpoints.ts" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/constants/apiEndpoints.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/pages/checkout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/pages/checkout.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/pages/screenings/[id].vue" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/pages/screenings/[id].vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/services/api/http/createHttpApiClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/services/api/http/createHttpApiClient.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/services/api/mock/consistencyMock.ts" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/services/api/mock/consistencyMock.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/types/api/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/types/api/client.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/types/api/consistency.ts" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/types/api/consistency.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/controller/ConsistencyController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/controller/ConsistencyController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/service/HoldReplicationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/service/HoldReplicationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -187,29 +197,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [test].executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;big-lag-check&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/developer/ssnagin/nosql-sem5-lab1&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;/home/developer/Projects/github/SE-Itmo-Labs/nosql-sem5-lab1/src/main/java/org/seitmolabs/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;python.packages.toolwindow.project.migrated.to.right.top.v2&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [build].executor": "Run",
+    "Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [test].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "big-lag-check",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/developer/ssnagin/nosql-sem5-lab1",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "/home/developer/Projects/github/SE-Itmo-Labs/nosql-sem5-lab1/src/main/java/org/seitmolabs/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "python.packages.toolwindow.project.migrated.to.right.top.v2": "true",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "ts.external.directory.path": "/home/developer/Programs/JetBrains/idea-IU-262.11879.100/plugins/javascript-plugin/jsLanguageServicesImpl/external"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [build]">
     <configuration name="nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>

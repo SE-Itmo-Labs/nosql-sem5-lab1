@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import type { HoldReplicationResponse } from '~/types/api'
+import type { ExperimentalHoldResponse, HoldReplicationResponse } from '~/types/api'
 
 const props = defineProps<{ holdId: string }>()
 const api = useApi()
 const result = ref<HoldReplicationResponse | null>(null)
 const loading = ref(false)
 const error = ref('')
+const experiment = useState<ExperimentalHoldResponse | null>('hold-replication-result', () => null)
+const currentExperiment = computed(() => experiment.value?.hold.holdId === props.holdId ? experiment.value : null)
 
 const labels: Record<HoldReplicationResponse['nodes'][number]['status'], string> = {
   PRESENT: 'Найдено',
@@ -34,6 +36,15 @@ const inspect = async () => {
 <template>
   <section class="card replication-check" aria-label="Проверка репликации удержания">
     <h2>Исследование репликации</h2>
+    <div v-if="currentExperiment" class="experiment-result">
+      <p>Режим: <strong>{{ currentExperiment.mode === 'EVENTUAL' ? 'без ожидания' : 'ожидание реплики (WAIT)' }}</strong></p>
+      <p v-if="currentExperiment.waitStatus === 'NOT_REQUESTED'">Подтверждения реплик не ожидались.</p>
+      <p v-else-if="currentExperiment.waitStatus === 'ACKNOWLEDGED'">Подтверждений: {{ currentExperiment.replicasAcked }} · ожидание: {{ currentExperiment.waitDurationMs }} мс.</p>
+      <p v-else-if="currentExperiment.waitStatus === 'NOT_ACKNOWLEDGED'">За {{ currentExperiment.waitDurationMs }} мс подтверждение не получено. Удержание создано на primary.</p>
+      <p v-else>Результат ожидания неизвестен. Удержание создано на primary.</p>
+      <p v-if="currentExperiment.mode === 'WAIT_FOR_REPLICA'">WAIT подтверждает количество реплик, но не указывает, каких именно.</p>
+    </div>
+    <p v-else>Результат создания удержания недоступен после перезагрузки страницы.</p>
     <p>Сравните текущее удержание на основном Redis и репликах до подтверждения заказа.</p>
     <button class="btn btn-secondary" type="button" :disabled="loading" @click="inspect">
       {{ loading ? 'Проверяем…' : 'Проверить репликацию удержания' }}
