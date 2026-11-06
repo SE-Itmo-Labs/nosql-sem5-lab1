@@ -55,6 +55,7 @@ export const API_ENDPOINTS = {
   /** Управляемый эксперимент чтения из Redis primary или replica. */
   consistency: {
     experiments: '/api/v1/admin/laboratory/consistency/experiments',
+    hold: (holdId: string) => `/api/v1/admin/laboratory/consistency/holds/${pathSegment(holdId)}`,
   },
 
   adminNotifications: {

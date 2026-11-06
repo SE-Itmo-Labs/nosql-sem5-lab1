@@ -1,6 +1,16 @@
 /** Узел Redis, из которого будет выполнено контрольное чтение. */
 export type RedisReadTarget = 'PRIMARY' | 'REPLICA'
 
+export interface HoldReplicationResponse {
+  holdId: string
+  nodes: Array<{
+    node: string
+    role: RedisReadTarget
+    status: 'PRESENT' | 'MATCH' | 'MISSING' | 'DIFFERENT' | 'UNAVAILABLE'
+    ttlSeconds: number | null
+  }>
+}
+
 /**
  * EVENTUAL сразу читает асинхронную реплику, WAIT_FOR_REPLICA сначала вызывает
  * Redis WAIT и только затем выполняет чтение.
