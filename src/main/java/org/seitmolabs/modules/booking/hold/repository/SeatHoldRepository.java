@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.seitmolabs.modules.booking.hold.domain.SeatHold;
+import org.seitmolabs.modules.catalog.seat.domain.Seat;
+import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
+import org.seitmolabs.modules.notification.outbox.domain.OutboxEventType;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Repository;
@@ -21,16 +24,73 @@ public class SeatHoldRepository {
     private static final String HOLD_PREFIX = "hold:";
     private static final String SEAT_HOLD_PREFIX = "seat-hold:";
 
-    private static final DefaultRedisScript<Long> CREATE_SCRIPT = new DefaultRedisScript<>("""
-            for index = 2, #KEYS do
+    private static final DefaultRedisScript<Long> CREATE_SCRIPT =
+            new DefaultRedisScript<>("""
+            local lastHoldKey = #KEYS - 1
+            local streamKey = KEYS[#KEYS]
+
+            -- Проверки выполняются до первой записи.
+            local expiresAt = tonumber(ARGV[1])
+            local time = redis.call('TIME')
+            local now = tonumber(time[1]) * 1000
+                + math.floor(tonumber(time[2]) / 1000)
+
+            if not expiresAt or expiresAt <= now then
+                return redis.error_reply('Hold expiration must be in the future')
+            end
+
+            local streamType = redis.call('TYPE', streamKey).ok
+
+            if streamType ~= 'none' and streamType ~= 'stream' then
+                return redis.error_reply('Outbox key must be a stream')
+            end
+
+            if streamType == 'stream'
+                and redis.call('PTTL', streamKey) ~= -1 then
+                return redis.error_reply('Outbox stream must not expire')
+            end
+
+            for index = 1, lastHoldKey do
                 if redis.call('EXISTS', KEYS[index]) == 1 then
                     return 0
                 end
             end
-            redis.call('PSETEX', KEYS[1], ARGV[1], ARGV[2])
-            for index = 2, #KEYS do
-                redis.call('PSETEX', KEYS[index], ARGV[1], ARGV[3])
+
+            -- Все эти ключи отсутствовали перед началом записи.
+            -- Другие команды не могут вмешаться во время скрипта.
+            local function rollbackHold()
+                for index = 1, lastHoldKey do
+                    redis.call('DEL', KEYS[index])
+                end
             end
+
+            for index = 1, lastHoldKey do
+                local value = ARGV[3]
+
+                if index == 1 then
+                    value = ARGV[2]
+                end
+
+                local result = redis.pcall(
+                    'SET', KEYS[index], value, 'PXAT', ARGV[1]
+                )
+
+                if type(result) == 'table' and result.err then
+                    rollbackHold()
+                    return redis.error_reply(result.err)
+                end
+            end
+
+            -- Последняя изменяющая команда: после неё откат не требуется.
+            local eventResult = redis.pcall(
+                'XADD', streamKey, '*', 'payload', ARGV[4]
+            )
+
+            if type(eventResult) == 'table' and eventResult.err then
+                rollbackHold()
+                return redis.error_reply(eventResult.err)
+            end
+
             return 1
             """, Long.class);
 
@@ -49,6 +109,43 @@ public class SeatHoldRepository {
 
     private final StringRedisTemplate redisTemplate;
     private final JsonMapper jsonMapper;
+
+    public boolean createWithEvent(SeatHold hold, OutboxEvent event) {
+
+        if (hold.seatIds().isEmpty()) {
+            throw new IllegalArgumentException("Список мест не должен быть пустым");
+        }
+
+        if (event.getEventType() != OutboxEventType.SEAT_HOLD_CREATED
+                || !hold.id().equals(event.getAggregateId())) {
+            throw new IllegalArgumentException(
+                    "Событие должно относиться к создаваемому удержанию"
+            );
+        }
+
+        String holdJson = serialize(hold);
+        String eventJson = serialize(event);
+
+        List<String> scriptKeys = new ArrayList<>(keys(hold));
+        scriptKeys.add(HoldOutboxRepository.STREAM_KEY);
+
+        Long result = redisTemplate.execute(
+                CREATE_SCRIPT,
+                scriptKeys,
+                Long.toString(hold.expiresAt().toEpochMilli()),
+                holdJson,
+                hold.id(),
+                eventJson
+        );
+
+        if (result == null) {
+            throw new IllegalStateException(
+                    "Redis не вернул результат создания удержания"
+            );
+        }
+
+        return result == 1L;
+    }
 
     public boolean create(SeatHold hold, Duration ttl) {
         List<String> keys = keys(hold);
@@ -82,7 +179,7 @@ public class SeatHoldRepository {
         redisTemplate.execute(RELEASE_SCRIPT, keys(hold), hold.id());
     }
 
-    private List<String> keys(SeatHold hold) {
+    public List<String> keys(SeatHold hold) {
         List<String> keys = new ArrayList<>(hold.seatIds().size() + 1);
         keys.add(holdKey(hold.id()));
         hold.seatIds().stream()
@@ -91,11 +188,14 @@ public class SeatHoldRepository {
         return keys;
     }
 
-    private String serialize(SeatHold hold) {
+    private String serialize(Object value) {
         try {
-            return jsonMapper.writeValueAsString(hold);
+            return jsonMapper.writeValueAsString(value);
         } catch (JacksonException exception) {
-            throw new IllegalStateException("Не удалось сохранить удержание мест", exception);
+            throw new IllegalStateException(
+                    "Не удалось сериализовать удержание или событие",
+                    exception
+            );
         }
     }
 

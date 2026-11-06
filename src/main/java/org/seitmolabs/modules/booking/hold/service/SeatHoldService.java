@@ -18,12 +18,17 @@ import org.seitmolabs.modules.catalog.screening.domain.ScreeningStatus;
 import org.seitmolabs.modules.catalog.screening.repository.ScreeningRepository;
 import org.seitmolabs.modules.catalog.seat.domain.Seat;
 import org.seitmolabs.modules.catalog.seat.repository.SeatRepository;
+import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
+import org.seitmolabs.modules.notification.outbox.factory.OutboxEventFactory;
 import org.seitmolabs.modules.notification.outbox.service.OutboxEventService;
 import org.seitmolabs.modules.user.domain.User;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
+import static org.springframework.util.SerializationUtils.serialize;
+
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +40,19 @@ public class SeatHoldService {
     private final SeatRepository seatRepository;
     private final TicketRepository ticketRepository;
     private final OutboxEventService outboxEventService;
+
+    private final OutboxEventFactory outboxEventFactory;
+
+
+
+//
+//    public SeatHoldService newCreate(SeatHold hold, Duration ttl) throws IllegalArgumentException {
+//        if (ttl.isZero() || ttl.isNegative()) {
+//            throw new IllegalArgumentException("ttl > 0");
+//        }
+//
+//        List<String> holdKeys = seatHoldRepository.keys(hold);
+//    }
 
     public SeatHoldResponse create(CreateSeatHoldRequest request, User user) {
 
@@ -60,15 +78,20 @@ public class SeatHoldService {
         }
 
         SeatHold hold = holdFactory.create(user.getId(), screening.getId(), seatIds);
-        if (!holdRepository.create(hold, holdFactory.holdDuration())) {
-            throw new ConflictException("Одно или несколько мест уже удерживаются другим клиентом");
+
+        OutboxEvent event = outboxEventFactory.holdCreated(
+                hold,
+                user.getUsername()
+        );
+
+        boolean created = holdRepository.createWithEvent(hold, event);
+
+        if (!created) {
+            throw new ConflictException(
+                    "Одно или несколько мест уже удерживаются другим клиентом"
+            );
         }
-        try {
-            outboxEventService.enqueueHoldCreated(hold, user.getUsername());
-        } catch (RuntimeException exception) {
-            holdRepository.release(hold);
-            throw exception;
-        }
+
         return toResponse(hold);
     }
 

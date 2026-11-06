@@ -26,7 +26,9 @@ public class SeatHoldFactory {
     }
 
     public SeatHold create(Long userId, Long screeningId, List<Long> seatIds) {
+
         Instant createdAt = Instant.now(clock);
+
         return new SeatHold(
                 UUID.randomUUID().toString(),
                 userId,
