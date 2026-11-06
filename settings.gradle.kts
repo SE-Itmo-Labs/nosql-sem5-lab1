@@ -1,0 +1,1 @@
+rootProject.name = "nosql-sem5-lab1"
