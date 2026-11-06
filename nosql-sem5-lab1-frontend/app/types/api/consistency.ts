@@ -1,11 +1,29 @@
 /** Узел Redis, из которого будет выполнено контрольное чтение. */
 export type RedisReadTarget = 'PRIMARY' | 'REPLICA'
 
+export interface HoldReplicationResponse {
+  holdId: string
+  nodes: Array<{
+    node: string
+    role: RedisReadTarget
+    status: 'PRESENT' | 'MATCH' | 'MISSING' | 'DIFFERENT' | 'UNAVAILABLE'
+    ttlSeconds: number | null
+  }>
+}
+
 /**
  * EVENTUAL сразу читает асинхронную реплику, WAIT_FOR_REPLICA сначала вызывает
  * Redis WAIT и только затем выполняет чтение.
  */
 export type ReplicationMode = 'EVENTUAL' | 'WAIT_FOR_REPLICA'
+
+export interface ExperimentalHoldResponse {
+  hold: import('./booking').SeatHold
+  mode: ReplicationMode
+  replicasAcked: number | null
+  waitDurationMs: number
+  waitStatus: 'NOT_REQUESTED' | 'ACKNOWLEDGED' | 'NOT_ACKNOWLEDGED' | 'UNKNOWN'
+}
 
 /** Параметры воспроизводимого эксперимента записи и последующего чтения. */
 export interface ConsistencyExperimentRequest {

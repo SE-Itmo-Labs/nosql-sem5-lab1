@@ -1,6 +1,7 @@
 package org.seitmolabs.modules.auth.controller;
 
 import org.seitmolabs.modules.auth.dto.request.LoginRequest;
+import org.seitmolabs.modules.auth.dto.request.RegisterRequest;
 import org.seitmolabs.modules.auth.dto.response.AuthResponse;
 import org.seitmolabs.modules.auth.service.AuthService;
 import org.seitmolabs.modules.user.domain.User;
@@ -22,10 +23,21 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    @Operation(summary = "Войти с тестовой учётной записью")
+    @Operation(summary = "Войти")
     @SecurityRequirements
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
-        User user = authService.authenticate(request.getUsername(), request.getPassword());
+        User user = authService.authenticate(request);
+        
         return AuthResponse.from(user);
+    }
+
+    @PostMapping("/register")
+    @Operation(summary = "Зарегистрироваться")
+    @SecurityRequirements 
+    public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
+        User user = authService.register(request);
+        
+        return AuthResponse.from(user);
+        
     }
 }

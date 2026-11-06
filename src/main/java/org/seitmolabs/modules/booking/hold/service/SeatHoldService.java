@@ -9,6 +9,10 @@ import org.seitmolabs.common.exceptions.ConflictException;
 import org.seitmolabs.modules.booking.hold.domain.SeatHold;
 import org.seitmolabs.modules.booking.hold.dto.CreateSeatHoldRequest;
 import org.seitmolabs.modules.booking.hold.dto.SeatHoldResponse;
+import org.seitmolabs.modules.booking.hold.dto.HoldReplicationMode;
+import org.seitmolabs.modules.booking.hold.dto.ExperimentalHoldResponse;
+import org.seitmolabs.modules.user.enums.Role;
+import org.seitmolabs.modules.auth.authorization.ForbiddenException;
 import org.seitmolabs.modules.booking.hold.factory.SeatHoldFactory;
 import org.seitmolabs.modules.booking.hold.repository.SeatHoldRepository;
 import org.seitmolabs.modules.booking.order.domain.TicketStatus;
@@ -18,12 +22,17 @@ import org.seitmolabs.modules.catalog.screening.domain.ScreeningStatus;
 import org.seitmolabs.modules.catalog.screening.repository.ScreeningRepository;
 import org.seitmolabs.modules.catalog.seat.domain.Seat;
 import org.seitmolabs.modules.catalog.seat.repository.SeatRepository;
+import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
+import org.seitmolabs.modules.notification.outbox.factory.OutboxEventFactory;
 import org.seitmolabs.modules.notification.outbox.service.OutboxEventService;
 import org.seitmolabs.modules.user.domain.User;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
+import static org.springframework.util.SerializationUtils.serialize;
+
 
 @Service
 @RequiredArgsConstructor
@@ -36,35 +45,72 @@ public class SeatHoldService {
     private final TicketRepository ticketRepository;
     private final OutboxEventService outboxEventService;
 
+    private final OutboxEventFactory outboxEventFactory;
+
+
+
+//
+//    public SeatHoldService newCreate(SeatHold hold, Duration ttl) throws IllegalArgumentException {
+//        if (ttl.isZero() || ttl.isNegative()) {
+//            throw new IllegalArgumentException("ttl > 0");
+//        }
+//
+//        List<String> holdKeys = seatHoldRepository.keys(hold);
+//    }
+
     public SeatHoldResponse create(CreateSeatHoldRequest request, User user) {
+        return createHold(request, user, null).hold();
+    }
+
+    public ExperimentalHoldResponse createExperimental(CreateSeatHoldRequest request, User user, HoldReplicationMode mode) {
+        if (user.getRole() != Role.ROLE_ADMIN) throw new ForbiddenException();
+        return createHold(request, user, mode);
+    }
+
+    private ExperimentalHoldResponse createHold(CreateSeatHoldRequest request, User user, HoldReplicationMode mode) {
+
         Screening screening = requireBookableScreening(request.screeningId());
+
         List<Long> seatIds = request.seatIds().stream().distinct().sorted().toList();
+
         if (seatIds.size() != request.seatIds().size()) {
             throw new BadRequestException("Список мест содержит дубликаты");
         }
 
         List<Seat> seats = seatRepository.findAllByIdIn(seatIds);
+
         if (seats.size() != seatIds.size()
                 || seats.stream().anyMatch(seat -> !seat.getAuditorium().getId()
                 .equals(screening.getAuditorium().getId()))) {
             throw new BadRequestException("Выбраны места, не принадлежащие залу сеанса");
         }
+
         if (ticketRepository.existsConfirmedByScreeningIdAndSeatIdIn(
                 screening.getId(), seatIds, TicketStatus.CONFIRMED)) {
             throw new ConflictException("Одно или несколько мест уже куплены");
         }
 
         SeatHold hold = holdFactory.create(user.getId(), screening.getId(), seatIds);
-        if (!holdRepository.create(hold, holdFactory.holdDuration())) {
-            throw new ConflictException("Одно или несколько мест уже удерживаются другим клиентом");
+
+        OutboxEvent event = outboxEventFactory.holdCreated(
+                hold,
+                user.getUsername()
+        );
+
+        var measured = mode == null ? null : holdRepository.createWithReplicationCheck(
+                hold, event, mode == HoldReplicationMode.WAIT_FOR_REPLICA);
+        boolean created = mode == null ? holdRepository.createWithEvent(hold, event) : measured.created();
+
+        if (!created) {
+            throw new ConflictException(
+                    "Одно или несколько мест уже удерживаются другим клиентом"
+            );
         }
-        try {
-            outboxEventService.enqueueHoldCreated(hold, user.getUsername());
-        } catch (RuntimeException exception) {
-            holdRepository.release(hold);
-            throw exception;
-        }
-        return toResponse(hold);
+
+        return new ExperimentalHoldResponse(toResponse(hold), mode,
+                measured == null ? null : measured.replicasAcked(),
+                measured == null ? 0 : measured.waitDurationMs(),
+                measured == null ? "NOT_REQUESTED" : measured.waitStatus());
     }
 
     public SeatHoldResponse getOwn(String holdId, User user) {

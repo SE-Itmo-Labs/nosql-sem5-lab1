@@ -2,6 +2,7 @@ package org.seitmolabs.modules.notification.repositories;
 
 import lombok.RequiredArgsConstructor;
 
+import org.seitmolabs.modules.consistency.topology.RedisReplicaReader;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,6 +30,8 @@ public class NotificationRepository {
                     "return 1;",
             Long.class
     );
+
+    private final RedisReplicaReader redisReplicaReader;
 
     private final StringRedisTemplate redis;
     private final JsonMapper jsonMapper;
@@ -89,22 +93,24 @@ public class NotificationRepository {
     }
 
     public Optional<Notification> findById(Long id) {
-        String jsonNotif = redis.opsForValue().get(KEY_PREFIX + id);
+        return findById(redis, id);
+    }
 
-        if (jsonNotif == null) {
+    private Optional<Notification> findById(
+            StringRedisTemplate template,
+            Long id
+    ) {
+
+        // Получаем notification
+        String json = template.opsForValue().get(KEY_PREFIX + id);
+
+        if (json == null) {
             return Optional.empty();
         }
 
-        try {
-            return Optional.of(
-                    jsonMapper.readValue(jsonNotif, Notification.class)
-            );
-        } catch (JacksonException e) {
-            throw new IllegalStateException(
-                    "Не удалось десериализовать уведомление с id " + id,
-                    e
-            );
-        }
+        return Optional.of(
+                jsonMapper.readValue(json, Notification.class)
+        );
     }
 
     public List<Long> findIdsByUserId(String userId) {
@@ -118,5 +124,27 @@ public class NotificationRepository {
         return ids.stream()
                 .map(Long::valueOf)
                 .toList();
+    }
+
+    public List<Notification> findByUserId(String id) {
+
+        return redisReplicaReader.read(template -> readUserNotifications(template, id));
+    }
+
+    private List<Notification> readUserNotifications(StringRedisTemplate template, String userId) {
+        Set<String> ids = template.opsForZSet().reverseRange(USER_INDEX_PREFIX + userId, 0, -1);
+
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+
+        List<Notification> notifications = new ArrayList<>(ids.size());
+
+        for (String id : ids) {
+            Optional<Notification> notification = findById(template, Long.valueOf(id));
+            notification.ifPresent(notifications::add);
+        }
+
+        return List.copyOf(notifications);
     }
 }

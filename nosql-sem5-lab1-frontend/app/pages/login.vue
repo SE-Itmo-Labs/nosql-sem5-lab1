@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AuthCard from '~/components/auth/AuthCard.vue'
 defineOptions({ name: 'UserLoginPage' })
 
 definePageMeta({
@@ -37,13 +38,11 @@ const onSubmit = async () => {
 </script>
 
 <template>
-  <section class="login-card">
-    <header class="login-heading">
-      <p class="login-eyebrow">С возвращением</p>
-      <h2>Вход в кабинет</h2>
-      <p>Используйте учётные данные клиента кинотеатра.</p>
-    </header>
-
+  <AuthCard
+    eyebrow="С возвращением"
+    title="Вход в кабинет"
+    description="Используйте учётные данные клиента кинотеатра."
+  >
     <form class="login-form" @submit.prevent="onSubmit">
       <label class="field">
         <span class="field-label">Логин</span>
@@ -77,63 +76,13 @@ const onSubmit = async () => {
         {{ loading ? 'Проверяем данные…' : 'Войти' }}
       </button>
     </form>
-  </section>
+    <template #footer>
+      Нет аккаунта? <NuxtLink to="/register">Зарегистрироваться</NuxtLink>
+    </template>
+  </AuthCard>
 </template>
 
 <style scoped>
-.login-card {
-  width: min(100%, 430px);
-  padding: 36px;
-  border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-md);
-}
-
-.login-heading {
-  margin-bottom: 20px;
-}
-
-.login-eyebrow,
-.login-heading h2,
-.login-heading p {
-  margin: 0;
-}
-
-.login-eyebrow {
-  color: var(--color-primary-hover);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
-
-.login-heading h2 {
-  margin-top: 8px;
-  font-size: 28px;
-  letter-spacing: -0.02em;
-}
-
-.login-heading p:last-child {
-  margin-top: 8px;
-  color: var(--color-text-secondary);
-  font-size: 14px;
-}
-
-.login-mode {
-  margin: 0 0 22px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  background: var(--color-warning-soft);
-  color: var(--color-warning);
-  font-size: 12px;
-}
-
-.login-mode--real {
-  background: var(--color-success-soft);
-  color: var(--color-success);
-}
-
 .login-form {
   display: flex;
   flex-direction: column;

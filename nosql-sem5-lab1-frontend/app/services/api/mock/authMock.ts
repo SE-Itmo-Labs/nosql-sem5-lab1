@@ -1,3 +1,4 @@
+import { validateRegistration } from '~/utils/registrationValidation'
 import { API_ENDPOINTS } from '~/constants/apiEndpoints'
 import type { ApiClient, AuthResponse } from '~/types/api'
 import { createApiClientError } from '../ApiClientError'
@@ -33,6 +34,38 @@ export const createMockAuthApi = (store: MockDatabaseStore): ApiClient['auth'] =
       )
     }
 
+    store.value.currentUsername = user.username
+    return {
+      userId: user.id,
+      username: user.username,
+      displayName: user.displayName,
+      role: user.role,
+    }
+  },
+
+  async register(request): Promise<AuthResponse> {
+    await waitForMockResponse()
+    const message = validateRegistration(request)
+    if (message) {
+      throw createApiClientError(400, 'Bad Request', message, API_ENDPOINTS.auth.register)
+    }
+
+    const passwordHash = await createPasswordHash(request.password)
+    // Проверка и добавление идут без await между ними, чтобы исключить дубли.
+    if (store.value.users.some(user => user.username === request.username)) {
+      throw createApiClientError(
+        409, 'Conflict', 'Этот логин уже занят', API_ENDPOINTS.auth.register,
+      )
+    }
+
+    const user = {
+      id: Math.max(0, ...store.value.users.map(user => user.id)) + 1,
+      username: request.username,
+      displayName: request.displayName,
+      passwordHash,
+      role: 'ROLE_USER' as const,
+    }
+    store.value.users.push(user)
     store.value.currentUsername = user.username
     return {
       userId: user.id,

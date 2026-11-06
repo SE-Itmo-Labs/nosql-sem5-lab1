@@ -29,7 +29,11 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderResponse> confirm(
-            @Valid @RequestBody CreateOrderRequest request,
+
+            @Valid
+            @RequestBody
+            CreateOrderRequest request,
+
             @RequestAttribute(SimpleAuthFilter.CURRENT_USER_ATTRIBUTE) User user
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.confirm(request, user));

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PageHeader from '~/components/ui/PageHeader.vue'
 import StatePanel from '~/components/ui/StatePanel.vue'
+import HoldReplicationCheck from '~/components/consistency/HoldReplicationCheck.vue'
 import type { CinemaOrder, Product, ScreeningSeats, SeatHold } from '~/types/api'
 import { formatPrice, formatScreeningDate, formatScreeningTime } from '~/utils/cinemaFormatters'
 
@@ -9,6 +10,8 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Оформле
 
 const route = useRoute()
 const api = useApi()
+const { clearSelection } = useBookingSelection()
+const { user } = useAuth()
 const hold = ref<SeatHold | null>(null)
 const screening = ref<ScreeningSeats | null>(null)
 const products = ref<Product[]>([])
@@ -77,6 +80,7 @@ const confirm = async () => {
         .filter(([, quantity]) => quantity > 0)
         .map(([productId, quantity]) => ({ productId: Number(productId), quantity })),
     })
+    clearSelection()
     notificationRefreshVersion.value += 1
   }
   catch (cause) {
@@ -123,6 +127,7 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
         </div>
         <div class="summary-row"><span>Билеты · {{ hold.seatIds.length }}</span><strong>{{ formatPrice(ticketTotal) }}</strong></div>
       </section>
+      <HoldReplicationCheck v-if="user?.role === 'ROLE_ADMIN'" :hold-id="hold.holdId" />
       <section class="card checkout-card">
         <h2>Кинобар</h2>
         <div v-if="!products.length" class="empty-products">Доступных товаров сейчас нет.</div>

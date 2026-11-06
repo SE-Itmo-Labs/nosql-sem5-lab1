@@ -1,4 +1,4 @@
-import type { AuthResponse, LoginRequest } from './auth'
+import type { AuthResponse, LoginRequest, RegisterRequest } from './auth'
 import type { Category, CategoryResponse, SaveCategoryRequest } from './categories'
 import type { Movie, Screening, ScreeningSeats } from './catalog'
 import type {
@@ -8,7 +8,7 @@ import type {
   Product,
   SeatHold,
 } from './booking'
-import type { ConsistencyExperimentRequest, ConsistencyExperimentResponse } from './consistency'
+import type { ConsistencyExperimentRequest, ConsistencyExperimentResponse, ExperimentalHoldResponse, HoldReplicationResponse, ReplicationMode } from './consistency'
 import type { PageQuery, PageResponse } from './common'
 import type {
   CreateNotificationRequest,
@@ -26,6 +26,7 @@ import type {
 export interface ApiClient {
   auth: {
     login(request: LoginRequest): Promise<AuthResponse>
+    register(request: RegisterRequest): Promise<AuthResponse>
   }
   catalog: {
     getMovies(): Promise<Movie[]>
@@ -64,6 +65,8 @@ export interface ApiClient {
     delete(id: number): Promise<void>
   }
   consistency: {
+    createExperimentalHold(request: CreateSeatHoldRequest & { mode: ReplicationMode }): Promise<ExperimentalHoldResponse>
     runExperiment(request: ConsistencyExperimentRequest): Promise<ConsistencyExperimentResponse>
+    inspectHold(holdId: string): Promise<HoldReplicationResponse>
   }
 }

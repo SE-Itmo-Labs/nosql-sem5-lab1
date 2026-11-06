@@ -2,6 +2,7 @@
 import SeatMap from '~/components/catalog/SeatMap.vue'
 import PageHeader from '~/components/ui/PageHeader.vue'
 import StatePanel from '~/components/ui/StatePanel.vue'
+import type { ExperimentalHoldResponse, ReplicationMode } from '~/types/api'
 import { formatPrice, formatScreeningDate, formatScreeningTime } from '~/utils/cinemaFormatters'
 
 defineOptions({ name: 'ScreeningSeatsPage' })
@@ -12,26 +13,41 @@ const screeningId = Number(route.params.id)
 const { error, isLoading, loadSeatMap, seatMap } = useCatalog()
 const { selection, selectedSeatIds, selectScreening, toggleSeat } = useBookingSelection()
 const api = useApi()
+const { user } = useAuth()
+const replicationMode = ref<ReplicationMode | 'NORMAL'>('NORMAL')
+const experiment = useState<ExperimentalHoldResponse | null>('hold-replication-result', () => null)
 const isHolding = ref(false)
 const holdError = ref('')
 
 watch(seatMap, (value) => {
   if (value) selectScreening(value)
-})
+}, { flush: 'sync' })
 onMounted(() => loadSeatMap(screeningId))
 
 const selectedSeats = computed(() => seatMap.value?.seats.filter(seat => selectedSeatIds.value.has(seat.id)) ?? [])
 const total = computed(() => selectedSeats.value.length * (seatMap.value?.basePrice ?? 0))
 
 const createHold = async () => {
-  if (!selection.value.screening || !selection.value.seatIds.length) return
+  if (isHolding.value || !seatMap.value) return
+  // Проверяем выбор по последней загруженной схеме перед отправкой.
+  selectScreening(seatMap.value)
+  if (!selection.value.seatIds.length) return
   isHolding.value = true
   holdError.value = ''
   try {
-    const hold = await api.seatHolds.create({
-      screeningId: selection.value.screening.screeningId,
-      seatIds: selection.value.seatIds,
-    })
+    const request = {
+      screeningId: seatMap.value.screeningId,
+      seatIds: [...selection.value.seatIds],
+    }
+    let hold
+    if (user.value?.role === 'ROLE_ADMIN' && replicationMode.value !== 'NORMAL') {
+      experiment.value = await api.consistency.createExperimentalHold({ ...request, mode: replicationMode.value })
+      hold = experiment.value.hold
+    }
+    else {
+      experiment.value = null
+      hold = await api.seatHolds.create(request)
+    }
     await navigateTo({ path: '/checkout', query: { holdId: hold.holdId } })
   }
   catch (cause) {
@@ -54,6 +70,14 @@ const createHold = async () => {
     <template v-else>
       <PageHeader eyebrow="Выбор мест" :title="seatMap.movieTitle" :description="`${formatScreeningDate(seatMap.startsAt)}, ${formatScreeningTime(seatMap.startsAt)} · ${seatMap.auditorium.name}`" />
       <SeatMap :seats="seatMap.seats" :selected-seat-ids="selectedSeatIds" @toggle="toggleSeat" />
+      <label v-if="user?.role === 'ROLE_ADMIN'" class="replication-mode card">
+        <span>Исследование репликации при создании удержания</span>
+        <select v-model="replicationMode" class="field-input" :disabled="isHolding">
+          <option value="NORMAL">Обычное оформление</option>
+          <option value="EVENTUAL">Без ожидания реплик</option>
+          <option value="WAIT_FOR_REPLICA">Дождаться одной реплики — до 500 мс</option>
+        </select>
+      </label>
       <section class="selection-summary card">
         <div>
           <span>Выбрано мест</span>
@@ -84,6 +108,7 @@ const createHold = async () => {
 .selection-summary span { color: var(--color-text-muted); font-size: 10px; font-weight: 750; text-transform: uppercase; }
 .selection-summary strong { overflow: hidden; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
 .iteration-note { margin: 12px 0 0; color: var(--color-text-muted); font-size: 12px; text-align: right; }
+.replication-mode { display: grid; gap: 8px; margin-top: 18px; padding: 16px; }
 .hold-error { margin: 12px 0 0; color: var(--color-error); font-size: 13px; text-align: right; }
 @media (max-width: 760px) { .selection-summary { grid-template-columns: 1fr 1fr; } .selection-summary div:nth-child(2) { grid-column: 1 / -1; } }
 </style>
