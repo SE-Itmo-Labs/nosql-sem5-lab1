@@ -5,28 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b7f75c7c-39d2-44ec-b24c-c71b8d581f98" name="Changes" comment="">
-      <change afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/repository/HoldOutboxRepository.java" afterDir="false" />
-      <change afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/service/HoldOutboxProcessor.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/repository/HoldOutboxRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/service/HoldOutboxProcessor.java" afterDir="false" />
+      <change afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/topology/RedisReplicaReader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/topology/RedisReplicaReader.java" afterDir="false" />
       <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/.idea/workspace.xml" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/README.md" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/README.md" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/redis.conf" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/redis.conf" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/domain/SeatHold.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/domain/SeatHold.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/factory/SeatHoldFactory.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/factory/SeatHoldFactory.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/notification/outbox/domain/OutboxEvent.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/notification/outbox/domain/OutboxEvent.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/resources/application.properties" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryCacheRepository.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryCacheRepository.java" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/topology/RedisNodeClient.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/topology/RedisNodeClient.java" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/topology/RedisNodeClientFactory.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/topology/RedisNodeClientFactory.java" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/topology/RedisNodeRegistry.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/consistency/topology/RedisNodeRegistry.java" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/notification/repositories/NotificationRepository.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/notification/repositories/NotificationRepository.java" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/notification/service/NotificationServiceImpl.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/notification/service/NotificationServiceImpl.java" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" afterDir="false" />
+      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/test/java/org/seitmolabs/modules/notification/service/NotificationServiceImplTest.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/test/java/org/seitmolabs/modules/notification/service/NotificationServiceImplTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/redis.conf" beforeDir="false" afterPath="$PROJECT_DIR$/redis.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/domain/SeatHold.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/domain/SeatHold.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/factory/SeatHoldFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/factory/SeatHoldFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/outbox/domain/OutboxEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/outbox/domain/OutboxEvent.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryCacheRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryCacheRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/topology/RedisNodeClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/topology/RedisNodeClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/topology/RedisNodeClientFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/topology/RedisNodeClientFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/topology/RedisNodeRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/consistency/topology/RedisNodeRegistry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/repositories/NotificationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/repositories/NotificationRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/service/NotificationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/service/NotificationServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/notification/service/NotificationServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/notification/service/NotificationServiceImplTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,67 +111,67 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1" />
     <option name="ROOT_SYNC" value="SYNC" />
   </component>
   <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="$USER_HOME$/.gradle/wrapper/dists/gradle-8.14-bin/38aieal9i53h9rfe7vjup95b9/gradle-8.14" javaHome="/usr/lib/jvm/default-java" gradleVersion="8.14" />
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0000001037777142" />
-      <entry key="MS500" value="1.0402592567653683" />
-      <entry key="S2" value="1.6716533952588337" />
-      <entry key="S5" value="3.34069691457223" />
-      <entry key="S10" value="6.3811935486531555" />
-      <entry key="S30" value="12.872635246853969" />
-      <entry key="S60" value="15.935032727641621" />
-      <entry key="M2" value="17.953099332183335" />
-      <entry key="M5" value="20.414636476065837" />
-      <entry key="M10" value="25.014827800986367" />
-      <entry key="M15" value="31.32949746124027" />
-      <entry key="M30" value="48.80630657930124" />
-      <entry key="H1" value="68.14794097335873" />
-      <entry key="H2" value="83.02023742452377" />
-      <entry key="H4" value="92.99086158721829" />
-      <entry key="D1" value="109.18983016036053" />
-      <entry key="W1" value="114.87463549100907" />
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="6.1676049472995945E-87" />
+      <entry key="S2" value="1.0705774937002045E-21" />
+      <entry key="S5" value="1.665541687668705E-8" />
+      <entry key="S10" value="4.3966086385718205E-4" />
+      <entry key="S30" value="0.41420530570150044" />
+      <entry key="S60" value="2.411576471007193" />
+      <entry key="M2" value="6.146946242011904" />
+      <entry key="M5" value="14.438728796773049" />
+      <entry key="M10" value="28.682671085100367" />
+      <entry key="M15" value="40.890335469065896" />
+      <entry key="M30" value="65.03135090657993" />
+      <entry key="H1" value="94.48838689204509" />
+      <entry key="H2" value="129.52428831979208" />
+      <entry key="H4" value="161.36212368440246" />
+      <entry key="D1" value="207.70193323024614" />
+      <entry key="W1" value="220.57509387714927" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="0.0" />
-      <entry key="S2" value="2.757823909964899E-90" />
-      <entry key="S5" value="1.5069965682215073E-36" />
-      <entry key="S10" value="1.306121147036737E-18" />
-      <entry key="S30" value="1.574712940449173E-6" />
-      <entry key="S60" value="0.001961010935839519" />
-      <entry key="M2" value="0.0742223091171629" />
-      <entry key="M5" value="0.7371258861361579" />
-      <entry key="M10" value="2.5473928195486923" />
-      <entry key="M15" value="4.934498122179826" />
-      <entry key="M30" value="11.266725209463637" />
-      <entry key="H1" value="18.05707541872087" />
-      <entry key="H2" value="23.19505569232784" />
-      <entry key="H4" value="26.69469204932216" />
-      <entry key="D1" value="33.09862678602978" />
-      <entry key="W1" value="35.516099335896456" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0000000083678262" />
+      <entry key="S5" value="1.0005879768124588" />
+      <entry key="S10" value="1.02504379657742" />
+      <entry key="S30" value="1.5004332843977357" />
+      <entry key="S60" value="2.572636470395196" />
+      <entry key="M2" value="4.278064230197802" />
+      <entry key="M5" value="7.975242450843648" />
+      <entry key="M10" value="14.230474777105327" />
+      <entry key="M15" value="19.49891606390677" />
+      <entry key="M30" value="29.395600585829786" />
+      <entry key="H1" value="39.99277867868142" />
+      <entry key="H2" value="51.508388997200115" />
+      <entry key="H4" value="61.735968748341236" />
+      <entry key="D1" value="77.3965732877246" />
+      <entry key="W1" value="82.09687618152093" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9265881541324327" />
-      <entry key="MS500" value="1.0241378114797282" />
-      <entry key="S2" value="1.6446476357989217" />
-      <entry key="S5" value="3.2687273047574634" />
-      <entry key="S10" value="6.284571276795304" />
-      <entry key="S30" value="12.803322784237894" />
-      <entry key="S60" value="15.89421461228593" />
-      <entry key="M2" value="17.998890852628065" />
-      <entry key="M5" value="21.124616118103603" />
-      <entry key="M10" value="27.534170229837777" />
-      <entry key="M15" value="36.23572064616073" />
-      <entry key="M30" value="60.048216404901495" />
-      <entry key="H1" value="86.1874855999288" />
-      <entry key="H2" value="106.20469249941232" />
-      <entry key="H4" value="119.67964171447115" />
-      <entry key="D1" value="142.2872810933671" />
-      <entry key="W1" value="150.39055637051234" />
+      <entry key="MS100" value="0.0219444511834062" />
+      <entry key="MS500" value="0.46587021465238654" />
+      <entry key="S2" value="0.8261639483763509" />
+      <entry key="S5" value="0.9269894083770364" />
+      <entry key="S10" value="0.9867248952260712" />
+      <entry key="S30" value="1.887241754201153" />
+      <entry key="S60" value="4.946182102643987" />
+      <entry key="M2" value="10.384188212319103" />
+      <entry key="M5" value="22.376192658244353" />
+      <entry key="M10" value="42.87506052889809" />
+      <entry key="M15" value="60.352981173950546" />
+      <entry key="M30" value="94.3980470166615" />
+      <entry key="H1" value="134.45983275791943" />
+      <entry key="H2" value="181.01777318517964" />
+      <entry key="H4" value="223.08868925432597" />
+      <entry key="D1" value="285.0964403157614" />
+      <entry key="W1" value="302.6716536429943" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -196,7 +194,7 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;seat-hold-service-fixes&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;big-lag-check&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/developer/ssnagin/nosql-sem5-lab1&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,

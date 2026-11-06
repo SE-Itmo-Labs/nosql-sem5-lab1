@@ -28,6 +28,7 @@ import org.seitmolabs.modules.booking.hold.service.HoldOutboxProcessor;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.categories.repositories.CategoryCacheRepository;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
+import org.seitmolabs.modules.consistency.topology.RedisReplicaReader;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
 import org.seitmolabs.modules.notification.repositories.NotificationRepository;
@@ -46,6 +47,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import org.seitmolabs.modules.consistency.topology.RedisNodeRegistry;
 
 import tools.jackson.databind.json.JsonMapper;
 
@@ -60,6 +62,7 @@ class RedisRepositoriesIntegrationTest {
     private static LettuceConnectionFactory connectionFactory;
     private static StringRedisTemplate redisTemplate;
     private static JsonMapper jsonMapper;
+    private static RedisReplicaReader reader;
 
     @BeforeAll
     static void connect() {
@@ -70,6 +73,10 @@ class RedisRepositoriesIntegrationTest {
         redisTemplate.afterPropertiesSet();
         jsonMapper = JsonMapper.builder().findAndAddModules().build();
 
+        RedisNodeRegistry registry = mock(RedisNodeRegistry.class);
+        when(registry.replicas()).thenReturn(List.of());
+
+        reader = new RedisReplicaReader(registry, redisTemplate);
     }
 
     @AfterAll
@@ -89,8 +96,12 @@ class RedisRepositoriesIntegrationTest {
 
     @Test
     void storesNotificationAndUserIndexTogether() {
-        NotificationRepository repository = new NotificationRepository(redisTemplate, jsonMapper);
+
+        NotificationRepository repository = new NotificationRepository(reader, redisTemplate, jsonMapper);
+
+
         Long id = repository.nextId();
+
         Notification notification = new Notification(
                 id,
                 "client01",
@@ -266,7 +277,9 @@ class RedisRepositoriesIntegrationTest {
     void failedDeliveryRemainsPendingAndIsRetriedSuccessfully() {
         var holds = new SeatHoldRepository(redisTemplate, jsonMapper);
         var outbox = new HoldOutboxRepository(redisTemplate, jsonMapper);
-        var notifications = new NotificationRepository(redisTemplate, jsonMapper);
+
+        var notifications = new NotificationRepository(reader, redisTemplate, jsonMapper);
+
         var categories = mock(CategoryDbRepository.class);
         when(categories.findBySystemCode(Category.BOOKING_CODE))
                 .thenReturn(Optional.empty(), Optional.of(bookingCategory()));
@@ -294,7 +307,7 @@ class RedisRepositoriesIntegrationTest {
         var holds = new SeatHoldRepository(redisTemplate, jsonMapper);
         var outbox = new HoldOutboxRepository(redisTemplate, jsonMapper);
         var failingOutbox = spy(outbox);
-        var notifications = new NotificationRepository(redisTemplate, jsonMapper);
+        var notifications = new NotificationRepository(reader, redisTemplate, jsonMapper);
         var categories = mock(CategoryDbRepository.class);
         when(categories.findBySystemCode(Category.BOOKING_CODE))
                 .thenReturn(Optional.of(bookingCategory()));
@@ -323,7 +336,7 @@ class RedisRepositoriesIntegrationTest {
 
     @Test
     void cachesCategoryAndCategoryList() {
-        CategoryCacheRepository repository = new CategoryCacheRepository(redisTemplate, jsonMapper);
+        CategoryCacheRepository repository = new CategoryCacheRepository(redisTemplate, jsonMapper, reader);
         Category category = new Category(1L, "Бронирование", "Изменения состояния билета");
 
         repository.put(category, Duration.ofMinutes(5));
