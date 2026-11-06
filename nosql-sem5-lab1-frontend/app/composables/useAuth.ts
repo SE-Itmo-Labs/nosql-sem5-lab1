@@ -1,4 +1,3 @@
-import type { AuthResponse, RegisterRequest } from '~/types/api'
 import { useState } from '#imports'
 import {
   clearStoredAuthSession,
@@ -23,8 +22,9 @@ export const useAuth = () => {
     }
   }
 
-  /** Вход и регистрация создают одну и ту же сессию из ответа сервера. */
-  const establishSession = (response: AuthResponse, enteredPassword: string) => {
+  const login = async (login: string, enteredPassword: string) => {
+    const response = await api.auth.login({ username: login, password: enteredPassword })
+
     const authUser: AuthUser = {
       userId: response.userId,
       login: response.username,
@@ -39,20 +39,10 @@ export const useAuth = () => {
     return authUser
   }
 
-  const login = async (login: string, enteredPassword: string) => {
-    const response = await api.auth.login({ username: login, password: enteredPassword })
-    return establishSession(response, enteredPassword)
-  }
-
-  const register = async (request: RegisterRequest) => {
-    const response = await api.auth.register(request)
-    return establishSession(response, request.password)
-  }
-
   const logout = () => {
     user.value = null
     clearStoredAuthSession()
   }
 
-  return { user, restore, login, register, logout }
+  return { user, restore, login, logout }
 }

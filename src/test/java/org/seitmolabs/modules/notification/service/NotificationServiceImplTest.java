@@ -90,13 +90,13 @@ class NotificationServiceImplTest {
         Notification first = notification(2L, "Новое");
         Notification second = notification(1L, "Старое");
 
-        when(notificationRepository.findByUserId("client01"))
-                .thenReturn(List.of(first, second));
+        when(notificationRepository.findIdsByUserId("client01")).thenReturn(List.of(2L, 1L));
+        when(notificationRepository.findById(2L)).thenReturn(Optional.of(first));
+        when(notificationRepository.findById(1L)).thenReturn(Optional.of(second));
 
         List<Notification> result = service.getByUserId("client01");
 
         assertThat(result).containsExactly(first, second);
-        verify(notificationRepository).findByUserId("client01");
     }
 
     @Test

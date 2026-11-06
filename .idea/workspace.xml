@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b7f75c7c-39d2-44ec-b24c-c71b8d581f98" name="Changes" comment="feat: add replica-s status check (but i don't         understand if it was made correctly)" />
+    <list default="true" id="b7f75c7c-39d2-44ec-b24c-c71b8d581f98" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -15,242 +18,32 @@
       <ProjectState />
     </projectState>
   </component>
-  <component name="ExternalProjectsManager">
-    <system id="GRADLE">
-      <state>
-        <task path="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1">
-          <activation />
-        </task>
-        <projects_view>
-          <tree_state>
-            <expand>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="application" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build setup" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="documentation" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="help" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="other" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="verification" type="c8890929:TasksNode$1" />
-              </path>
-            </expand>
-            <select />
-          </tree_state>
-        </projects_view>
-      </state>
-    </system>
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Class" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1" />
-    <option name="ROOT_SYNC" value="SYNC" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="$USER_HOME$/.gradle/wrapper/dists/gradle-8.14-bin/38aieal9i53h9rfe7vjup95b9/gradle-8.14" javaHome="/usr/lib/jvm/default-java" gradleVersion="8.14" />
-  <component name="NextEditCompletionFeaturesState">
-    <decayedCancelled>
-      <entry key="MS100" value="1.01002676482471" />
-      <entry key="MS500" value="1.3983202930775405" />
-      <entry key="S2" value="1.8373550763882742" />
-      <entry key="S5" value="2.93937545399058" />
-      <entry key="S10" value="6.583505444788494" />
-      <entry key="S30" value="19.179386056386868" />
-      <entry key="S60" value="26.98845993970438" />
-      <entry key="M2" value="32.34030772501022" />
-      <entry key="M5" value="36.23161534184799" />
-      <entry key="M10" value="38.60359676243966" />
-      <entry key="M15" value="41.190055038680086" />
-      <entry key="M30" value="53.449057358602104" />
-      <entry key="H1" value="83.2532723537744" />
-      <entry key="H2" value="129.37396945580758" />
-      <entry key="H4" value="177.4428555518372" />
-      <entry key="D1" value="251.2907664228011" />
-      <entry key="W1" value="271.27951225905724" />
-    </decayedCancelled>
-    <decayedSelected>
-      <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="0.0" />
-      <entry key="S2" value="0.0" />
-      <entry key="S5" value="5.1310759454158635E-141" />
-      <entry key="S10" value="7.163152898979508E-71" />
-      <entry key="S30" value="4.153058740606715E-24" />
-      <entry key="S60" value="2.037905478820734E-12" />
-      <entry key="M2" value="1.427553488111661E-6" />
-      <entry key="M5" value="0.004666771870222759" />
-      <entry key="M10" value="0.11182985765964892" />
-      <entry key="M15" value="0.5805246913266432" />
-      <entry key="M30" value="4.692671931601375" />
-      <entry key="H1" value="15.907680143369928" />
-      <entry key="H2" value="32.62601781513325" />
-      <entry key="H4" value="49.42240045831697" />
-      <entry key="D1" value="75.33442380861132" />
-      <entry key="W1" value="82.62503153618354" />
-    </decayedSelected>
-    <decayedShown>
-      <entry key="MS100" value="0.9815671639425076" />
-      <entry key="MS500" value="1.3835128863521118" />
-      <entry key="S2" value="1.8279073947447773" />
-      <entry key="S5" value="2.92229759281002" />
-      <entry key="S10" value="6.565717734829429" />
-      <entry key="S30" value="19.168549784958444" />
-      <entry key="S60" value="26.981937624124676" />
-      <entry key="M2" value="32.33670046727533" />
-      <entry key="M5" value="36.23472726530213" />
-      <entry key="M10" value="38.714412120478116" />
-      <entry key="M15" value="41.769103534290636" />
-      <entry key="M30" value="58.13703546823465" />
-      <entry key="H1" value="99.15250743020589" />
-      <entry key="H2" value="161.99060718233062" />
-      <entry key="H4" value="226.85777297150963" />
-      <entry key="D1" value="326.6231890908631" />
-      <entry key="W1" value="353.90422685049674" />
-    </decayedShown>
-  </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 6
-}</component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 6
+}]]></component>
   <component name="ProjectId" id="3IxU3l9EEncCkEZHY4MJOk7D6zu" />
-  <component name="ProjectLevelVcsManager">
-    <ConfirmationsSetting value="2" id="Add" />
-  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [build].executor": "Run",
-    "Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [test].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "big-lag-check",
+    "git-widget-placeholder": "stas",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/developer/ssnagin/nosql-sem5-lab1",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "onboarding.tips.debug.path": "/home/developer/Projects/github/SE-Itmo-Labs/nosql-sem5-lab1/src/main/java/org/seitmolabs/Main.java",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.2",
-    "python.packages.toolwindow.project.migrated.to.right.top.v2": "true",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "/home/developer/Programs/JetBrains/idea-IU-262.11879.100/plugins/javascript-plugin/jsLanguageServicesImpl/external"
+    "onboarding.tips.debug.path": "/home/developer/Projects/github/SE-Itmo-Labs/nosql-sem5-lab1/src/main/java/org/seitmolabs/Main.java"
   }
 }]]></component>
-  <component name="RunManager" selected="Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [build]">
-    <configuration name="nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="build" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <GradleProfilingDisabled>false</GradleProfilingDisabled>
-      <GradleCoverageDisabled>false</GradleCoverageDisabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [test]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <GradleProfilingDisabled>false</GradleProfilingDisabled>
-      <GradleCoverageDisabled>false</GradleCoverageDisabled>
-      <method v="2" />
-    </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [build]" />
-        <item itemvalue="Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [test]" />
-      </list>
-    </recent_temporary>
-  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-2df11533d9fe-intellij.indexing.shared.core-IU-262.11879.100" />
-        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-IU-262.11879.100" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.28539.33" />
       </set>
     </attachedChunks>
   </component>
@@ -263,27 +56,5 @@
       <updated>1788705516115</updated>
     </task>
     <servers />
-  </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
-  </component>
-  <component name="UnknownFeatures">
-    <option featureType="com.intellij.fileTypeFactory" implementationName="*.conf" />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="feat: show consistency status while making order" />
-    <MESSAGE value="feat: add replica-s status check (but i don't         understand if it was made correctly)" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add replica-s status check (but i don't         understand if it was made correctly)" />
   </component>
 </project>

@@ -14,29 +14,13 @@ export const useBookingSelection = () => {
   const selectedSeatIds = computed(() => new Set(selection.value.seatIds))
 
   const selectScreening = (screening: ScreeningSeats) => {
-    const sameScreening = selection.value.screening?.screeningId === screening.screeningId
-    const availableSeatIds = new Set(screening.seats
-      .filter(seat => seat.status === 'AVAILABLE')
-      .map(seat => seat.id))
-
-    // Обновляем схему и убираем места, занятые после предыдущего выбора.
-    selection.value = {
-      screening,
-      seatIds: sameScreening
-        ? selection.value.seatIds.filter(id => availableSeatIds.has(id))
-        : [],
+    if (selection.value.screening?.screeningId !== screening.screeningId) {
+      selection.value = { screening, seatIds: [] }
     }
-  }
-
-  const clearSelection = () => {
-    selection.value = { screening: null, seatIds: [] }
   }
 
   const toggleSeat = (seatId: number) => {
     const current = selection.value.seatIds
-    const seat = selection.value.screening?.seats.find(candidate => candidate.id === seatId)
-    if (!current.includes(seatId) && seat?.status !== 'AVAILABLE') return
-
     selection.value = {
       ...selection.value,
       seatIds: current.includes(seatId)
@@ -45,5 +29,5 @@ export const useBookingSelection = () => {
     }
   }
 
-  return { selection, selectedSeatIds, selectScreening, toggleSeat, clearSelection }
+  return { selection, selectedSeatIds, selectScreening, toggleSeat }
 }

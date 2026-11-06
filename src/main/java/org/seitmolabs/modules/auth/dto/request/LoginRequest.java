@@ -11,13 +11,12 @@ import lombok.Setter;
 @Setter 
 @Builder 
 @AllArgsConstructor 
-@NoArgsConstructor
-
+@NoArgsConstructor 
 public class LoginRequest {
-
+    
     @NotBlank 
     private String username;
-    
+
     @NotBlank 
     private String password;
 }

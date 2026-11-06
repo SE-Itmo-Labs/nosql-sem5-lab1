@@ -3,7 +3,6 @@ package org.seitmolabs.modules.categories.repositories;
 import lombok.RequiredArgsConstructor;
 
 import org.seitmolabs.modules.categories.domain.Category;
-import org.seitmolabs.modules.consistency.topology.RedisReplicaReader;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 import tools.jackson.core.JacksonException;
@@ -25,8 +24,6 @@ public class CategoryCacheRepository {
     private final StringRedisTemplate redis;
     private final JsonMapper jsonMapper;
 
-    private final RedisReplicaReader redisReplicaReader;
-
     public void put(Category category, Duration ttl) {
         try {
             String jsonCategory = jsonMapper.writeValueAsString(category);
@@ -45,13 +42,7 @@ public class CategoryCacheRepository {
     }
 
     public Optional<Category> findById(Long id) {
-
-
-        // Добавил чтение из реплик
-
-        String jsonCategory = redisReplicaReader.read(
-                template -> template.opsForValue().get(KEY_PREFIX + id)
-        );
+        String jsonCategory = redis.opsForValue().get(KEY_PREFIX + id);
 
         if (jsonCategory == null) {
             return Optional.empty();
@@ -79,10 +70,7 @@ public class CategoryCacheRepository {
     }
 
     public Optional<List<Category>> findAll() {
-
-        String jsonCategories = redisReplicaReader.read(
-                template -> template.opsForValue().get(LIST_KEY)
-        );
+        String jsonCategories = redis.opsForValue().get(LIST_KEY);
 
         if (jsonCategories == null) {
             return Optional.empty();

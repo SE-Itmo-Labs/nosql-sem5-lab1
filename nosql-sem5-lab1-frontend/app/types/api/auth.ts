@@ -4,11 +4,6 @@ export interface LoginRequest {
   password: string
 }
 
-/** Регистрация клиента: роль всегда назначается сервером. */
-export interface RegisterRequest extends LoginRequest {
-  displayName: string
-}
-
 /** Роли дословно повторяют enum Role из Spring Boot. */
 export type UserRole = 'ROLE_USER' | 'ROLE_ADMIN'
 

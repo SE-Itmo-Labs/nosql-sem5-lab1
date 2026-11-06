@@ -10,10 +10,10 @@ public record CreateNotificationRequest(
         @NotBlank
         String title,
 
-        @NotBlank  
+        @NotBlank
         String text,
 
         @NotNull
-        long categoryId
+        Long categoryId
 ) {
 }

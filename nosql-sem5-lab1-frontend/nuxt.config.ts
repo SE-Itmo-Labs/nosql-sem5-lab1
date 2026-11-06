@@ -18,7 +18,6 @@ export default defineNuxtConfig({
       routes: [
         '/',
         '/login',
-        '/register',
         '/movies',
         '/movies/1',
         '/movies/2',

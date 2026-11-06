@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("org.springframework.boot") version "4.1.2"
+    id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -42,6 +42,7 @@ dependencies {
 
     // Validation (RegisterRequest/LoginRequest)
     implementation("org.springframework.boot:spring-boot-starter-validation")
+
 }
 
 tasks.test {

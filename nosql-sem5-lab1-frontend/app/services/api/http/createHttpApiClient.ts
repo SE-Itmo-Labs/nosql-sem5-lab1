@@ -5,8 +5,6 @@ import type {
   Category,
   CategoryResponse,
   ConsistencyExperimentResponse,
-  ExperimentalHoldResponse,
-  HoldReplicationResponse,
   Movie,
   Notification,
   Screening,
@@ -35,10 +33,6 @@ export const createHttpApiClient = (options: HttpApiClientOptions): ApiClient =>
   return {
     auth: {
       login: request => http.post<AuthResponse>(API_ENDPOINTS.auth.login, request),
-      // Отправляем только поля публичного контракта, без роли и подтверждения пароля.
-      register: ({ username, password, displayName }) => http.post<AuthResponse>(
-        API_ENDPOINTS.auth.register, { username, password, displayName },
-      ),
     },
 
     catalog: {
@@ -94,8 +88,6 @@ export const createHttpApiClient = (options: HttpApiClientOptions): ApiClient =>
     },
 
     consistency: {
-      createExperimentalHold: request => http.post<ExperimentalHoldResponse>(API_ENDPOINTS.consistency.holds, request),
-      inspectHold: holdId => http.get<HoldReplicationResponse>(API_ENDPOINTS.consistency.hold(holdId)),
       runExperiment: request => http.post<ConsistencyExperimentResponse>(
         API_ENDPOINTS.consistency.experiments,
         request,

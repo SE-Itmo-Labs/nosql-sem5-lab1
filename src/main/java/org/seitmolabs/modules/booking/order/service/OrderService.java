@@ -53,62 +53,34 @@ public class OrderService {
     private final SeatRepository seatRepository;
     private final UserRepository userRepository;
     private final SeatHoldService seatHoldService;
-
-    // ?????????
-//    private final SeatOrderLockService lockService;
-
+    private final SeatOrderLockService lockService;
     private final OrderFactory orderFactory;
     private final OrderResponseMapper responseMapper;
     private final OutboxEventService outboxEventService;
     private final TransactionTemplate transactionTemplate;
 
     public OrderResponse confirm(CreateOrderRequest request, User currentUser) {
-
-        // Найти текущую транзакцию
         CinemaOrder existing = orderRepository
-
-                // ищем идентификатору пользователя и ключу идемпотентности.
-
                 .findByUserIdAndIdempotencyKey(currentUser.getId(), request.idempotencyKey())
                 .orElse(null);
-
-        // Если есть, то выплюнуть то что есть
         if (existing != null) {
             return getResponse(existing);
         }
 
-        // Найти то, что на удержании сейчас + проверить владельца
         SeatHold hold = seatHoldService.requireOwned(request.holdId(), currentUser);
-
         try {
-//            OrderResponse response = lockService.execute(
-//                    hold.screeningId(),
-//                    hold.seatIds(),
-//                    () -> transactionTemplate.execute(status -> createOrder(request, currentUser, hold))
-//            );
-
-            OrderResponse response = transactionTemplate.execute(
-                    status -> createOrder(request, currentUser, hold)
+            OrderResponse response = lockService.execute(
+                    hold.screeningId(),
+                    hold.seatIds(),
+                    () -> transactionTemplate.execute(status -> createOrder(request, currentUser, hold))
             );
-
-
             seatHoldService.releaseAfterConfirmation(hold);
-
             return response;
-
-
         } catch (DataIntegrityViolationException exception) {
-
             return orderRepository
-
-                    // Ищем результат той же попытки покупки.
-                    .findByUserIdAndIdempotencyKey(
-                            currentUser.getId(),
-                            request.idempotencyKey()
-                    )
+                    .findByUserIdAndIdempotencyKey(currentUser.getId(), request.idempotencyKey())
                     .map(this::getResponse)
                     .orElseThrow(() -> new ConflictException("Одно или несколько мест уже куплены"));
-
         }
     }
 
@@ -125,47 +97,34 @@ public class OrderService {
     }
 
     public OrderResponse cancelOwnOrder(Long orderId, User user) {
-
         return transactionTemplate.execute(status -> {
             CinemaOrder order = orderRepository.findForUpdate(orderId, user.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Заказ не найден: " + orderId));
-
             if (order.getStatus() == OrderStatus.CANCELLED) {
                 return getResponse(order);
             }
-
             List<Ticket> tickets = ticketRepository.findAllForOrder(orderId);
             Instant cancellationDeadline = Instant.now().plus(Duration.ofMinutes(30));
-
             if (tickets.stream().anyMatch(ticket -> !ticket.getScreening().getStartsAt()
                     .isAfter(cancellationDeadline))) {
                 throw new ConflictException("Заказ можно отменить не позднее чем за 30 минут до сеанса");
             }
-
             order.setStatus(OrderStatus.CANCELLED);
             order.setCancelledAt(Instant.now());
             tickets.forEach(ticket -> ticket.setStatus(TicketStatus.CANCELLED));
-
             ticketRepository.saveAll(tickets);
-
             orderRepository.save(order);
-
             outboxEventService.enqueueOrderCancelled(order);
-
             return responseMapper.toResponse(order, tickets,
                     orderProductRepository.findAllForOrder(order.getId()));
-
         });
     }
 
     private OrderResponse createOrder(CreateOrderRequest request, User currentUser, SeatHold hold) {
-
         CinemaOrder existing = orderRepository
-
                 .findByUserIdAndIdempotencyKey(currentUser.getId(), request.idempotencyKey())
                 .orElse(null);
         if (existing != null) {
-
             return getResponse(existing);
         }
 
@@ -214,24 +173,20 @@ public class OrderService {
     }
 
     private Map<Product, Integer> resolveProducts(List<OrderProductRequest> requests) {
-
         Map<Long, Integer> quantities = new LinkedHashMap<>();
         for (OrderProductRequest request : requests) {
             quantities.merge(request.productId(), request.quantity(), Integer::sum);
         }
-
         List<Product> products = productRepository.findAllById(quantities.keySet());
         if (products.size() != quantities.size() || products.stream().anyMatch(product -> !product.isAvailable())) {
             throw new ConflictException("Один или несколько товаров кинобара недоступны");
         }
-
         Map<Product, Integer> result = new LinkedHashMap<>();
         products.forEach(product -> result.put(product, quantities.get(product.getId())));
         return result;
     }
 
     private OrderResponse getResponse(CinemaOrder order) {
-
         return responseMapper.toResponse(
                 order,
                 ticketRepository.findAllForOrder(order.getId()),

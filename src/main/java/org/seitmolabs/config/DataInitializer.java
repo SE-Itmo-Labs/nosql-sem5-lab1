@@ -47,67 +47,62 @@ public class DataInitializer {
             SeatLayoutFactory seatLayoutFactory,
             ScreeningFactory screeningFactory
     ) {
+        return args -> {
+            createUserIfMissing(userRepository, "client01", "client123", "Тестовый клиент", Role.ROLE_USER);
+            createUserIfMissing(userRepository, "admin", "123", "Администратор", Role.ROLE_ADMIN);
 
-        return new CommandLineRunner() {
-                
-                @Override
-                public void run(String... args) throws Exception {
-                        createUserIfMissing(userRepository, "user", "12345", "Тестовый клиент", Role.ROLE_USER);
-                        createUserIfMissing(userRepository, "admin", "12345", "Администратор", Role.ROLE_ADMIN);
+            createCategoryIfMissing(categoryRepository, "Сеансы", "Изменения времени и зала");
+            createCategoryIfMissing(categoryRepository, "Акции", "Скидки и специальные предложения");
 
-                        createCategoryIfMissing(categoryRepository, "Сеансы", "Изменения времени и зала");
-                        createCategoryIfMissing(categoryRepository, "Акции", "Скидки и специальные предложения");
+            createProductIfMissing(productRepository, "Попкорн солёный", new BigDecimal("290.00"));
+            createProductIfMissing(productRepository, "Кола 0,5 л", new BigDecimal("220.00"));
+            createProductIfMissing(productRepository, "Начос с соусом", new BigDecimal("340.00"));
 
-                        createProductIfMissing(productRepository, "Попкорн солёный", new BigDecimal("290.00"));
-                        createProductIfMissing(productRepository, "Кола 0,5 л", new BigDecimal("220.00"));
-                        createProductIfMissing(productRepository, "Начос с соусом", new BigDecimal("340.00"));
+            Movie northernLights = createMovieIfMissing(
+                    movieRepository,
+                    "northern-lights",
+                    "Северный свет",
+                    "Камерная драма о путешествии за полярный круг.",
+                    112,
+                    12,
+                    MovieStatus.NOW_SHOWING
+            );
+            Movie lastSignal = createMovieIfMissing(
+                    movieRepository,
+                    "last-signal",
+                    "Последний сигнал",
+                    "Научно-фантастический триллер о сообщении из глубин космоса.",
+                    128,
+                    16,
+                    MovieStatus.NOW_SHOWING
+            );
+            Movie paperDragon = createMovieIfMissing(
+                    movieRepository,
+                    "paper-dragon",
+                    "Бумажный дракон",
+                    "Семейная анимационная история о дружбе и смелости.",
+                    94,
+                    6,
+                    MovieStatus.NOW_SHOWING
+            );
 
-                        Movie northernLights = createMovieIfMissing(
-                                movieRepository,
-                                "northern-lights",
-                                "Северный свет",
-                                "Камерная драма о путешествии за полярный круг.",
-                                112,
-                                12,
-                                MovieStatus.NOW_SHOWING
-                        );
-                        Movie lastSignal = createMovieIfMissing(
-                                movieRepository,
-                                "last-signal",
-                                "Последний сигнал",
-                                "Научно-фантастический триллер о сообщении из глубин космоса.",
-                                128,
-                                16,
-                                MovieStatus.NOW_SHOWING
-                        );
-                        Movie paperDragon = createMovieIfMissing(
-                                movieRepository,
-                                "paper-dragon",
-                                "Бумажный дракон",
-                                "Семейная анимационная история о дружбе и смелости.",
-                                94,
-                                6,
-                                MovieStatus.NOW_SHOWING
-                        );
+            Auditorium mainHall = createAuditoriumIfMissing(auditoriumRepository, "Зал 1");
+            Auditorium smallHall = createAuditoriumIfMissing(auditoriumRepository, "Зал 2");
 
-                        Auditorium mainHall = createAuditoriumIfMissing(auditoriumRepository, "Зал 1");
-                        Auditorium smallHall = createAuditoriumIfMissing(auditoriumRepository, "Зал 2");
+            createSeatsIfMissing(seatRepository, seatLayoutFactory, mainHall, 5, 8);
+            createSeatsIfMissing(seatRepository, seatLayoutFactory, smallHall, 4, 6);
 
-                        createSeatsIfMissing(seatRepository, seatLayoutFactory, mainHall, 5, 8);
-                        createSeatsIfMissing(seatRepository, seatLayoutFactory, smallHall, 4, 6);
-
-                        LocalDate tomorrow = LocalDate.now(CINEMA_ZONE).plusDays(1);
-                        createScreeningIfMissing(screeningRepository, screeningFactory, northernLights, mainHall,
-                                atCinemaTime(tomorrow, 12, 0), new BigDecimal("450.00"));
-                        createScreeningIfMissing(screeningRepository, screeningFactory, lastSignal, mainHall,
-                                atCinemaTime(tomorrow, 16, 0), new BigDecimal("550.00"));
-                        createScreeningIfMissing(screeningRepository, screeningFactory, paperDragon, smallHall,
-                                atCinemaTime(tomorrow, 13, 0), new BigDecimal("350.00"));
-                        createScreeningIfMissing(screeningRepository, screeningFactory, northernLights, smallHall,
-                                atCinemaTime(tomorrow.plusDays(1), 18, 0), new BigDecimal("500.00"));
-                        createScreeningIfMissing(screeningRepository, screeningFactory, lastSignal, mainHall,
-                                atCinemaTime(tomorrow.plusDays(1), 20, 0), new BigDecimal("600.00"));
-                }
+            LocalDate tomorrow = LocalDate.now(CINEMA_ZONE).plusDays(1);
+            createScreeningIfMissing(screeningRepository, screeningFactory, northernLights, mainHall,
+                    atCinemaTime(tomorrow, 12, 0), new BigDecimal("450.00"));
+            createScreeningIfMissing(screeningRepository, screeningFactory, lastSignal, mainHall,
+                    atCinemaTime(tomorrow, 16, 0), new BigDecimal("550.00"));
+            createScreeningIfMissing(screeningRepository, screeningFactory, paperDragon, smallHall,
+                    atCinemaTime(tomorrow, 13, 0), new BigDecimal("350.00"));
+            createScreeningIfMissing(screeningRepository, screeningFactory, northernLights, smallHall,
+                    atCinemaTime(tomorrow.plusDays(1), 18, 0), new BigDecimal("500.00"));
+            createScreeningIfMissing(screeningRepository, screeningFactory, lastSignal, mainHall,
+                    atCinemaTime(tomorrow.plusDays(1), 20, 0), new BigDecimal("600.00"));
         };
     }
 

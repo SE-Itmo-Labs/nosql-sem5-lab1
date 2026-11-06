@@ -2,7 +2,6 @@ package org.seitmolabs.modules.auth.filters;
 
 import java.io.IOException;
 
-import org.seitmolabs.modules.auth.dto.request.LoginRequest;
 import org.seitmolabs.modules.auth.exceptions.UnauthorizedException;
 import org.seitmolabs.modules.auth.service.AuthService;
 import org.seitmolabs.modules.user.domain.User;
@@ -54,11 +53,9 @@ public class SimpleAuthFilter extends OncePerRequestFilter {
 
         String username = request.getHeader("X-Username");
         String password = request.getHeader("X-Password");
-        
-        LoginRequest prepared = new LoginRequest(username, password);
 
         try {
-            User user = authService.authenticate(prepared);
+            User user = authService.authenticate(username, password);
             request.setAttribute(CURRENT_USER_ATTRIBUTE, user);
         } catch (UnauthorizedException ex) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

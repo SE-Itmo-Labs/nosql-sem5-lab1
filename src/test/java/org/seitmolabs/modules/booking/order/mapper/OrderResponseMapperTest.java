@@ -20,18 +20,14 @@ class OrderResponseMapperTest {
 
     @Test
     void ticketContainsScreeningDetailsRatherThanOnlyPurchaseTime() {
-
         Instant startsAt = Instant.parse("2026-10-22T12:00:00Z");
-
         Screening screening = Screening.builder().id(11L)
                 .movie(Movie.builder().title("Северный свет").build())
                 .auditorium(Auditorium.builder().name("Зал 2").build())
                 .startsAt(startsAt).build();
-
         Ticket ticket = Ticket.builder().id(1L).screening(screening)
                 .seat(Seat.builder().id(8L).rowNumber(2).seatNumber(4).build())
                 .priceSnapshot(new BigDecimal("450.00")).status(TicketStatus.CONFIRMED).build();
-
         CinemaOrder order = CinemaOrder.builder().id(3L).status(OrderStatus.CONFIRMED)
                 .confirmedAt(Instant.parse("2026-10-21T10:00:00Z")).build();
 

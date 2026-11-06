@@ -11,7 +11,7 @@ public record RedisNodeClient(
         LettuceConnectionFactory connectionFactory,
         StringRedisTemplate template
 ) implements AutoCloseable {
-    
+
     @Override
     public void close() {
         connectionFactory.destroy();
