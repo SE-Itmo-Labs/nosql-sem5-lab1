@@ -34,8 +34,8 @@ public class NotificationFactory {
         );
     }
 
-    public Notification createSystem(Long id, OutboxEvent event, Long categoryId) {
-        return new Notification(id, event.getUsername(), event.getTitle(), event.getMessage(),
+    public Notification createSystem(OutboxEvent event, Long categoryId) {
+        return new Notification(event.getUsername(), event.getTitle(), event.getMessage(),
                 categoryId, NotificationStatus.SENT, Instant.now(clock), event.getId().toString());
     }
 }

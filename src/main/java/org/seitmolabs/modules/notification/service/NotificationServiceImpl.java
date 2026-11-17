@@ -91,7 +91,7 @@ public class NotificationServiceImpl implements NotificationService {
                         "Системная категория уведомлений не найдена: " + Category.BOOKING_CODE))
                 .getId();
         Notification notification = notificationFactory.createSystem(
-                notificationRepository.nextId(), event, categoryId);
+                event, categoryId);
         notificationRepository.saveSystem(notification);
     }
 }

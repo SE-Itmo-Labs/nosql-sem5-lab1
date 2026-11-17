@@ -30,6 +30,7 @@ import org.seitmolabs.modules.categories.repositories.CategoryCacheRepository;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
+import org.seitmolabs.modules.notification.repositories.MongoNotificationRepository;
 import org.seitmolabs.modules.notification.repositories.NotificationRepository;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
@@ -354,7 +355,7 @@ class RedisRepositoriesIntegrationTest {
     }
 
     private NotificationServiceImpl notificationService(
-            NotificationRepository notifications, CategoryDbRepository categories) {
+            MongoNotificationRepository notifications, CategoryDbRepository categories) {
         return new NotificationServiceImpl(notifications, mock(UserRepository.class),
                 new NotificationFactory(), categories);
     }
