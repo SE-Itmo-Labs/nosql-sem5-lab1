@@ -3,19 +3,29 @@ package org.seitmolabs.modules.notification.domain;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Generated;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Document(collection = "notifications")
 public class Notification {
 
-    public Notification(Long id, String userId, String title, String text, Long categoryId,
+    public Notification(String userId, String title, String text, Long categoryId,
             NotificationStatus status, Instant createdAt) {
-        this(id, userId, title, text, categoryId, status, createdAt, null);
+        setUserId(userId);
+        setTitle(title);
+        setText(text);
+        setCategoryId(categoryId);
+        setStatus(status);
+        setCreatedAt(createdAt);
     }
 
+    @Id
     private Long id;
 
     private String userId;
@@ -26,7 +36,7 @@ public class Notification {
 
     private Long categoryId;
 
-    private NotificationStatus status;
+    public NotificationStatus status;
 
     private Instant createdAt;
 

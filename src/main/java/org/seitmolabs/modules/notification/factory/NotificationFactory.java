@@ -23,16 +23,14 @@ public class NotificationFactory {
         this.clock = clock;
     }
 
-    public Notification createSent(Long id, CreateNotificationRequest request) {
+    public Notification createSent(CreateNotificationRequest request) {
         return new Notification(
-                id,
                 request.userId(),
                 request.title(),
                 request.text(),
                 request.categoryId(),
                 NotificationStatus.SENT,
-                Instant.now(clock),
-                null
+                Instant.now(clock)
         );
     }
 

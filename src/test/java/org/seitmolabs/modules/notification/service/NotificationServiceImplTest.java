@@ -120,7 +120,6 @@ class NotificationServiceImplTest {
 
     private Notification notification(Long id, String title) {
         return new Notification(
-                id,
                 "client01",
                 title,
                 "Текст",

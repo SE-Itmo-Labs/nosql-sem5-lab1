@@ -92,7 +92,6 @@ class RedisRepositoriesIntegrationTest {
         NotificationRepository repository = new NotificationRepository(redisTemplate, jsonMapper);
         Long id = repository.nextId();
         Notification notification = new Notification(
-                id,
                 "client01",
                 "Начало сеанса",
                 "Фильм начнётся через 15 минут",
