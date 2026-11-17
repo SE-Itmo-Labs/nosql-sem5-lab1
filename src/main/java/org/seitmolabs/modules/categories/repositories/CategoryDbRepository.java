@@ -1,15 +1,67 @@
 package org.seitmolabs.modules.categories.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
+import lombok.RequiredArgsConstructor;
 import org.seitmolabs.modules.categories.domain.Category;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.seitmolabs.modules.categories.domain.CategoryDocument;
+import org.seitmolabs.modules.categories.mappers.CategoryMapper;
+import org.springframework.stereotype.Repository;
 
-public interface CategoryDbRepository extends JpaRepository<Category, Long> {
+@Repository
+@RequiredArgsConstructor
+public class CategoryDbRepository {
 
-    boolean existsByName(String name);
+    private final CategoryMongoRepository mongoRepository;
+    private final CategoryMapper mapper;
+    private final CategoryIdGenerator idGenerator;
 
-    Optional<Category> findByName(String name);
+    public Category save(Category category) {
+        if (category.getId() == null) {
+            category.setId(idGenerator.nextId());
 
-    Optional<Category> findBySystemCode(String systemCode);
+            // Для новой категории insert не перезапишет существующий документ.
+            CategoryDocument inserted = mongoRepository.insert(
+                    mapper.toDocument(category)
+            );
+
+            return mapper.toCategory(inserted);
+        }
+
+        CategoryDocument saved = mongoRepository.save(
+                mapper.toDocument(category)
+        );
+
+        return mapper.toCategory(saved);
+    }
+
+    public Optional<Category> findById(Long id) {
+        return mongoRepository.findById(id.toString())
+                .map(mapper::toCategory);
+    }
+
+    public List<Category> findAll() {
+        return mongoRepository.findAll().stream()
+                .map(mapper::toCategory)
+                .toList();
+    }
+
+    public boolean existsByName(String name) {
+        return mongoRepository.existsByName(name);
+    }
+
+    public Optional<Category> findByName(String name) {
+        return mongoRepository.findByName(name)
+                .map(mapper::toCategory);
+    }
+
+    public Optional<Category> findBySystemCode(String systemCode) {
+        return mongoRepository.findBySystemCode(systemCode)
+                .map(mapper::toCategory);
+    }
+
+    public void deleteById(Long id) {
+        mongoRepository.deleteById(id.toString());
+    }
 }

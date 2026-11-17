@@ -5,18 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5f49a34c-7a6f-4fcf-840b-834fa3c1192b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/README.old.lab1.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/domain/CategoryDocument.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/mappers/CategoryMapper.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryIdGenerator.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryMongoRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/credentials.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/credentials.env.example" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/config/DataInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/config/DataInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/domain/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/domain/Category.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryDbRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryDbRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/services/CategoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/services/CategoryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/service/NotificationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/service/NotificationServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/categories/services/CategoryServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/categories/services/CategoryServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/notification/service/NotificationServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/notification/service/NotificationServiceImplTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,88 +30,100 @@
       <ProjectState />
     </projectState>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0000078984446092" />
-      <entry key="MS500" value="1.097666074636338" />
-      <entry key="S2" value="1.7869736504046085" />
-      <entry key="S5" value="2.701641199109619" />
-      <entry key="S10" value="3.818914524125735" />
-      <entry key="S30" value="5.807751764435561" />
-      <entry key="S60" value="7.799204533879258" />
-      <entry key="M2" value="10.660809596076085" />
-      <entry key="M5" value="14.169446104433126" />
-      <entry key="M10" value="15.88773656796649" />
-      <entry key="M15" value="16.5435307300519" />
-      <entry key="M30" value="17.24637185094176" />
-      <entry key="H1" value="17.616591784387293" />
-      <entry key="H2" value="17.80661553640169" />
-      <entry key="H4" value="17.90288363072752" />
-      <entry key="D1" value="17.983754683494222" />
-      <entry key="W1" value="17.99767778480996" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0" />
+      <entry key="S5" value="1.0" />
+      <entry key="S10" value="1.00000000146374" />
+      <entry key="S30" value="1.0045416086565035" />
+      <entry key="S60" value="1.3028607620272994" />
+      <entry key="M2" value="4.280818692277811" />
+      <entry key="M5" value="17.398801518075278" />
+      <entry key="M10" value="33.9510986234538" />
+      <entry key="M15" value="46.15775248545793" />
+      <entry key="M30" value="67.8343718966976" />
+      <entry key="H1" value="85.253913808402" />
+      <entry key="H2" value="96.51776328004782" />
+      <entry key="H4" value="102.95272449299974" />
+      <entry key="D1" value="108.7802265631506" />
+      <entry key="W1" value="109.82460188346451" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="0.0" />
-      <entry key="S2" value="0.0" />
-      <entry key="S5" value="0.0" />
-      <entry key="S10" value="0.0" />
-      <entry key="S30" value="0.0" />
-      <entry key="S60" value="0.0" />
-      <entry key="M2" value="0.0" />
-      <entry key="M5" value="0.0" />
-      <entry key="M10" value="0.0" />
-      <entry key="M15" value="0.0" />
-      <entry key="M30" value="0.0" />
-      <entry key="H1" value="0.0" />
-      <entry key="H2" value="0.0" />
-      <entry key="H4" value="0.0" />
-      <entry key="D1" value="0.0" />
-      <entry key="W1" value="0.0" />
+      <entry key="MS500" value="2.23000231716016E-208" />
+      <entry key="S2" value="1.2642789847120844E-52" />
+      <entry key="S5" value="2.321304383476868E-21" />
+      <entry key="S10" value="7.926432474028355E-11" />
+      <entry key="S30" value="0.0014703553922708478" />
+      <entry key="S60" value="0.14666758429193058" />
+      <entry key="M2" value="1.7575565906826707" />
+      <entry key="M5" value="8.65766516465666" />
+      <entry key="M10" value="16.413796531295464" />
+      <entry key="M15" value="21.47650805650386" />
+      <entry key="M30" value="29.64645684371175" />
+      <entry key="H1" value="35.75337518542502" />
+      <entry key="H2" value="39.55846797997817" />
+      <entry key="H4" value="41.69220951765274" />
+      <entry key="D1" value="43.60258676639944" />
+      <entry key="W1" value="43.94290416394529" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.8179080860946756" />
-      <entry key="MS500" value="1.0529432819457556" />
-      <entry key="S2" value="1.7617384749180007" />
-      <entry key="S5" value="2.682716236369691" />
-      <entry key="S10" value="3.804229334988016" />
-      <entry key="S30" value="5.7997585341132165" />
-      <entry key="S60" value="7.793463532029576" />
-      <entry key="M2" value="10.656546998182193" />
-      <entry key="M5" value="14.167016089565912" />
-      <entry key="M10" value="15.886338938855053" />
-      <entry key="M15" value="16.54255206466225" />
-      <entry key="M30" value="17.24585725731465" />
-      <entry key="H1" value="17.616327810653864" />
-      <entry key="H2" value="17.806481832932672" />
-      <entry key="H4" value="17.902816343780394" />
-      <entry key="D1" value="17.983743408035643" />
-      <entry key="W1" value="17.99767617253024" />
+      <entry key="MS100" value="0.02033346649128021" />
+      <entry key="MS500" value="0.45881994115568253" />
+      <entry key="S2" value="0.823020345278708" />
+      <entry key="S5" value="0.9250479147376081" />
+      <entry key="S10" value="0.9617941138864997" />
+      <entry key="S30" value="0.9929702807215816" />
+      <entry key="S60" value="1.4379740539558838" />
+      <entry key="M2" value="6.007563546747864" />
+      <entry key="M5" value="26.00149695972444" />
+      <entry key="M10" value="50.31159402507859" />
+      <entry key="M15" value="67.58668451210933" />
+      <entry key="M30" value="97.44688556404877" />
+      <entry key="H1" value="120.98641020176534" />
+      <entry key="H2" value="136.0645583726475" />
+      <entry key="H4" value="144.63874955611485" />
+      <entry key="D1" value="152.38173046511318" />
+      <entry key="W1" value="153.76735002351955" />
     </decayedShown>
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="3ME0HPeKQZxWPsJ7WC3iCxXAgKt" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "dev-production",
-    "kotlin-language-version-configured": "true",
-    "nodejs_package_manager_path": "npm"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;fix-mongo-ssngn&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="org.seitmolabs.modules.categories.repositories" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <method v="2">
