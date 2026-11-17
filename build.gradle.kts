@@ -42,6 +42,9 @@ dependencies {
 
     // Validation (RegisterRequest/LoginRequest)
     implementation("org.springframework.boot:spring-boot-starter-validation")
+
+    // MongoDB
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
 }
 
 tasks.test {

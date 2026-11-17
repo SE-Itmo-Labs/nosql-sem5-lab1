@@ -4,28 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b7f75c7c-39d2-44ec-b24c-c71b8d581f98" name="Changes" comment="">
-      <change afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/repository/HoldOutboxRepository.java" afterDir="false" />
-      <change afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/service/HoldOutboxProcessor.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/repository/HoldOutboxRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/service/HoldOutboxProcessor.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/.idea/workspace.xml" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/README.md" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/README.md" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/redis.conf" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/redis.conf" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/domain/SeatHold.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/domain/SeatHold.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/factory/SeatHoldFactory.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/factory/SeatHoldFactory.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/notification/outbox/domain/OutboxEvent.java" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/java/org/seitmolabs/modules/notification/outbox/domain/OutboxEvent.java" afterDir="false" />
-      <change beforePath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/resources/application.properties" beforeDir="false" afterPath="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1/src/main/resources/application.properties" afterDir="false" />
+    <list default="true" id="5f49a34c-7a6f-4fcf-840b-834fa3c1192b" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/README.old.lab1.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/redis.conf" beforeDir="false" afterPath="$PROJECT_DIR$/redis.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/domain/SeatHold.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/domain/SeatHold.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/factory/SeatHoldFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/factory/SeatHoldFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/repository/SeatHoldRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/hold/service/SeatHoldService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/outbox/domain/OutboxEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/outbox/domain/OutboxEvent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/credentials.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/credentials.env.example" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -38,269 +28,125 @@
       <ProjectState />
     </projectState>
   </component>
-  <component name="ExternalProjectsManager">
-    <system id="GRADLE">
-      <state>
-        <task path="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1">
-          <activation />
-        </task>
-        <projects_view>
-          <tree_state>
-            <expand>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="application" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build setup" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="documentation" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="help" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="other" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="nosql-sem5-lab1" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="verification" type="c8890929:TasksNode$1" />
-              </path>
-            </expand>
-            <select />
-          </tree_state>
-        </projects_view>
-      </state>
-    </system>
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Class" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="ROOT_SYNC" value="SYNC" />
   </component>
-  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="$USER_HOME$/.gradle/wrapper/dists/gradle-8.14-bin/38aieal9i53h9rfe7vjup95b9/gradle-8.14" javaHome="/usr/lib/jvm/default-java" gradleVersion="8.14" />
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0000001037777142" />
-      <entry key="MS500" value="1.0402592567653683" />
-      <entry key="S2" value="1.6716533952588337" />
-      <entry key="S5" value="3.34069691457223" />
-      <entry key="S10" value="6.3811935486531555" />
-      <entry key="S30" value="12.872635246853969" />
-      <entry key="S60" value="15.935032727641621" />
-      <entry key="M2" value="17.953099332183335" />
-      <entry key="M5" value="20.414636476065837" />
-      <entry key="M10" value="25.014827800986367" />
-      <entry key="M15" value="31.32949746124027" />
-      <entry key="M30" value="48.80630657930124" />
-      <entry key="H1" value="68.14794097335873" />
-      <entry key="H2" value="83.02023742452377" />
-      <entry key="H4" value="92.99086158721829" />
-      <entry key="D1" value="109.18983016036053" />
-      <entry key="W1" value="114.87463549100907" />
+      <entry key="MS100" value="1.0000078984446092" />
+      <entry key="MS500" value="1.097666074636338" />
+      <entry key="S2" value="1.7869736504046085" />
+      <entry key="S5" value="2.701641199109619" />
+      <entry key="S10" value="3.818914524125735" />
+      <entry key="S30" value="5.807751764435561" />
+      <entry key="S60" value="7.799204533879258" />
+      <entry key="M2" value="10.660809596076085" />
+      <entry key="M5" value="14.169446104433126" />
+      <entry key="M10" value="15.88773656796649" />
+      <entry key="M15" value="16.5435307300519" />
+      <entry key="M30" value="17.24637185094176" />
+      <entry key="H1" value="17.616591784387293" />
+      <entry key="H2" value="17.80661553640169" />
+      <entry key="H4" value="17.90288363072752" />
+      <entry key="D1" value="17.983754683494222" />
+      <entry key="W1" value="17.99767778480996" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
       <entry key="MS500" value="0.0" />
-      <entry key="S2" value="2.757823909964899E-90" />
-      <entry key="S5" value="1.5069965682215073E-36" />
-      <entry key="S10" value="1.306121147036737E-18" />
-      <entry key="S30" value="1.574712940449173E-6" />
-      <entry key="S60" value="0.001961010935839519" />
-      <entry key="M2" value="0.0742223091171629" />
-      <entry key="M5" value="0.7371258861361579" />
-      <entry key="M10" value="2.5473928195486923" />
-      <entry key="M15" value="4.934498122179826" />
-      <entry key="M30" value="11.266725209463637" />
-      <entry key="H1" value="18.05707541872087" />
-      <entry key="H2" value="23.19505569232784" />
-      <entry key="H4" value="26.69469204932216" />
-      <entry key="D1" value="33.09862678602978" />
-      <entry key="W1" value="35.516099335896456" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="0.0" />
+      <entry key="M2" value="0.0" />
+      <entry key="M5" value="0.0" />
+      <entry key="M10" value="0.0" />
+      <entry key="M15" value="0.0" />
+      <entry key="M30" value="0.0" />
+      <entry key="H1" value="0.0" />
+      <entry key="H2" value="0.0" />
+      <entry key="H4" value="0.0" />
+      <entry key="D1" value="0.0" />
+      <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9265881541324327" />
-      <entry key="MS500" value="1.0241378114797282" />
-      <entry key="S2" value="1.6446476357989217" />
-      <entry key="S5" value="3.2687273047574634" />
-      <entry key="S10" value="6.284571276795304" />
-      <entry key="S30" value="12.803322784237894" />
-      <entry key="S60" value="15.89421461228593" />
-      <entry key="M2" value="17.998890852628065" />
-      <entry key="M5" value="21.124616118103603" />
-      <entry key="M10" value="27.534170229837777" />
-      <entry key="M15" value="36.23572064616073" />
-      <entry key="M30" value="60.048216404901495" />
-      <entry key="H1" value="86.1874855999288" />
-      <entry key="H2" value="106.20469249941232" />
-      <entry key="H4" value="119.67964171447115" />
-      <entry key="D1" value="142.2872810933671" />
-      <entry key="W1" value="150.39055637051234" />
+      <entry key="MS100" value="0.8179080860946756" />
+      <entry key="MS500" value="1.0529432819457556" />
+      <entry key="S2" value="1.7617384749180007" />
+      <entry key="S5" value="2.682716236369691" />
+      <entry key="S10" value="3.804229334988016" />
+      <entry key="S30" value="5.7997585341132165" />
+      <entry key="S60" value="7.793463532029576" />
+      <entry key="M2" value="10.656546998182193" />
+      <entry key="M5" value="14.167016089565912" />
+      <entry key="M10" value="15.886338938855053" />
+      <entry key="M15" value="16.54255206466225" />
+      <entry key="M30" value="17.24585725731465" />
+      <entry key="H1" value="17.616327810653864" />
+      <entry key="H2" value="17.806481832932672" />
+      <entry key="H4" value="17.902816343780394" />
+      <entry key="D1" value="17.983743408035643" />
+      <entry key="W1" value="17.99767617253024" />
     </decayedShown>
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 6
-}</component>
-  <component name="ProjectId" id="3IxU3l9EEncCkEZHY4MJOk7D6zu" />
-  <component name="ProjectLevelVcsManager">
-    <ConfirmationsSetting value="2" id="Add" />
-  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 6
+}]]></component>
+  <component name="ProjectId" id="3ME0HPeKQZxWPsJ7WC3iCxXAgKt" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [test].executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;seat-hold-service-fixes&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/developer/ssnagin/nosql-sem5-lab1&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;/home/developer/Projects/github/SE-Itmo-Labs/nosql-sem5-lab1/src/main/java/org/seitmolabs/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;python.packages.toolwindow.project.migrated.to.right.top.v2&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "dev-production",
+    "kotlin-language-version-configured": "true",
+    "nodejs_package_manager_path": "npm"
   }
-}</component>
-  <component name="RunManager" selected="Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [build]">
-    <configuration name="nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="build" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <GradleProfilingDisabled>false</GradleProfilingDisabled>
-      <GradleCoverageDisabled>false</GradleCoverageDisabled>
+}]]></component>
+  <component name="RunManager">
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
       <method v="2" />
     </configuration>
-    <configuration name="nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [test]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$USER_HOME$/Projects/github/ssnagin/nosql-sem5-lab1" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <ExternalSystemDebugDisabled>false</ExternalSystemDebugDisabled>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <GradleProfilingDisabled>false</GradleProfilingDisabled>
-      <GradleCoverageDisabled>false</GradleCoverageDisabled>
-      <method v="2" />
+    <configuration name="Main" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="nosql-sem5-lab1.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="org.seitmolabs.Main" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [build]" />
-        <item itemvalue="Gradle.nosql-sem5-lab1::home:developer:Projects:github:ssnagin:nosql-sem5-lab1 [test]" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-2df11533d9fe-intellij.indexing.shared.core-IU-262.11879.100" />
-        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-IU-262.11879.100" />
+        <option value="bundled-jdk-30f59d01ecdd-a9fadf26ba24-intellij.indexing.shared.core-IU-262.12573.28" />
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-IU-262.12573.28" />
       </set>
     </attachedChunks>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="b7f75c7c-39d2-44ec-b24c-c71b8d581f98" name="Changes" comment="" />
-      <created>1788705516115</created>
+      <changelist id="5f49a34c-7a6f-4fcf-840b-834fa3c1192b" name="Changes" comment="" />
+      <created>1794900330834</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1788705516115</updated>
+      <updated>1794900330834</updated>
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="UnknownFeatures">
-    <option featureType="com.intellij.fileTypeFactory" implementationName="*.conf" />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State />
-          </value>
-        </entry>
-      </map>
-    </option>
   </component>
 </project>

@@ -81,6 +81,14 @@ services:
       timeout: 3s
       retries: 10
 
+  mongodb:
+    image: mongo:8.0
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
   spring-app:
     build: .
     container_name: spring_app_container
@@ -116,6 +124,8 @@ services:
       # В production оставляйте false: демонстрационные записи не должны
       # создаваться при каждом развёртывании приложения.
       - APP_DATA_INITIALIZER_ENABLED=${APP_DATA_INITIALIZER_ENABLED:-false}
+
+      - MONGODB_URI=${MONGODB_URI}
     restart: on-failure
 
 volumes:
@@ -123,3 +133,4 @@ volumes:
     # Фиксированное имя не зависит от каталога и COMPOSE_PROJECT_NAME, поэтому
     # пересборка приложения подключает ту же базу данных.
     name: ${POSTGRES_VOLUME_NAME:-nosql-sem5-lab1_postgres_data}
+  mongo_data:
