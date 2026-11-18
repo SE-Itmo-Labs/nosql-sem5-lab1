@@ -5,20 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5f49a34c-7a6f-4fcf-840b-834fa3c1192b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/domain/CategoryDocument.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/mappers/CategoryMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryIdGenerator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryMongoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/config/DataInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/config/DataInitializer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/domain/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/domain/Category.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryDbRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryDbRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/services/CategoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/services/CategoryService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/service/NotificationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/service/NotificationServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/categories/services/CategoryServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/categories/services/CategoryServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/notification/service/NotificationServiceImplTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/notification/service/NotificationServiceImplTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,57 +33,57 @@
       <entry key="MS500" value="1.0" />
       <entry key="S2" value="1.0" />
       <entry key="S5" value="1.0" />
-      <entry key="S10" value="1.00000000146374" />
-      <entry key="S30" value="1.0045416086565035" />
-      <entry key="S60" value="1.3028607620272994" />
-      <entry key="M2" value="4.280818692277811" />
-      <entry key="M5" value="17.398801518075278" />
-      <entry key="M10" value="33.9510986234538" />
-      <entry key="M15" value="46.15775248545793" />
-      <entry key="M30" value="67.8343718966976" />
-      <entry key="H1" value="85.253913808402" />
-      <entry key="H2" value="96.51776328004782" />
-      <entry key="H4" value="102.95272449299974" />
-      <entry key="D1" value="108.7802265631506" />
-      <entry key="W1" value="109.82460188346451" />
+      <entry key="S10" value="1.0" />
+      <entry key="S30" value="1.0" />
+      <entry key="S60" value="1.0" />
+      <entry key="M2" value="1.0" />
+      <entry key="M5" value="1.0" />
+      <entry key="M10" value="1.0" />
+      <entry key="M15" value="1.0" />
+      <entry key="M30" value="1.000000058689849" />
+      <entry key="H1" value="1.0025076730799778" />
+      <entry key="H2" value="1.5234624639236758" />
+      <entry key="H4" value="8.58188149536267" />
+      <entry key="D1" value="71.42710184025236" />
+      <entry key="W1" value="104.21118401024704" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="2.23000231716016E-208" />
-      <entry key="S2" value="1.2642789847120844E-52" />
-      <entry key="S5" value="2.321304383476868E-21" />
-      <entry key="S10" value="7.926432474028355E-11" />
-      <entry key="S30" value="0.0014703553922708478" />
-      <entry key="S60" value="0.14666758429193058" />
-      <entry key="M2" value="1.7575565906826707" />
-      <entry key="M5" value="8.65766516465666" />
-      <entry key="M10" value="16.413796531295464" />
-      <entry key="M15" value="21.47650805650386" />
-      <entry key="M30" value="29.64645684371175" />
-      <entry key="H1" value="35.75337518542502" />
-      <entry key="H2" value="39.55846797997817" />
-      <entry key="H4" value="41.69220951765274" />
-      <entry key="D1" value="43.60258676639944" />
-      <entry key="W1" value="43.94290416394529" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="1.904275029819698E-273" />
+      <entry key="M2" value="2.0026593583994227E-136" />
+      <entry key="M5" value="3.6314485224336873E-54" />
+      <entry key="M10" value="1.0630375338018567E-26" />
+      <entry key="M15" value="1.6076445707016352E-17" />
+      <entry key="M30" value="2.5649918004890916E-8" />
+      <entry key="H1" value="0.001051655841540999" />
+      <entry key="H2" value="0.2145446849795144" />
+      <entry key="H4" value="3.0703936530030176" />
+      <entry key="D1" value="28.229430253235844" />
+      <entry key="W1" value="41.296750362201585" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.02033346649128021" />
-      <entry key="MS500" value="0.45881994115568253" />
-      <entry key="S2" value="0.823020345278708" />
-      <entry key="S5" value="0.9250479147376081" />
-      <entry key="S10" value="0.9617941138864997" />
-      <entry key="S30" value="0.9929702807215816" />
-      <entry key="S60" value="1.4379740539558838" />
-      <entry key="M2" value="6.007563546747864" />
-      <entry key="M5" value="26.00149695972444" />
-      <entry key="M10" value="50.31159402507859" />
-      <entry key="M15" value="67.58668451210933" />
-      <entry key="M30" value="97.44688556404877" />
-      <entry key="H1" value="120.98641020176534" />
-      <entry key="H2" value="136.0645583726475" />
-      <entry key="H4" value="144.63874955611485" />
-      <entry key="D1" value="152.38173046511318" />
-      <entry key="W1" value="153.76735002351955" />
+      <entry key="MS100" value="0.27357342531518486" />
+      <entry key="MS500" value="0.7716400875294674" />
+      <entry key="S2" value="0.937246215376921" />
+      <entry key="S5" value="0.9744094297758674" />
+      <entry key="S10" value="0.9871217907512059" />
+      <entry key="S30" value="0.9956887030137959" />
+      <entry key="S60" value="0.9978420230746928" />
+      <entry key="M2" value="0.9989204288003589" />
+      <entry key="M5" value="0.9995680315826844" />
+      <entry key="M10" value="0.9997839924617139" />
+      <entry key="M15" value="0.9998559897896163" />
+      <entry key="M30" value="0.9999280766126536" />
+      <entry key="H1" value="1.0035227102921531" />
+      <entry key="H2" value="1.7379258387844874" />
+      <entry key="H4" value="11.651810697284558" />
+      <entry key="D1" value="99.65582951913322" />
+      <entry key="W1" value="145.5077875296887" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{

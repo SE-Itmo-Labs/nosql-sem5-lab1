@@ -47,6 +47,12 @@ docker compose --env-file credentials.env exec postgresql \
   sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
 ```
 
+## Попасть в Манго БД
+
+```bash
+docker compose --env-file credentials.env exec mongodb mongosh
+```
+
 После запуска:
 
 - API: <http://localhost:16767>
