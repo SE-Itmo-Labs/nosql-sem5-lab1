@@ -2,8 +2,6 @@ package org.seitmolabs.modules.booking.order.domain;
 
 import java.math.BigDecimal;
 
-import org.seitmolabs.modules.catalog.screening.domain.Screening;
-import org.seitmolabs.modules.catalog.seat.domain.Seat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,13 +37,11 @@ public class Ticket {
     @JoinColumn(name = "order_id", nullable = false)
     private CinemaOrder order;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "screening_id", nullable = false)
-    private Screening screening;
+    @Column(name = "screening_id", nullable = false)
+    private Long screeningId;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "seat_id", nullable = false)
-    private Seat seat;
+    @Column(name = "seat_id", nullable = false)
+    private Long seatId;
 
     @Column(name = "price_snapshot", nullable = false, precision = 10, scale = 2)
     private BigDecimal priceSnapshot;

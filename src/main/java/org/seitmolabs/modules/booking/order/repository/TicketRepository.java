@@ -13,8 +13,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     @Query("""
             select (count(ticket) > 0) from Ticket ticket
-            where ticket.screening.id = :screeningId
-              and ticket.seat.id in :seatIds
+            where ticket.screeningId = :screeningId
+              and ticket.seatId in :seatIds
               and ticket.status = :status
             """)
     boolean existsConfirmedByScreeningIdAndSeatIdIn(
@@ -24,8 +24,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     );
 
     @Query("""
-            select ticket.seat.id from Ticket ticket
-            where ticket.screening.id = :screeningId
+            select ticket.seatId from Ticket ticket
+            where ticket.screeningId = :screeningId
               and ticket.status = :status
             """)
     List<Long> findSeatIds(
@@ -33,14 +33,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             @Param("status") TicketStatus status
     );
 
-    @Query("""
-            select ticket from Ticket ticket
-            join fetch ticket.screening screening
-            join fetch screening.movie
-            join fetch screening.auditorium
-            join fetch ticket.seat seat
-            where ticket.order.id = :orderId
-            order by seat.rowNumber, seat.seatNumber
-            """)
+    @Query("select ticket from Ticket ticket where ticket.order.id = :orderId")
     List<Ticket> findAllForOrder(@Param("orderId") Long orderId);
 }

@@ -136,7 +136,9 @@ public class OrderService {
             List<Ticket> tickets = ticketRepository.findAllForOrder(orderId);
             Instant cancellationDeadline = Instant.now().plus(Duration.ofMinutes(30));
 
-            if (tickets.stream().anyMatch(ticket -> !ticket.getScreening().getStartsAt()
+            if (tickets.stream().anyMatch(ticket -> !screeningRepository.findById(ticket.getScreeningId())
+                    .orElseThrow(() -> new EntityNotFoundException("Сеанс не найден: " + ticket.getScreeningId()))
+                    .getStartsAt()
                     .isAfter(cancellationDeadline))) {
                 throw new ConflictException("Заказ можно отменить не позднее чем за 30 минут до сеанса");
             }

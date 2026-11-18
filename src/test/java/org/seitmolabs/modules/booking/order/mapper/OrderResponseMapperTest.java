@@ -1,6 +1,11 @@
 package org.seitmolabs.modules.booking.order.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import java.util.Optional;
+import org.seitmolabs.modules.catalog.screening.repository.ScreeningRepository;
+import org.seitmolabs.modules.catalog.seat.repository.SeatRepository;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -28,14 +33,19 @@ class OrderResponseMapperTest {
                 .auditorium(Auditorium.builder().name("Зал 2").build())
                 .startsAt(startsAt).build();
 
-        Ticket ticket = Ticket.builder().id(1L).screening(screening)
-                .seat(Seat.builder().id(8L).rowNumber(2).seatNumber(4).build())
+        Seat seat = Seat.builder().id(8L).rowNumber(2).seatNumber(4).build();
+        Ticket ticket = Ticket.builder().id(1L).screeningId(11L)
+                .seatId(8L)
                 .priceSnapshot(new BigDecimal("450.00")).status(TicketStatus.CONFIRMED).build();
 
         CinemaOrder order = CinemaOrder.builder().id(3L).status(OrderStatus.CONFIRMED)
                 .confirmedAt(Instant.parse("2026-10-21T10:00:00Z")).build();
 
-        var response = new OrderResponseMapper().toResponse(order, List.of(ticket), List.of());
+        ScreeningRepository screenings = mock(ScreeningRepository.class);
+        SeatRepository seats = mock(SeatRepository.class);
+        when(screenings.findById(11L)).thenReturn(Optional.of(screening));
+        when(seats.findById(8L)).thenReturn(Optional.of(seat));
+        var response = new OrderResponseMapper(screenings, seats).toResponse(order, List.of(ticket), List.of());
         var result = response.tickets().getFirst();
 
         assertThat(result.movieTitle()).isEqualTo("Северный свет");
