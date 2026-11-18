@@ -4,26 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5f49a34c-7a6f-4fcf-840b-834fa3c1192b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/BACKEND_ARCHITECTURE.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/BACKEND_ARCHITECTURE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/DEVELOPMENT.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/DEVELOPMENT.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/PLAN_LAB2.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/PLAN_LAB2.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/domain/Ticket.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/domain/Ticket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/factory/OrderFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/factory/OrderFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/mapper/OrderResponseMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/mapper/OrderResponseMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/repository/TicketRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/repository/TicketRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/service/OrderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/auditorium/domain/Auditorium.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/auditorium/domain/Auditorium.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/auditorium/repository/AuditoriumRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/auditorium/repository/AuditoriumRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/movie/domain/Movie.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/movie/domain/Movie.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/movie/repository/MovieRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/movie/repository/MovieRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/screening/domain/Screening.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/screening/domain/Screening.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/screening/repository/ScreeningRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/screening/repository/ScreeningRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/seat/domain/Seat.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/seat/domain/Seat.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/seat/repository/SeatRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/catalog/seat/repository/SeatRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/booking/order/mapper/OrderResponseMapperTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/booking/order/mapper/OrderResponseMapperTest.java" afterDir="false" />
+    <list default="true" id="5f49a34c-7a6f-4fcf-840b-834fa3c1192b" name="Changes" comment="dev: migrate data to mongodb (cinema)">
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/domain/CategoryDocument.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/domain/CategoryDocument.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/mappers/CategoryMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/mappers/CategoryMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryDbRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryDbRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryMongoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryMongoRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/categories/repositories/CategoryDbRepositoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/categories/repositories/CategoryDbRepositoryTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,23 +45,23 @@
 }]]></component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0" />
-      <entry key="MS500" value="1.0" />
-      <entry key="S2" value="1.0" />
-      <entry key="S5" value="1.0" />
-      <entry key="S10" value="1.0" />
-      <entry key="S30" value="1.0" />
-      <entry key="S60" value="1.0" />
-      <entry key="M2" value="1.0" />
-      <entry key="M5" value="1.0" />
-      <entry key="M10" value="1.0" />
-      <entry key="M15" value="1.0" />
-      <entry key="M30" value="1.000000058689849" />
-      <entry key="H1" value="1.0025076730799778" />
-      <entry key="H2" value="1.5234624639236758" />
-      <entry key="H4" value="8.58188149536267" />
-      <entry key="D1" value="71.42710184025236" />
-      <entry key="W1" value="104.21118401024704" />
+      <entry key="MS100" value="1.0071633823954473" />
+      <entry key="MS500" value="1.5737985564722057" />
+      <entry key="S2" value="4.262940701726747" />
+      <entry key="S5" value="7.038896533526625" />
+      <entry key="S10" value="8.691466055183458" />
+      <entry key="S30" value="10.140765439254684" />
+      <entry key="S60" value="10.557896401883385" />
+      <entry key="M2" value="10.775721613892786" />
+      <entry key="M5" value="10.909648807445514" />
+      <entry key="M10" value="10.966800680068157" />
+      <entry key="M15" value="11.022662038479291" />
+      <entry key="M30" value="11.2149440386893" />
+      <entry key="H1" value="11.473309177135864" />
+      <entry key="H2" value="12.051351171942992" />
+      <entry key="H4" value="18.140144722734544" />
+      <entry key="D1" value="80.27358838325655" />
+      <entry key="W1" value="114.75644650119047" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -84,36 +70,36 @@
       <entry key="S5" value="0.0" />
       <entry key="S10" value="0.0" />
       <entry key="S30" value="0.0" />
-      <entry key="S60" value="1.904275029819698E-273" />
-      <entry key="M2" value="2.0026593583994227E-136" />
-      <entry key="M5" value="3.6314485224336873E-54" />
-      <entry key="M10" value="1.0630375338018567E-26" />
-      <entry key="M15" value="1.6076445707016352E-17" />
-      <entry key="M30" value="2.5649918004890916E-8" />
-      <entry key="H1" value="0.001051655841540999" />
-      <entry key="H2" value="0.2145446849795144" />
-      <entry key="H4" value="3.0703936530030176" />
-      <entry key="D1" value="28.229430253235844" />
-      <entry key="W1" value="41.296750362201585" />
+      <entry key="S60" value="1.3717893827922196E-292" />
+      <entry key="M2" value="5.37509280035862E-146" />
+      <entry key="M5" value="5.390033260520265E-58" />
+      <entry key="M10" value="1.2951031967119249E-28" />
+      <entry key="M15" value="8.511913909533296E-19" />
+      <entry key="M30" value="5.902072952552996E-9" />
+      <entry key="H1" value="5.044672006162985E-4" />
+      <entry key="H2" value="0.14859267739747017" />
+      <entry key="H4" value="2.5552528635611442" />
+      <entry key="D1" value="27.37844324980124" />
+      <entry key="W1" value="41.11656512727922" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.27357342531518486" />
-      <entry key="MS500" value="0.7716400875294674" />
-      <entry key="S2" value="0.937246215376921" />
-      <entry key="S5" value="0.9744094297758674" />
-      <entry key="S10" value="0.9871217907512059" />
-      <entry key="S30" value="0.9956887030137959" />
-      <entry key="S60" value="0.9978420230746928" />
-      <entry key="M2" value="0.9989204288003589" />
-      <entry key="M5" value="0.9995680315826844" />
-      <entry key="M10" value="0.9997839924617139" />
-      <entry key="M15" value="0.9998559897896163" />
-      <entry key="M30" value="0.9999280766126536" />
-      <entry key="H1" value="1.0035227102921531" />
-      <entry key="H2" value="1.7379258387844874" />
-      <entry key="H4" value="11.651810697284558" />
-      <entry key="D1" value="99.65582951913322" />
-      <entry key="W1" value="145.5077875296887" />
+      <entry key="MS100" value="0.9729521262135198" />
+      <entry key="MS500" value="1.5641531429594502" />
+      <entry key="S2" value="4.255331237510358" />
+      <entry key="S5" value="7.03237584493065" />
+      <entry key="S10" value="8.686937446608319" />
+      <entry key="S30" value="10.13884871962855" />
+      <entry key="S60" value="10.556876706456277" />
+      <entry key="M2" value="10.775195526284444" />
+      <entry key="M5" value="10.909434288930429" />
+      <entry key="M10" value="10.966690140945937" />
+      <entry key="M15" value="11.022582323359343" />
+      <entry key="M30" value="11.214891354222031" />
+      <entry key="H1" value="11.473777999063277" />
+      <entry key="H2" value="12.19987848967662" />
+      <entry key="H4" value="20.695006535809664" />
+      <entry key="D1" value="107.65134948399094" />
+      <entry key="W1" value="155.8728653186809" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -179,5 +165,9 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="dev: migrate data to mongodb (cinema)" />
+    <option name="LAST_COMMIT_MESSAGE" value="dev: migrate data to mongodb (cinema)" />
   </component>
 </project>

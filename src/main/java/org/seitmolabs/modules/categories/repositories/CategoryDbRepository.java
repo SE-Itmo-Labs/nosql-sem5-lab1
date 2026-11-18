@@ -37,7 +37,7 @@ public class CategoryDbRepository {
     }
 
     public Optional<Category> findById(Long id) {
-        return mongoRepository.findById(id.toString())
+        return mongoRepository.findById(id)
                 .map(mapper::toCategory);
     }
 
@@ -62,6 +62,6 @@ public class CategoryDbRepository {
     }
 
     public void deleteById(Long id) {
-        mongoRepository.deleteById(id.toString());
+        mongoRepository.deleteById(id);
     }
 }

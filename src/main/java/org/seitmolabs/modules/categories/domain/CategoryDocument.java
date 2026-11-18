@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.FieldType;
-import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.data.annotation.Id;
 
 @Data
 @NoArgsConstructor
@@ -13,8 +12,8 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Document(collection = "categories")
 public class CategoryDocument {
 
-    @MongoId(FieldType.STRING)
-    private String id;
+    @Id
+    private Long id;
 
     private String name;
 

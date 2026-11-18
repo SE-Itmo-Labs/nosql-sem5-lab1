@@ -9,9 +9,7 @@ public class CategoryMapper {
 
     public CategoryDocument toDocument(Category category) {
         return new CategoryDocument(
-                category.getId() == null
-                        ? null
-                        : category.getId().toString(),
+                category.getId(),
                 category.getName(),
                 category.getDescription(),
                 category.getSystemCode()
@@ -20,7 +18,7 @@ public class CategoryMapper {
 
     public Category toCategory(CategoryDocument document) {
         return new Category(
-                Long.valueOf(document.getId()),
+                document.getId(),
                 document.getName(),
                 document.getDescription(),
                 document.getSystemCode()

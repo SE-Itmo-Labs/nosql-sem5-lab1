@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.seitmolabs.modules.categories.domain.CategoryDocument;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface CategoryMongoRepository extends MongoRepository<CategoryDocument, String> {
+public interface CategoryMongoRepository extends MongoRepository<CategoryDocument, Long> {
 
     boolean existsByName(String name);
 
