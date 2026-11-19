@@ -5,17 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5f49a34c-7a6f-4fcf-840b-834fa3c1192b" name="Changes" comment="dev: migrate data to mongodb (cinema)">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/utils/registrationValidation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/utils/registrationValidation.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/auth/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/auth/service/AuthService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/domain/CinemaOrder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/domain/CinemaOrder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/domain/OrderProduct.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/domain/OrderProduct.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/factory/OrderFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/factory/OrderFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/repository/CinemaOrderRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/repository/CinemaOrderRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/service/OrderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/outbox/factory/OutboxEventFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/outbox/factory/OutboxEventFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/outbox/service/OutboxEventService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/outbox/service/OutboxEventService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/user/domain/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/user/domain/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/user/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/user/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/mapper/OrderResponseMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/mapper/OrderResponseMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/repository/OrderProductRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/repository/OrderProductRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/product/domain/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/product/domain/Product.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/product/repository/ProductRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/product/repository/ProductRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/booking/order/mapper/OrderResponseMapperTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/booking/order/mapper/OrderResponseMapperTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

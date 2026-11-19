@@ -56,7 +56,7 @@ public class OrderFactory {
     ) {
         return OrderProduct.builder()
                 .order(order)
-                .product(product)
+                .productId(product.getId())
                 .quantity(quantity)
                 .unitPriceSnapshot(product.getPrice())
                 .build();

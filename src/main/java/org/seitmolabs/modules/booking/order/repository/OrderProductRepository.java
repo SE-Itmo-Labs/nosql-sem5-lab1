@@ -11,9 +11,7 @@ public interface OrderProductRepository extends JpaRepository<OrderProduct, Long
 
     @Query("""
             select item from OrderProduct item
-            join fetch item.product product
             where item.order.id = :orderId
-            order by product.name
             """)
     List<OrderProduct> findAllForOrder(@Param("orderId") Long orderId);
 }

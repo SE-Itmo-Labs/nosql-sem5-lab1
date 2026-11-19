@@ -2,8 +2,6 @@ package org.seitmolabs.modules.booking.order.domain;
 
 import java.math.BigDecimal;
 
-import org.seitmolabs.modules.product.domain.Product;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -36,9 +34,8 @@ public class OrderProduct {
     @JoinColumn(name = "order_id", nullable = false)
     private CinemaOrder order;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @Column(name = "product_id", nullable = false)
+    private Long productId;
 
     @Column(nullable = false)
     private int quantity;

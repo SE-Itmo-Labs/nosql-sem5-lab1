@@ -17,12 +17,15 @@ import org.seitmolabs.modules.catalog.screening.domain.Screening;
 import org.seitmolabs.modules.catalog.screening.repository.ScreeningRepository;
 import org.seitmolabs.modules.catalog.seat.domain.Seat;
 import org.seitmolabs.modules.catalog.seat.repository.SeatRepository;
+import org.seitmolabs.modules.product.domain.Product;
+import org.seitmolabs.modules.product.repository.ProductRepository;
 
 @Component
 @RequiredArgsConstructor
 public class OrderResponseMapper {
     private final ScreeningRepository screeningRepository;
     private final SeatRepository seatRepository;
+    private final ProductRepository productRepository;
 
     public OrderResponse toResponse(
             CinemaOrder order,
@@ -39,7 +42,8 @@ public class OrderResponseMapper {
                 tickets.stream().map(this::toTicket)
                         .sorted(Comparator.comparingInt(TicketResponse::rowNumber)
                                 .thenComparingInt(TicketResponse::seatNumber)).toList(),
-                products.stream().map(this::toProduct).toList()
+                products.stream().map(this::toProduct)
+                        .sorted(Comparator.comparing(OrderProductResponse::name)).toList()
         );
     }
 
@@ -63,9 +67,11 @@ public class OrderResponseMapper {
     }
 
     private OrderProductResponse toProduct(OrderProduct item) {
+        Product product = productRepository.findById(item.getProductId())
+                .orElseThrow(() -> new EntityNotFoundException("Товар не найден: " + item.getProductId()));
         return new OrderProductResponse(
-                item.getProduct().getId(),
-                item.getProduct().getName(),
+                product.getId(),
+                product.getName(),
                 item.getQuantity(),
                 item.getUnitPriceSnapshot(),
                 item.getUnitPriceSnapshot().multiply(BigDecimal.valueOf(item.getQuantity()))
