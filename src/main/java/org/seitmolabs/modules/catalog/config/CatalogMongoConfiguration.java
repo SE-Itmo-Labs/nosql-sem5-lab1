@@ -13,11 +13,13 @@ import org.seitmolabs.modules.catalog.screening.domain.Screening;
 import org.seitmolabs.modules.catalog.seat.domain.Seat;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.mapping.event.BeforeConvertCallback;
 import org.springframework.stereotype.Component;
 
 @Component
+@Order(0)
 public class CatalogMongoConfiguration implements BeforeConvertCallback<Object>, ApplicationRunner {
     private final MongoDatabaseFactory databaseFactory;
 
