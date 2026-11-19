@@ -4,22 +4,13 @@ import java.util.List;
 import java.util.Optional;
 
 import org.seitmolabs.modules.booking.order.domain.CinemaOrder;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-import jakarta.persistence.LockModeType;
-
-public interface CinemaOrderRepository extends JpaRepository<CinemaOrder, Long> {
+public interface CinemaOrderRepository extends MongoRepository<CinemaOrder, Long> {
 
     Optional<CinemaOrder> findByUserIdAndIdempotencyKey(Long userId, String idempotencyKey);
 
     Optional<CinemaOrder> findByIdAndUserId(Long id, Long userId);
-
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select orders from CinemaOrder orders where orders.id = :id and orders.userId = :userId")
-    Optional<CinemaOrder> findForUpdate(@Param("id") Long id, @Param("userId") Long userId);
 
     List<CinemaOrder> findAllByUserIdOrderByCreatedAtDesc(Long userId);
 }

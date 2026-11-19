@@ -41,7 +41,7 @@ public class OrderFactory {
 
     public Ticket createTicket(CinemaOrder order, Screening screening, Seat seat) {
         return Ticket.builder()
-                .order(order)
+                .orderId(order.getId())
                 .screeningId(screening.getId())
                 .seatId(seat.getId())
                 .priceSnapshot(screening.getBasePrice())
@@ -55,7 +55,7 @@ public class OrderFactory {
             int quantity
     ) {
         return OrderProduct.builder()
-                .order(order)
+                .orderId(order.getId())
                 .productId(product.getId())
                 .quantity(quantity)
                 .unitPriceSnapshot(product.getPrice())

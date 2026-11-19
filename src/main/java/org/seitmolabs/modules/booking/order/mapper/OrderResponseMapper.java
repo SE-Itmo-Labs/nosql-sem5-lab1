@@ -12,7 +12,7 @@ import org.seitmolabs.modules.booking.order.dto.OrderResponse;
 import org.seitmolabs.modules.booking.order.dto.TicketResponse;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
-import jakarta.persistence.EntityNotFoundException;
+import org.seitmolabs.common.exceptions.ResourceNotFoundException;
 import org.seitmolabs.modules.catalog.screening.domain.Screening;
 import org.seitmolabs.modules.catalog.screening.repository.ScreeningRepository;
 import org.seitmolabs.modules.catalog.seat.domain.Seat;
@@ -49,9 +49,9 @@ public class OrderResponseMapper {
 
     private TicketResponse toTicket(Ticket ticket) {
         Screening screening = screeningRepository.findById(ticket.getScreeningId())
-                .orElseThrow(() -> new EntityNotFoundException("Сеанс не найден: " + ticket.getScreeningId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Сеанс не найден: " + ticket.getScreeningId()));
         Seat seat = seatRepository.findById(ticket.getSeatId())
-                .orElseThrow(() -> new EntityNotFoundException("Место не найдено: " + ticket.getSeatId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Место не найдено: " + ticket.getSeatId()));
         return new TicketResponse(
                 ticket.getId(),
                 screening.getId(),
@@ -68,7 +68,7 @@ public class OrderResponseMapper {
 
     private OrderProductResponse toProduct(OrderProduct item) {
         Product product = productRepository.findById(item.getProductId())
-                .orElseThrow(() -> new EntityNotFoundException("Товар не найден: " + item.getProductId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Товар не найден: " + item.getProductId()));
         return new OrderProductResponse(
                 product.getId(),
                 product.getName(),

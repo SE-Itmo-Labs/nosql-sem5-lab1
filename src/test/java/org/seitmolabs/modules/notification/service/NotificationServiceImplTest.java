@@ -25,7 +25,7 @@ import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.repository.UserRepository;
 
-import jakarta.persistence.EntityNotFoundException;
+import org.seitmolabs.common.exceptions.ResourceNotFoundException;
 
 class NotificationServiceImplTest {
 
@@ -80,7 +80,7 @@ class NotificationServiceImplTest {
         when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.create(request))
-                .isInstanceOf(EntityNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Пользователь не найден: unknown");
     }
 

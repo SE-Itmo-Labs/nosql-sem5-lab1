@@ -5,34 +5,19 @@ import java.util.List;
 
 import org.seitmolabs.modules.booking.order.domain.Ticket;
 import org.seitmolabs.modules.booking.order.domain.TicketStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
-public interface TicketRepository extends JpaRepository<Ticket, Long> {
+public interface TicketRepository extends MongoRepository<Ticket, Long> {
 
-    @Query("""
-            select (count(ticket) > 0) from Ticket ticket
-            where ticket.screeningId = :screeningId
-              and ticket.seatId in :seatIds
-              and ticket.status = :status
-            """)
-    boolean existsConfirmedByScreeningIdAndSeatIdIn(
-            @Param("screeningId") Long screeningId,
-            @Param("seatIds") Collection<Long> seatIds,
-            @Param("status") TicketStatus status
-    );
+    boolean existsByScreeningIdAndSeatIdInAndStatus(Long screeningId, Collection<Long> seatIds, TicketStatus status);
 
-    @Query("""
-            select ticket.seatId from Ticket ticket
-            where ticket.screeningId = :screeningId
-              and ticket.status = :status
-            """)
-    List<Long> findSeatIds(
-            @Param("screeningId") Long screeningId,
-            @Param("status") TicketStatus status
-    );
+    @Query(value = "{ 'screeningId': ?0, 'status': ?1 }", fields = "{ 'seatId': 1, '_id': 0 }")
+    List<Ticket> findSeatProjections(Long screeningId, TicketStatus status);
 
-    @Query("select ticket from Ticket ticket where ticket.order.id = :orderId")
-    List<Ticket> findAllForOrder(@Param("orderId") Long orderId);
+    default List<Long> findSeatIds(Long screeningId, TicketStatus status) {
+        return findSeatProjections(screeningId, status).stream().map(Ticket::getSeatId).toList();
+    }
+
+    List<Ticket> findAllByOrderId(Long orderId);
 }
