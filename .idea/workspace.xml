@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5f49a34c-7a6f-4fcf-840b-834fa3c1192b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/domain/Notification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/domain/Notification.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/factory/NotificationFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/factory/NotificationFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/repositories/MongoNotificationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/repositories/MongoNotificationRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/service/NotificationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/service/NotificationServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/RedisRepositoriesIntegrationTest.java" afterDir="false" />
-    </list>
+    <list default="true" id="5f49a34c-7a6f-4fcf-840b-834fa3c1192b" name="Changes" comment="dev: migrate data to mongodb (order &amp; Products)" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -32,85 +25,102 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;ssnagin&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/SE-Itmo-Labs/nosql-sem5-lab1.git&quot;,
+    &quot;accountId&quot;: &quot;98e48699-6438-4f2c-a363-6755bb8cc35a&quot;
+  }
+}</component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
       <entry key="MS100" value="1.0" />
       <entry key="MS500" value="1.0" />
-      <entry key="S2" value="1.0000000147761303" />
-      <entry key="S5" value="1.0016284834680493" />
-      <entry key="S10" value="1.1146783459077898" />
-      <entry key="S30" value="4.254925120484945" />
-      <entry key="S60" value="10.547526653085585" />
-      <entry key="M2" value="19.03985891035437" />
-      <entry key="M5" value="29.232052167441527" />
-      <entry key="M10" value="35.650598610919786" />
-      <entry key="M15" value="40.37434969348245" />
-      <entry key="M30" value="53.229490873587594" />
-      <entry key="H1" value="71.37327565985105" />
-      <entry key="H2" value="89.07012438818009" />
-      <entry key="H4" value="101.9980576136921" />
-      <entry key="D1" value="115.82469631513213" />
-      <entry key="W1" value="118.53711500827617" />
+      <entry key="S2" value="1.0" />
+      <entry key="S5" value="1.0" />
+      <entry key="S10" value="1.0" />
+      <entry key="S30" value="1.0" />
+      <entry key="S60" value="1.0000000002450622" />
+      <entry key="M2" value="1.0000842230147478" />
+      <entry key="M5" value="1.1768139023429889" />
+      <entry key="M10" value="3.2652783338305835" />
+      <entry key="M15" value="6.307363595124201" />
+      <entry key="M30" value="13.493059725955952" />
+      <entry key="H1" value="20.27332288471318" />
+      <entry key="H2" value="25.300966487070887" />
+      <entry key="H4" value="33.49761251924093" />
+      <entry key="D1" value="97.54674049604867" />
+      <entry key="W1" value="133.42059334822181" />
     </decayedCancelled>
     <decayedSelected>
-      <entry key="MS100" value="4.732104189952464E-188" />
-      <entry key="MS500" value="3.4278854466550313E-38" />
-      <entry key="S2" value="4.726829449247416E-10" />
-      <entry key="S5" value="2.8766747354426697E-4" />
-      <entry key="S10" value="0.03113556569730524" />
-      <entry key="S30" value="1.259552321437749" />
-      <entry key="S60" value="4.503213468173905" />
-      <entry key="M2" value="9.449925204630064" />
-      <entry key="M5" value="15.919384738538598" />
-      <entry key="M10" value="20.359216586964365" />
-      <entry key="M15" value="23.646729773702106" />
-      <entry key="M30" value="32.20961642313747" />
-      <entry key="H1" value="43.21041650849384" />
-      <entry key="H2" value="52.96953017840923" />
-      <entry key="H4" value="59.65211626961403" />
-      <entry key="D1" value="66.47411893324052" />
-      <entry key="W1" value="67.77843981142979" />
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="1.1028613063911945E-303" />
+      <entry key="M2" value="1.5240622218746254E-151" />
+      <entry key="M5" value="3.2556532079040405E-60" />
+      <entry key="M10" value="1.0065323127281338E-29" />
+      <entry key="M15" value="1.5501585498492486E-19" />
+      <entry key="M30" value="2.518714962102019E-9" />
+      <entry key="H1" value="3.2954912204174666E-4" />
+      <entry key="H2" value="0.12009945046998434" />
+      <entry key="H4" value="2.2972364033578243" />
+      <entry key="D1" value="26.897012904899512" />
+      <entry key="W1" value="41.012491682014435" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.0012533456030887735" />
-      <entry key="MS500" value="0.26279322727192667" />
-      <entry key="S2" value="0.7159843781035037" />
-      <entry key="S5" value="0.8764278688669667" />
-      <entry key="S10" value="1.0684749544996346" />
-      <entry key="S30" value="5.391286382923179" />
-      <entry key="S60" value="14.901861817420079" />
-      <entry key="M2" value="28.35943696718378" />
-      <entry key="M5" value="45.07144851617359" />
-      <entry key="M10" value="55.95846404048791" />
-      <entry key="M15" value="63.97901213680073" />
-      <entry key="M30" value="85.40557288265965" />
-      <entry key="H1" value="114.55818514564125" />
-      <entry key="H2" value="142.0229065845814" />
-      <entry key="H4" value="161.64041383285348" />
-      <entry key="D1" value="182.29695083183128" />
-      <entry key="W1" value="186.31528195391604" />
+      <entry key="MS100" value="0.08962220300098919" />
+      <entry key="MS500" value="0.6172813034467691" />
+      <entry key="S2" value="0.8863816991948673" />
+      <entry key="S5" value="0.9529021620001208" />
+      <entry key="S10" value="0.9761670768880298" />
+      <entry key="S30" value="0.9919917311220098" />
+      <entry key="S60" value="0.9959878169986196" />
+      <entry key="M2" value="0.9980760722203204" />
+      <entry key="M5" value="1.1759739017886668" />
+      <entry key="M10" value="3.2646434621347673" />
+      <entry key="M15" value="6.3067309980578425" />
+      <entry key="M30" value="13.492493470390007" />
+      <entry key="H1" value="20.273248669710693" />
+      <entry key="H2" value="25.420785734751348" />
+      <entry key="H4" value="35.79437279632322" />
+      <entry key="D1" value="124.44306082199739" />
+      <entry key="W1" value="174.4329358442899" />
     </decayedShown>
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="3ME0HPeKQZxWPsJ7WC3iCxXAgKt" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "mongo-ssngn",
-    "kotlin-language-version-configured": "true",
-    "nodejs_package_manager_path": "npm"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;fix-mongo-ssngn&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="org.seitmolabs.modules.categories.repositories" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <method v="2">
@@ -149,5 +159,10 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="dev: migrate data to mongodb (cinema)" />
+    <MESSAGE value="dev: migrate data to mongodb (order &amp; Products)" />
+    <option name="LAST_COMMIT_MESSAGE" value="dev: migrate data to mongodb (order &amp; Products)" />
   </component>
 </project>

@@ -18,14 +18,12 @@ import org.seitmolabs.modules.catalog.screening.repository.ScreeningRepository;
 import org.seitmolabs.modules.catalog.seat.domain.Seat;
 import org.seitmolabs.modules.catalog.seat.repository.SeatRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityNotFoundException;
+import org.seitmolabs.common.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CatalogService {
 
     private final MovieRepository movieRepository;
@@ -62,7 +60,7 @@ public class CatalogService {
     public ScreeningSeatsResponse getScreeningSeats(Long screeningId) {
         Screening screening = screeningRepository.findById(screeningId)
                 .filter(this::isBookable)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Доступный сеанс не найден: " + screeningId
                 ));
 
@@ -78,7 +76,7 @@ public class CatalogService {
     private Movie findVisibleMovie(Long movieId) {
         return movieRepository.findById(movieId)
                 .filter(movie -> movie.getStatus() != MovieStatus.ARCHIVED)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Фильм не найден: " + movieId
                 ));
     }

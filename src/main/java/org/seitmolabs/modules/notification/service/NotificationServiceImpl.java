@@ -15,7 +15,7 @@ import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.EntityNotFoundException;
+import org.seitmolabs.common.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,7 +30,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public Notification create(CreateNotificationRequest request) {
         if (userRepository.findByUsername(request.userId()).isEmpty()) {
-            throw new EntityNotFoundException("Пользователь не найден: " + request.userId());
+            throw new ResourceNotFoundException("Пользователь не найден: " + request.userId());
         }
 
 //        Notification notification = notificationFactory.createSent(
@@ -47,14 +47,14 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public Notification getById(Long id) {
         return notificationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Уведомление не найдено: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Уведомление не найдено: " + id));
     }
 
     @Override
     public Notification getByIdForUser(Long id, String userId) {
         Notification notification = getById(id);
         if (!notification.getUserId().equals(userId)) {
-            throw new EntityNotFoundException("Уведомление не найдено: " + id);
+            throw new ResourceNotFoundException("Уведомление не найдено: " + id);
         }
         return notification;
     }
@@ -87,7 +87,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void deliver(OutboxEvent event) {
         Long categoryId = categoryRepository.findBySystemCode(Category.BOOKING_CODE)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Системная категория уведомлений не найдена: " + Category.BOOKING_CODE))
                 .getId();
         Notification notification = notificationFactory.createSystem(

@@ -40,11 +40,10 @@ cp credentials.env.example credentials.env
 docker compose --env-file credentials.env up -d --build
 ```
 
-## Попасть в БД
+## Проверить MongoDB
 
 ```bash
-docker compose --env-file credentials.env exec postgresql \
-  sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
+docker compose --env-file credentials.env exec mongodb mongosh somedb_mongo
 ```
 
 После запуска:
@@ -56,8 +55,8 @@ docker compose --env-file credentials.env exec postgresql \
 Тестовые пользователи создаются только при
 `APP_DATA_INITIALIZER_ENABLED=true`:
 
-- `client01` / `client123`;
-- `admin` / `123`.
+- `user` / `12345`;
+- `admin` / `12345`.
 
 ## Документация
 

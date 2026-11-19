@@ -15,7 +15,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.seitmolabs.common.dto.CreateNotificationRequest;
-import org.seitmolabs.modules.categories.dto.CategoryResponse;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.notification.domain.Notification;
@@ -26,7 +25,7 @@ import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.repository.UserRepository;
 
-import jakarta.persistence.EntityNotFoundException;
+import org.seitmolabs.common.exceptions.ResourceNotFoundException;
 
 class NotificationServiceImplTest {
 
@@ -81,7 +80,7 @@ class NotificationServiceImplTest {
         when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.create(request))
-                .isInstanceOf(EntityNotFoundException.class)
+                .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Пользователь не найден: unknown");
     }
 
