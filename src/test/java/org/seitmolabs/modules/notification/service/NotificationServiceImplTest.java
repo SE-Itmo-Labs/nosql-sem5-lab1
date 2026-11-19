@@ -19,14 +19,17 @@ import org.seitmolabs.common.dto.CreateNotificationRequest;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.notification.domain.Notification;
+import org.seitmolabs.modules.notification.domain.NotificationAction;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.repositories.MongoNotificationRepository;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
+import org.seitmolabs.modules.notification.outbox.domain.OutboxEventType;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.repository.UserRepository;
 
 import org.seitmolabs.common.exceptions.ResourceNotFoundException;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 class NotificationServiceImplTest {
 
@@ -44,7 +47,8 @@ class NotificationServiceImplTest {
                 notificationRepository,
                 userRepository,
                 new NotificationFactory(),
-                categoryDbRepository
+                categoryDbRepository,
+                mock(MongoTemplate.class)
         );
     }
 
@@ -64,12 +68,14 @@ class NotificationServiceImplTest {
             return notification;
         });
 
-        Notification result = service.create(request);
+        Notification result = service.create(request, "admin");
 
         assertThat(result.getId()).isEqualTo(10L);
         assertThat(result.getUserId()).isEqualTo("client01");
         assertThat(result.getStatus()).isEqualTo(NotificationStatus.SENT);
         assertThat(result.getCreatedAt()).isNotNull();
+        assertThat(result.getActionLog()).containsExactly(
+                new NotificationAction(NotificationAction.Type.CREATED, "admin", result.getCreatedAt(), null));
         verify(notificationRepository).insert(result);
     }
 
@@ -84,7 +90,7 @@ class NotificationServiceImplTest {
 
         when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.create(request))
+        assertThatThrownBy(() -> service.create(request, "admin"))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Пользователь не найден: unknown");
     }
@@ -106,6 +112,7 @@ class NotificationServiceImplTest {
         Category renamed = new Category(7L, "Мои билеты", "Описание", Category.BOOKING_CODE);
         UUID eventId = UUID.randomUUID();
         OutboxEvent event = OutboxEvent.builder().id(eventId).username("client01")
+                .eventType(OutboxEventType.ORDER_CONFIRMED)
                 .title("Заказ подтверждён").message("Заказ №1")
                 .categoryName("Бронирование").build();
         when(categoryDbRepository.findBySystemCode(Category.BOOKING_CODE))
@@ -115,7 +122,10 @@ class NotificationServiceImplTest {
         verify(notificationRepository).saveSystem(argThat(notification ->
                 notification.getCategoryId().equals(7L)
                         && notification.getUserId().equals("client01")
-                        && notification.getSourceEventId().equals(eventId.toString())));
+                        && notification.getSourceEventId().equals(eventId.toString())
+                        && notification.getSourceEventType() == OutboxEventType.ORDER_CONFIRMED
+                        && notification.getActionLog().equals(List.of(new NotificationAction(
+                                NotificationAction.Type.CREATED, "system", notification.getCreatedAt(), null)))));
     }
 
     private Notification notification(Long id, String title) {

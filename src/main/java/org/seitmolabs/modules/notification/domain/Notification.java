@@ -1,16 +1,17 @@
 package org.seitmolabs.modules.notification.domain;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.seitmolabs.modules.notification.outbox.domain.OutboxEventType;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Document(collection = Notification.COLLECTION_NAME)
 public class Notification {
 
@@ -18,12 +19,7 @@ public class Notification {
 
     public Notification(String userId, String title, String text, Long categoryId,
             NotificationStatus status, Instant createdAt) {
-        setUserId(userId);
-        setTitle(title);
-        setText(text);
-        setCategoryId(categoryId);
-        setStatus(status);
-        setCreatedAt(createdAt);
+        this(userId, title, text, categoryId, status, createdAt, null);
     }
 
     public Notification(String userId, String title, String text, Long categoryId,
@@ -35,6 +31,12 @@ public class Notification {
         setStatus(status);
         setCreatedAt(createdAt);
         setSourceEventId(sourceEventId);
+    }
+
+    public Notification(Long id, String userId, String title, String text, Long categoryId,
+                        NotificationStatus status, Instant createdAt, String sourceEventId) {
+        this(userId, title, text, categoryId, status, createdAt, sourceEventId);
+        setId(id);
     }
 
     @Id
@@ -53,4 +55,17 @@ public class Notification {
     private Instant createdAt;
 
     private String sourceEventId;
+
+    @JsonIgnore
+    private OutboxEventType sourceEventType;
+
+    @JsonIgnore
+    private Long processingRuleId;
+
+    @JsonIgnore
+    private List<String> tags = List.of();
+
+    // The journal is persisted with the notification and contains internal actor information.
+    @JsonIgnore
+    private List<NotificationAction> actionLog = List.of();
 }

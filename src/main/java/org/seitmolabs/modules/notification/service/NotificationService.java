@@ -8,7 +8,7 @@ import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 
 public interface NotificationService {
 
-    Notification create(CreateNotificationRequest request);
+    Notification create(CreateNotificationRequest request, String actorId);
 
     Notification getById(Long id);
 
@@ -17,6 +17,8 @@ public interface NotificationService {
     List<Notification> getByUserId(String userId);
 
     Notification markRead(Long id, String userId);
+
+    Notification applyRule(Long id, Long ruleId, String actorId);
 
     void delete(Long id, String userId);
 

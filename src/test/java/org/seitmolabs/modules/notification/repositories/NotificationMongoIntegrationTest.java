@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,13 +17,16 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
+import org.seitmolabs.common.exceptions.GlobalExceptionHandler;
 import org.seitmolabs.modules.auth.filters.SimpleAuthFilter;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.notification.controller.AdminNotificationController;
 import org.seitmolabs.modules.notification.controller.NotificationController;
+import org.seitmolabs.modules.notification.domain.ProcessingRule;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
+import org.seitmolabs.modules.notification.outbox.domain.OutboxEventType;
 import org.seitmolabs.modules.notification.service.NotificationServiceImpl;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.repository.UserRepository;
@@ -54,7 +58,10 @@ class NotificationMongoIntegrationTest {
         String uri = "mongodb://%s:%d".formatted(MONGO.getHost(), MONGO.getMappedPort(27017));
         User recipient = new User();
         recipient.setUsername("client01");
+        User admin = new User();
+        admin.setUsername("admin");
         OutboxEvent event = OutboxEvent.builder().id(UUID.randomUUID()).username("client01")
+                .eventType(OutboxEventType.ORDER_CONFIRMED)
                 .title("Заказ подтверждён").message("Заказ №1").build();
 
         try (MongoClient client = MongoClients.create(uri)) {
@@ -65,19 +72,25 @@ class NotificationMongoIntegrationTest {
                 var service = notificationService(context, recipient);
                 MockMvcBuilders.standaloneSetup(new AdminNotificationController(service)).build()
                         .perform(post("/api/v1/admin/notifications").contentType(MediaType.APPLICATION_JSON)
+                                .requestAttr(CURRENT_USER, admin)
                                 .content("""
                                         {"userId":"client01","title":"Заголовок","text":"Текст","categoryId":1}
                                         """))
                         .andExpect(status().isCreated())
                         .andExpect(jsonPath("$.id").value(42))
-                        .andExpect(jsonPath("$.status").value("SENT"));
+                        .andExpect(jsonPath("$.status").value("SENT"))
+                        .andExpect(jsonPath("$.actionLog").doesNotExist());
                 service.deliver(event);
             }
 
             try (var context = openContext(client)) {
                 var service = notificationService(context, recipient);
                 service.deliver(event);
+                var adminApi = MockMvcBuilders.standaloneSetup(new AdminNotificationController(service))
+                        .setControllerAdvice(new GlobalExceptionHandler()).build();
                 var api = MockMvcBuilders.standaloneSetup(new NotificationController(service)).build();
+                context.getBean(MongoTemplate.class).insert(new ProcessingRule(7L, "Подтверждение бронирования",
+                        OutboxEventType.ORDER_CONFIRMED, List.of("booking", "confirmed")));
                 api.perform(get("/api/v1/notifications").requestAttr(CURRENT_USER, recipient))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.length()").value(2));
@@ -87,6 +100,33 @@ class NotificationMongoIntegrationTest {
                 api.perform(post("/api/v1/notifications/42/read").requestAttr(CURRENT_USER, recipient))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.status").value("READ"));
+                api.perform(post("/api/v1/notifications/42/read").requestAttr(CURRENT_USER, recipient))
+                        .andExpect(status().isOk());
+                var manual = notifications.find(new Document("_id", 42L)).first();
+                assertThat(manual.getList("actionLog", Document.class)).satisfiesExactly(
+                        entry -> assertJournalEntry(entry, "CREATED", "admin"),
+                        entry -> assertJournalEntry(entry, "READ", "client01"));
+
+                adminApi.perform(post("/api/v1/admin/notifications/42/apply-rule").requestAttr(CURRENT_USER, admin)
+                                .contentType(MediaType.APPLICATION_JSON).content("{\"ruleId\":7}"))
+                        .andExpect(status().isBadRequest());
+
+                var source = new Document("sourceEventId", event.getId().toString());
+                long systemNotificationId = notifications.find(source).first().getLong("_id");
+                var applyRule = post("/api/v1/admin/notifications/{id}/apply-rule", systemNotificationId)
+                        .requestAttr(CURRENT_USER, admin).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"ruleId\":7}");
+                adminApi.perform(applyRule).andExpect(status().isOk());
+                adminApi.perform(applyRule).andExpect(status().isOk());
+                var processed = notifications.find(source).first();
+                assertThat(processed.getList("tags", String.class)).containsExactly("booking", "confirmed");
+                assertThat(processed.getLong("processingRuleId")).isEqualTo(7L);
+                assertThat(processed.getList("actionLog", Document.class)).satisfiesExactly(
+                        entry -> assertJournalEntry(entry, "CREATED", "system"),
+                        entry -> {
+                            assertJournalEntry(entry, "RULE_APPLIED", "admin");
+                            assertThat(entry.getLong("processingRuleId")).isEqualTo(7L);
+                        });
                 api.perform(delete("/api/v1/notifications/42").requestAttr(CURRENT_USER, recipient))
                         .andExpect(status().isNoContent());
             }
@@ -95,6 +135,12 @@ class NotificationMongoIntegrationTest {
             assertThat(notifications.countDocuments(new Document("sourceEventId", event.getId().toString())))
                     .isEqualTo(1);
         }
+    }
+
+    private void assertJournalEntry(Document entry, String type, String actorId) {
+        assertThat(entry.getString("type")).isEqualTo(type);
+        assertThat(entry.getString("actorId")).isEqualTo(actorId);
+        assertThat(entry.getDate("at")).isNotNull();
     }
 
     private AnnotationConfigApplicationContext openContext(MongoClient client) {
@@ -113,7 +159,7 @@ class NotificationMongoIntegrationTest {
         when(categories.findBySystemCode(Category.BOOKING_CODE))
                 .thenReturn(Optional.of(new Category(1L, "Бронирование", "Описание", Category.BOOKING_CODE)));
         return new NotificationServiceImpl(context.getBean(MongoNotificationRepository.class), users,
-                new NotificationFactory(), categories);
+                new NotificationFactory(), categories, context.getBean(MongoTemplate.class));
     }
 
     @TestConfiguration(proxyBeanMethods = false)

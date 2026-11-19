@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 
 import org.seitmolabs.modules.catalog.auditorium.domain.Auditorium;
 import org.seitmolabs.modules.catalog.auditorium.repository.AuditoriumRepository;
@@ -16,6 +17,8 @@ import org.seitmolabs.modules.catalog.screening.repository.ScreeningRepository;
 import org.seitmolabs.modules.catalog.seat.repository.SeatRepository;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
+import org.seitmolabs.modules.notification.domain.ProcessingRule;
+import org.seitmolabs.modules.notification.outbox.domain.OutboxEventType;
 import org.seitmolabs.modules.product.domain.Product;
 import org.seitmolabs.modules.product.repository.ProductRepository;
 import org.seitmolabs.modules.user.domain.User;
@@ -25,6 +28,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 @Configuration
 @ConditionalOnProperty(
@@ -45,7 +52,8 @@ public class DataInitializer {
             ScreeningRepository screeningRepository,
             ProductRepository productRepository,
             SeatLayoutFactory seatLayoutFactory,
-            ScreeningFactory screeningFactory
+            ScreeningFactory screeningFactory,
+            MongoTemplate mongoTemplate
     ) {
 
         return new CommandLineRunner() {
@@ -57,6 +65,7 @@ public class DataInitializer {
 
                         createCategoryIfMissing(categoryRepository, "Сеансы", "Изменения времени и зала");
                         createCategoryIfMissing(categoryRepository, "Акции", "Скидки и специальные предложения");
+                        createProcessingRuleIfMissing(mongoTemplate);
 
                         createProductIfMissing(productRepository, "Попкорн солёный", new BigDecimal("290.00"));
                         createProductIfMissing(productRepository, "Кола 0,5 л", new BigDecimal("220.00"));
@@ -109,6 +118,14 @@ public class DataInitializer {
                                 atCinemaTime(tomorrow.plusDays(1), 20, 0), new BigDecimal("600.00"));
                 }
         };
+    }
+
+    private void createProcessingRuleIfMissing(MongoTemplate mongoTemplate) {
+        // Keep the demo rule available between restarts without overwriting existing data.
+        mongoTemplate.upsert(Query.query(Criteria.where("id").is(7L)), new Update()
+                .setOnInsert("name", "Подтверждение бронирования")
+                .setOnInsert("eventType", OutboxEventType.ORDER_CONFIRMED)
+                .setOnInsert("tagsToAdd", List.of("booking", "confirmed")), ProcessingRule.class);
     }
 
     private void createUserIfMissing(

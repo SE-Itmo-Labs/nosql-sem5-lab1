@@ -1,18 +1,27 @@
 package org.seitmolabs.modules.notification.service;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.seitmolabs.common.dto.CreateNotificationRequest;
 import org.seitmolabs.modules.notification.domain.Notification;
+import org.seitmolabs.modules.notification.domain.NotificationAction;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
+import org.seitmolabs.modules.notification.domain.ProcessingRule;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.repositories.MongoNotificationRepository;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.user.repository.UserRepository;
+import org.springframework.data.mongodb.core.FindAndModifyOptions;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import org.seitmolabs.common.exceptions.BadRequestException;
 import org.seitmolabs.common.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 
@@ -24,14 +33,15 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserRepository userRepository;
     private final NotificationFactory notificationFactory;
     private final CategoryDbRepository categoryRepository;
+    private final MongoTemplate mongoTemplate;
 
     @Override
-    public Notification create(CreateNotificationRequest request) {
+    public Notification create(CreateNotificationRequest request, String actorId) {
         if (userRepository.findByUsername(request.userId()).isEmpty()) {
             throw new ResourceNotFoundException("Пользователь не найден: " + request.userId());
         }
 
-        Notification notification = notificationFactory.createSent(request);
+        Notification notification = notificationFactory.createSent(request, actorId);
         return notificationRepository.insert(notification);
     }
 
@@ -58,11 +68,45 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Notification markRead(Long id, String userId) {
-        Notification notification = getByIdForUser(id, userId);
+        Query unreadNotification = Query.query(Criteria.where("id").is(id)
+                .and("userId").is(userId).and("status").ne(NotificationStatus.READ));
+        NotificationAction action = new NotificationAction(
+                NotificationAction.Type.READ, userId, Instant.now(), null);
+        Update update = new Update().set("status", NotificationStatus.READ).push("actionLog", action);
+        Notification updated = updateNotification(unreadNotification, update);
+        return updated != null ? updated : getByIdForUser(id, userId);
+    }
 
-        notification.setStatus(NotificationStatus.READ);
+    @Override
+    public Notification applyRule(Long id, Long ruleId, String actorId) {
+        ProcessingRule rule = mongoTemplate.findById(ruleId, ProcessingRule.class);
+        if (rule == null) {
+            throw new ResourceNotFoundException("Правило обработки не найдено: " + ruleId);
+        }
 
-        return notificationRepository.save(notification);
+        Query matchingNotification = Query.query(Criteria.where("id").is(id)
+                .and("sourceEventType").is(rule.eventType()).and("processingRuleId").ne(ruleId));
+        NotificationAction action = new NotificationAction(
+                NotificationAction.Type.RULE_APPLIED, actorId, Instant.now(), ruleId);
+        Update update = new Update().set("processingRuleId", ruleId).push("actionLog", action);
+        update.addToSet("tags").each(rule.tagsToAdd().toArray());
+
+        Notification updated = updateNotification(matchingNotification, update);
+        if (updated != null) {
+            return updated;
+        }
+
+        Notification notification = getById(id);
+        if (notification.getSourceEventType() != rule.eventType()) {
+            throw new BadRequestException("Правило не подходит для уведомления: " + id);
+        }
+        return notification;
+    }
+
+    private Notification updateNotification(Query query, Update update) {
+        // Change the notification and append its journal entry in one document update.
+        return mongoTemplate.findAndModify(query, update, FindAndModifyOptions.options().returnNew(true),
+                Notification.class);
     }
 
     @Override
