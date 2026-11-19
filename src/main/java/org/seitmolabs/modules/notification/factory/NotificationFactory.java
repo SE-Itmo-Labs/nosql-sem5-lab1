@@ -23,21 +23,19 @@ public class NotificationFactory {
         this.clock = clock;
     }
 
-    public Notification createSent(Long id, CreateNotificationRequest request) {
+    public Notification createSent(CreateNotificationRequest request) {
         return new Notification(
-                id,
                 request.userId(),
                 request.title(),
                 request.text(),
                 request.categoryId(),
                 NotificationStatus.SENT,
-                Instant.now(clock),
-                null
+                Instant.now(clock)
         );
     }
 
-    public Notification createSystem(Long id, OutboxEvent event, Long categoryId) {
-        return new Notification(id, event.getUsername(), event.getTitle(), event.getMessage(),
+    public Notification createSystem(OutboxEvent event, Long categoryId) {
+        return new Notification(event.getUsername(), event.getTitle(), event.getMessage(),
                 categoryId, NotificationStatus.SENT, Instant.now(clock), event.getId().toString());
     }
 }

@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.seitmolabs.common.dto.CreateNotificationRequest;
 import org.seitmolabs.modules.notification.domain.Notification;
+import org.seitmolabs.modules.notification.domain.NotificationStatus;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
+import org.seitmolabs.modules.notification.repositories.MongoNotificationRepository;
 import org.seitmolabs.modules.notification.repositories.NotificationRepository;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
@@ -20,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
-    private final NotificationRepository notificationRepository;
+    private final MongoNotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final NotificationFactory notificationFactory;
     private final CategoryDbRepository categoryRepository;
@@ -31,12 +33,14 @@ public class NotificationServiceImpl implements NotificationService {
             throw new ResourceNotFoundException("Пользователь не найден: " + request.userId());
         }
 
-        Notification notification = notificationFactory.createSent(
-                notificationRepository.nextId(),
-                request
-        );
+//        Notification notification = notificationFactory.createSent(
+//                notificationRepository.nextId(),
+//                request
+//        );
 
-        notificationRepository.save(notification);
+        Notification notification = notificationFactory.createSent(request);
+
+        notificationRepository.insert(notification);
         return notification;
     }
 
@@ -57,16 +61,22 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<Notification> getByUserId(String userId) {
-        return notificationRepository.findIdsByUserId(userId).stream()
-                .map(notificationRepository::findById)
-                .flatMap(Optional::stream)
-                .toList();
+
+//        return notificationRepository.findIdsByUserId(userId).stream()
+//                .map(notificationRepository::findById)
+//                .flatMap(Optional::stream)
+//                .toList();
+
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
     @Override
     public Notification markRead(Long id, String userId) {
         Notification notification = getByIdForUser(id, userId);
-        return notificationRepository.markRead(notification);
+
+        notification.setStatus(NotificationStatus.READ);
+
+        return notificationRepository.save(notification);
     }
 
     @Override
@@ -81,7 +91,7 @@ public class NotificationServiceImpl implements NotificationService {
                         "Системная категория уведомлений не найдена: " + Category.BOOKING_CODE))
                 .getId();
         Notification notification = notificationFactory.createSystem(
-                notificationRepository.nextId(), event, categoryId);
+                event, categoryId);
         notificationRepository.saveSystem(notification);
     }
 }
