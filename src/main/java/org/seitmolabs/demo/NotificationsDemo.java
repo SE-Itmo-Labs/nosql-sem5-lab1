@@ -83,6 +83,7 @@ class NotificationsDemo implements DemoScenario {
                     createdAt.plusSeconds(120), null));
         }
         notification.setActionLog(actions);
+        notification.setUpdatedAt(actions.getLast().at());
         notifications.saveSystem(notification);
     }
 

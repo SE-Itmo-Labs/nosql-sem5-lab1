@@ -30,6 +30,7 @@ public class Notification {
         setCategoryId(categoryId);
         setStatus(status);
         setCreatedAt(createdAt);
+        setUpdatedAt(createdAt);
         setSourceEventId(sourceEventId);
     }
 
@@ -53,6 +54,9 @@ public class Notification {
     public NotificationStatus status;
 
     private Instant createdAt;
+
+    @JsonIgnore
+    private Instant updatedAt;
 
     private String sourceEventId;
 

@@ -1,5 +1,7 @@
 package org.seitmolabs.modules.notification.repositories;
 
+import java.util.List;
+
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.IndexOptions;
@@ -11,6 +13,7 @@ import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
 import lombok.RequiredArgsConstructor;
 import org.bson.BsonType;
+import org.bson.Document;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
@@ -33,6 +36,11 @@ public class NotificationMongoConfiguration implements BeforeConvertCallback<Not
                 .name("sourceEventId")
                 .unique(true)
                 .partialFilterExpression(Filters.type("sourceEventId", "string")));
+
+        // Backfill the sort and filter field once per legacy notification.
+        notifications.updateMany(
+                Filters.and(Filters.eq("updatedAt", null), Filters.type("createdAt", BsonType.DATE_TIME)),
+                List.of(new Document("$set", new Document("updatedAt", "$createdAt"))));
 
         // Resume above existing numeric IDs without moving a previously used counter backwards.
         var lastNotification = notifications

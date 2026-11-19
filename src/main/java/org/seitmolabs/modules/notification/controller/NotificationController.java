@@ -2,14 +2,18 @@ package org.seitmolabs.modules.notification.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 import org.seitmolabs.modules.auth.filters.SimpleAuthFilter;
 import org.seitmolabs.modules.notification.domain.Notification;
+import org.seitmolabs.modules.notification.dto.NotificationSearchPage;
+import org.seitmolabs.modules.notification.dto.NotificationSearchRequest;
 import org.seitmolabs.modules.notification.service.NotificationService;
 import org.seitmolabs.modules.user.domain.User;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
@@ -27,6 +31,15 @@ public class NotificationController {
             @RequestAttribute(SimpleAuthFilter.CURRENT_USER_ATTRIBUTE) User currentUser
     ) {
         return notificationService.getByUserId(currentUser.getUsername());
+    }
+
+    @Operation(summary = "Найти свои уведомления по фильтрам и журналу действий")
+    @GetMapping("/search")
+    public NotificationSearchPage search(
+            @Valid @ModelAttribute @ParameterObject NotificationSearchRequest request,
+            @RequestAttribute(SimpleAuthFilter.CURRENT_USER_ATTRIBUTE) User currentUser
+    ) {
+        return notificationService.search(currentUser.getUsername(), request);
     }
 
     @Operation(summary = "Получить уведомление по ID")
