@@ -21,16 +21,16 @@ public class OutboxEventFactory {
                         .formatted(hold.screeningId(), join(hold.seatIds()), hold.expiresAt()));
     }
 
-    public OutboxEvent orderConfirmed(CinemaOrder order, List<Long> seatIds) {
+    public OutboxEvent orderConfirmed(CinemaOrder order, List<Long> seatIds, String username) {
         return create(OutboxEventType.ORDER_CONFIRMED, order.getId().toString(),
-                order.getUser().getUsername(), "Заказ подтверждён",
+                username, "Заказ подтверждён",
                 "Заказ №%d подтверждён. Места: %s. Сумма: %s."
                         .formatted(order.getId(), join(seatIds), order.getTotalAmount()));
     }
 
-    public OutboxEvent orderCancelled(CinemaOrder order) {
+    public OutboxEvent orderCancelled(CinemaOrder order, String username) {
         return create(OutboxEventType.ORDER_CANCELLED, order.getId().toString(),
-                order.getUser().getUsername(), "Заказ отменён",
+                username, "Заказ отменён",
                 "Заказ №%d отменён. Билеты снова доступны для покупки.".formatted(order.getId()));
     }
 

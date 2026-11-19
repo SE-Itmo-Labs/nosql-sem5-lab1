@@ -5,11 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5f49a34c-7a6f-4fcf-840b-834fa3c1192b" name="Changes" comment="dev: migrate data to mongodb (cinema)">
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/domain/CategoryDocument.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/domain/CategoryDocument.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/mappers/CategoryMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/mappers/CategoryMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryDbRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryDbRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryMongoRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/categories/repositories/CategoryMongoRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/categories/repositories/CategoryDbRepositoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/seitmolabs/modules/categories/repositories/CategoryDbRepositoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/utils/registrationValidation.ts" beforeDir="false" afterPath="$PROJECT_DIR$/nosql-sem5-lab1-frontend/app/utils/registrationValidation.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/auth/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/auth/service/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/domain/CinemaOrder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/domain/CinemaOrder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/factory/OrderFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/factory/OrderFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/repository/CinemaOrderRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/repository/CinemaOrderRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/booking/order/service/OrderService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/outbox/factory/OutboxEventFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/outbox/factory/OutboxEventFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/outbox/service/OutboxEventService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/notification/outbox/service/OutboxEventService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/user/domain/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/user/domain/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/user/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/seitmolabs/modules/user/repository/UserRepository.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,18 +37,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "ssnagin"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;ssnagin&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/SE-Itmo-Labs/nosql-sem5-lab1.git",
-    "accountId": "98e48699-6438-4f2c-a363-6755bb8cc35a"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/SE-Itmo-Labs/nosql-sem5-lab1.git&quot;,
+    &quot;accountId&quot;: &quot;98e48699-6438-4f2c-a363-6755bb8cc35a&quot;
   }
-}]]></component>
+}</component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
       <entry key="MS100" value="1.0071633823954473" />

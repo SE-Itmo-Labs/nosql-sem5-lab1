@@ -18,7 +18,7 @@ public interface CinemaOrderRepository extends JpaRepository<CinemaOrder, Long> 
     Optional<CinemaOrder> findByIdAndUserId(Long id, Long userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select orders from CinemaOrder orders where orders.id = :id and orders.user.id = :userId")
+    @Query("select orders from CinemaOrder orders where orders.id = :id and orders.userId = :userId")
     Optional<CinemaOrder> findForUpdate(@Param("id") Long id, @Param("userId") Long userId);
 
     List<CinemaOrder> findAllByUserIdOrderByCreatedAtDesc(Long userId);

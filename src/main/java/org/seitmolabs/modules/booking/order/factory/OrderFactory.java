@@ -29,7 +29,7 @@ public class OrderFactory {
     ) {
         Instant now = Instant.now(clock);
         return CinemaOrder.builder()
-                .user(user)
+                .userId(user.getId())
                 .holdId(hold.id())
                 .idempotencyKey(idempotencyKey)
                 .status(OrderStatus.CONFIRMED)

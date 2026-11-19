@@ -20,11 +20,11 @@ public class OutboxEventService {
         repository.save(factory.holdCreated(hold, username));
     }
 
-    public void enqueueOrderConfirmed(CinemaOrder order, List<Long> seatIds) {
-        repository.save(factory.orderConfirmed(order, seatIds));
+    public void enqueueOrderConfirmed(CinemaOrder order, List<Long> seatIds, String username) {
+        repository.save(factory.orderConfirmed(order, seatIds, username));
     }
 
-    public void enqueueOrderCancelled(CinemaOrder order) {
-        repository.save(factory.orderCancelled(order));
+    public void enqueueOrderCancelled(CinemaOrder order, String username) {
+        repository.save(factory.orderCancelled(order, username));
     }
 }

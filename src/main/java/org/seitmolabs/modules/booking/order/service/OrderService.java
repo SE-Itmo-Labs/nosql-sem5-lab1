@@ -33,7 +33,6 @@ import org.seitmolabs.modules.product.domain.Product;
 import org.seitmolabs.modules.product.repository.ProductRepository;
 import org.seitmolabs.modules.notification.outbox.service.OutboxEventService;
 import org.seitmolabs.modules.user.domain.User;
-import org.seitmolabs.modules.user.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -51,7 +50,6 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final ScreeningRepository screeningRepository;
     private final SeatRepository seatRepository;
-    private final UserRepository userRepository;
     private final SeatHoldService seatHoldService;
 
 //    private final SeatOrderLockService lockService;
@@ -151,7 +149,7 @@ public class OrderService {
 
             orderRepository.save(order);
 
-            outboxEventService.enqueueOrderCancelled(order);
+            outboxEventService.enqueueOrderCancelled(order, user.getUsername());
 
             return responseMapper.toResponse(order, tickets,
                     orderProductRepository.findAllForOrder(order.getId()));
@@ -197,9 +195,8 @@ public class OrderService {
                 .map(entry -> entry.getKey().getPrice().multiply(BigDecimal.valueOf(entry.getValue())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        User userReference = userRepository.getReferenceById(currentUser.getId());
         CinemaOrder order = orderRepository.save(orderFactory.create(
-                userReference,
+                currentUser,
                 hold,
                 request.idempotencyKey(),
                 ticketTotal.add(productTotal)
@@ -210,7 +207,7 @@ public class OrderService {
         List<OrderProduct> orderProducts = orderProductRepository.saveAll(products.entrySet().stream()
                 .map(entry -> orderFactory.createProduct(order, entry.getKey(), entry.getValue()))
                 .toList());
-        outboxEventService.enqueueOrderConfirmed(order, hold.seatIds());
+        outboxEventService.enqueueOrderConfirmed(order, hold.seatIds(), currentUser.getUsername());
         return responseMapper.toResponse(order, tickets, orderProducts);
     }
 
