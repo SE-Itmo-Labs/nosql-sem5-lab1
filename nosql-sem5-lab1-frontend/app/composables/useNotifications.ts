@@ -2,34 +2,23 @@ import type {
   Category,
   CreateNotificationRequest,
   Notification,
-  NotificationQuery,
+  NotificationSearchQuery,
   NotificationStats,
   PageResponse,
 } from '~/types/api'
 
-/** Значения формы фильтра отделены от формата query-параметров REST API. */
-export interface NotificationFilters {
-  search: string
-  categoryId: number | null
-}
+export const DEFAULT_NOTIFICATION_PAGE_SIZE = 6
 
 type NotificationDraft = CreateNotificationRequest
 
 const createEmptyPage = (): PageResponse<Notification> => ({
   content: [],
   page: 0,
-  size: 6,
+  size: DEFAULT_NOTIFICATION_PAGE_SIZE,
   totalElements: 0,
   totalPages: 0,
   last: true,
   empty: true,
-})
-
-const createEmptyStats = (): NotificationStats => ({
-  total: 0,
-  sent: 0,
-  read: 0,
-  byCategory: {},
 })
 
 const getErrorMessage = (cause: unknown): string => (
@@ -47,11 +36,11 @@ export const useNotifications = () => {
   const canSendNotifications = computed(() => user.value?.role === 'ROLE_ADMIN')
   const categories = ref<Category[]>([])
   const pageData = ref<PageResponse<Notification>>(createEmptyPage())
-  const stats = ref<NotificationStats>(createEmptyStats())
-  const filters = reactive<NotificationFilters>({
-    search: '',
-    categoryId: null,
-  })
+  const stats = ref<NotificationStats | null>(null)
+  const statsError = ref('')
+  let lastStatsRequest = 0
+  let activeQuery: NotificationSearchQuery = { size: DEFAULT_NOTIFICATION_PAGE_SIZE }
+  let requestedPage = 0
   const isLoading = ref(true)
   const isSubmitting = ref(false)
   const busyNotificationId = ref<number | null>(null)
@@ -63,37 +52,23 @@ export const useNotifications = () => {
   let latestRequest = 0
   const notificationRefreshVersion = useState('notification-refresh-version', () => 0)
 
-  /** Собирает query единообразно для списка и агрегированной статистики. */
-  const createQuery = (includePage: boolean): NotificationQuery => ({
-    userId: user.value?.login,
-    q: filters.search.trim() || undefined,
-    categoryId: filters.categoryId ?? undefined,
-    ...(includePage ? { page: pageData.value.page, size: pageData.value.size } : {}),
-  })
-
   const loadNotifications = async (silent = false) => {
     const requestId = ++latestRequest
     if (!silent) isLoading.value = true
     loadError.value = ''
 
     try {
-      const [nextPage, nextStats] = await Promise.all([
-        api.notifications.getAll(createQuery(true)),
-        canSendNotifications.value
-          ? api.notifications.getStats(createQuery(false))
-          : Promise.resolve(createEmptyStats()),
-      ])
+      const nextPage = await api.notifications.search({ ...activeQuery, page: requestedPage })
 
       // Более старый медленный ответ не должен перезаписать свежий результат.
       if (requestId === latestRequest) {
         const lastPage = Math.max(0, nextPage.totalPages - 1)
         if (nextPage.page > lastPage) {
-          pageData.value.page = lastPage
+          requestedPage = lastPage
           await loadNotifications(silent)
           return
         }
         pageData.value = nextPage
-        stats.value = nextStats
       }
     }
     catch (cause) {
@@ -101,6 +76,22 @@ export const useNotifications = () => {
     }
     finally {
       if (requestId === latestRequest) isLoading.value = false
+    }
+  }
+
+  // Сводка администратора обновляется отдельно от серверного списка и его фильтров.
+  const loadStats = async () => {
+    if (!canSendNotifications.value) return
+    const requestId = ++lastStatsRequest
+    try {
+      const result = await api.notifications.getStats({ userId: user.value?.login })
+      if (requestId === lastStatsRequest) {
+        stats.value = result
+        statsError.value = ''
+      }
+    }
+    catch (cause) {
+      if (requestId === lastStatsRequest) statsError.value = getErrorMessage(cause)
     }
   }
 
@@ -116,23 +107,21 @@ export const useNotifications = () => {
 
   const initialize = async () => {
     restore()
-    await Promise.all([loadCategories(), loadNotifications()])
+    await Promise.all([loadCategories(), loadNotifications(), loadStats()])
   }
 
-  const applyFilters = async () => {
-    pageData.value.page = 0
-    await loadNotifications()
+  const applyFilters = (query: NotificationSearchQuery) => {
+    activeQuery = query
+    requestedPage = 0
+    return loadNotifications()
   }
 
-  const resetFilters = () => {
-    filters.search = ''
-    filters.categoryId = null
-  }
+  const resetFilters = () => applyFilters({ size: DEFAULT_NOTIFICATION_PAGE_SIZE })
 
-  const goToPage = async (page: number) => {
+  const goToPage = (page: number) => {
     if (page < 0 || page >= pageData.value.totalPages || page === pageData.value.page) return
-    pageData.value.page = page
-    await loadNotifications()
+    requestedPage = page
+    return loadNotifications()
   }
 
   /** Ручная отправка доступна администратору и содержит явного получателя. */
@@ -150,8 +139,8 @@ export const useNotifications = () => {
       await api.notifications.create(draft)
       feedback.value = 'Уведомление отправлено выбранному клиенту'
       composerVersion.value += 1
-      pageData.value.page = 0
-      await loadNotifications()
+      requestedPage = 0
+      await Promise.all([loadNotifications(), loadStats()])
     }
     catch (cause) {
       actionError.value = getErrorMessage(cause)
@@ -165,17 +154,13 @@ export const useNotifications = () => {
     if (notification.status === 'READ' || readingIds.has(notification.id)
       || busyNotificationId.value === notification.id) return
     readingIds.add(notification.id)
-    const requestId = latestRequest
 
     try {
       await api.notifications.update(notification.id, { status: 'READ' })
       notification.status = 'READ'
       const displayed = pageData.value.content.find(item => item.id === notification.id)
       if (displayed) displayed.status = 'READ'
-      if (canSendNotifications.value && requestId === latestRequest) {
-        stats.value.sent = Math.max(0, stats.value.sent - 1)
-        stats.value.read += 1
-      }
+      await Promise.all([loadNotifications(true), loadStats()])
     }
     catch (cause) {
       actionError.value = getErrorMessage(cause)
@@ -196,11 +181,7 @@ export const useNotifications = () => {
       await api.notifications.delete(notification.id)
       feedback.value = 'Уведомление удалено'
 
-      // После удаления последней записи возвращаемся на существующую страницу.
-      if (pageData.value.content.length === 1 && pageData.value.page > 0) {
-        pageData.value.page -= 1
-      }
-      await loadNotifications()
+      await Promise.all([loadNotifications(), loadStats()])
     }
     catch (cause) {
       actionError.value = getErrorMessage(cause)
@@ -210,26 +191,16 @@ export const useNotifications = () => {
     }
   }
 
-  let searchTimer: ReturnType<typeof setTimeout> | undefined
-
-  const cancelSearch = () => clearTimeout(searchTimer)
-
-  watch(() => filters.search, () => {
-    cancelSearch()
-    latestRequest += 1
-    searchTimer = setTimeout(() => { void applyFilters() }, 300)
-  })
-  watch(() => filters.categoryId, () => {
-    cancelSearch()
-    void applyFilters()
-  })
   onBeforeUnmount(() => {
-    cancelSearch()
     latestRequest += 1
+    lastStatsRequest += 1
   })
 
   onMounted(initialize)
-  watch(notificationRefreshVersion, () => { void loadNotifications() })
+  watch(notificationRefreshVersion, () => {
+    void loadNotifications()
+    void loadStats()
+  })
 
   return {
     actionError,
@@ -242,7 +213,6 @@ export const useNotifications = () => {
     createNotification,
     deleteNotification,
     feedback,
-    filters,
     goToPage,
     isLoading,
     isSubmitting,
@@ -252,6 +222,6 @@ export const useNotifications = () => {
     pageData,
     resetFilters,
     stats,
-    user,
+    statsError,
   }
 }

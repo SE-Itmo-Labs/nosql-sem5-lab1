@@ -5,6 +5,7 @@ import java.time.Instant;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import org.seitmolabs.modules.notification.domain.NotificationAction;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
 import org.springframework.data.domain.Sort;
@@ -17,6 +18,7 @@ public record NotificationSearchRequest(
         NotificationStatus status,
         @Positive Long categoryId,
         String tag,
+        @Size(max = 200) String q,
         NotificationAction.Type actionType,
         String actorId,
         @Min(0) Integer page,

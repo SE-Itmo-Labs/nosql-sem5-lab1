@@ -3,6 +3,7 @@ package org.seitmolabs.modules.notification.service;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import org.seitmolabs.common.dto.CreateNotificationRequest;
 import org.seitmolabs.modules.notification.domain.Notification;
@@ -104,6 +105,11 @@ public class NotificationServiceImpl implements NotificationService {
         }
         if (request.tag() != null) {
             criteria.and("tags").is(request.tag());
+        }
+        if (request.q() != null && !request.q().isBlank()) {
+            Pattern text = Pattern.compile(Pattern.quote(request.q().strip()),
+                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+            criteria.orOperator(Criteria.where("title").regex(text), Criteria.where("text").regex(text));
         }
         if (request.updatedFrom() != null || request.updatedTo() != null) {
             Criteria updatedAt = criteria.and("updatedAt");

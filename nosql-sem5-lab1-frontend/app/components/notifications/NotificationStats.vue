@@ -5,7 +5,6 @@ defineOptions({ name: 'NotificationStatsCards' })
 
 const props = defineProps<{
   stats: NotificationStats
-  loading: boolean
 }>()
 
 /** Количество категорий считается по полной агрегации, а не по текущей странице. */
@@ -14,22 +13,22 @@ const categoryCount = computed(() => Object.values(props.stats.byCategory)
 </script>
 
 <template>
-  <section class="stats-grid" aria-label="Статистика уведомлений" :aria-busy="loading">
+  <section class="stats-grid" aria-label="Сводка по всем вашим уведомлениям">
     <article class="stat-card stat-card--total">
-      <span>Всего найдено</span>
-      <strong>{{ loading ? '—' : stats.total }}</strong>
+      <span>Всего в истории</span>
+      <strong>{{ stats.total }}</strong>
     </article>
     <article class="stat-card stat-card--sent">
       <span>Статус SENT</span>
-      <strong>{{ loading ? '—' : stats.sent }}</strong>
+      <strong>{{ stats.sent }}</strong>
     </article>
     <article class="stat-card stat-card--read">
       <span>Статус READ</span>
-      <strong>{{ loading ? '—' : stats.read }}</strong>
+      <strong>{{ stats.read }}</strong>
     </article>
     <article class="stat-card stat-card--categories">
-      <span>Категорий в выборке</span>
-      <strong>{{ loading ? '—' : categoryCount }}</strong>
+      <span>Категорий в истории</span>
+      <strong>{{ categoryCount }}</strong>
     </article>
   </section>
 </template>

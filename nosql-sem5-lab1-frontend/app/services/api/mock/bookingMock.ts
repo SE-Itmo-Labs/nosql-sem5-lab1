@@ -17,9 +17,11 @@ const cleanupExpiredHolds = (store: MockDatabaseStore) => {
 }
 
 const addSystemNotification = (store: MockDatabaseStore, userId: string, title: string, text: string) => {
+  const createdAt = new Date().toISOString()
   store.value.notifications.unshift({
     id: store.value.nextNotificationId++, userId, title, text, categoryId: 2,
-    status: 'SENT', createdAt: new Date().toISOString(), sourceEventId: crypto.randomUUID(),
+    status: 'SENT', createdAt, updatedAt: createdAt, sourceEventId: crypto.randomUUID(),
+    actionLog: [{ type: 'CREATED', actorId: 'system' }],
   })
 }
 

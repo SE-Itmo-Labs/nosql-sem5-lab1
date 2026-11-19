@@ -87,6 +87,17 @@ const formatDate = (value: string): string => dateFormatter.format(new Date(valu
       </div>
       <h4>{{ notification.title }}</h4>
       <p>{{ notification.text }}</p>
+      <div v-if="notification.processingRuleId != null || notification.tags?.length" class="notification-tags">
+        <span v-if="notification.processingRuleId != null">Правило №{{ notification.processingRuleId }}</span>
+        <span v-for="tag in notification.tags" :key="tag">{{ tag }}</span>
+      </div>
+      <time
+        v-if="notification.updatedAt && notification.updatedAt !== notification.createdAt"
+        class="notification-updated"
+        :datetime="notification.updatedAt"
+      >
+        Изменено {{ formatDate(notification.updatedAt) }}
+      </time>
     </div>
 
     <!-- Изменяющие действия блокируются на время запроса от повторного клика. -->
@@ -178,6 +189,28 @@ const formatDate = (value: string): string => dateFormatter.format(new Date(valu
   color: var(--color-text-secondary);
   font-size: 13px;
   line-height: 1.55;
+}
+
+.notification-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.notification-tags > span {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-size: 11px;
+}
+
+.notification-updated {
+  display: block;
+  margin-top: 8px;
+  color: var(--color-text-muted);
+  font-size: 11px;
 }
 
 .notification-actions {

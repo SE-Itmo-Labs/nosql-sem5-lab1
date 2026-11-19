@@ -11,6 +11,7 @@ definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Уведомл
 
 const {
   actionError,
+  applyFilters,
   busyNotificationId,
   canManageHistory,
   canSendNotifications,
@@ -19,7 +20,6 @@ const {
   createNotification,
   deleteNotification,
   feedback,
-  filters,
   goToPage,
   isLoading,
   isSubmitting,
@@ -29,6 +29,7 @@ const {
   pageData,
   resetFilters,
   stats,
+  statsError,
 } = useNotifications()
 </script>
 
@@ -44,7 +45,8 @@ const {
       </template>
     </PageHeader>
 
-    <NotificationStats v-if="canSendNotifications" :stats="stats" :loading="isLoading" />
+    <NotificationStats v-if="canSendNotifications && stats" :stats="stats" />
+    <p v-if="statsError" class="page-message page-message--error" role="status">Сводка недоступна: {{ statsError }}</p>
 
     <p v-if="feedback" class="page-message page-message--success" role="status">{{ feedback }}</p>
     <p v-if="actionError" class="page-message page-message--error" role="alert">{{ actionError }}</p>
@@ -52,10 +54,8 @@ const {
     <div class="notifications-layout" :class="{ 'notifications-layout--single': !canSendNotifications }">
       <main class="notifications-content">
         <NotificationFilters
-          v-model:search="filters.search"
-          v-model:category-id="filters.categoryId"
           :categories="categories"
-          :show-categories="canSendNotifications"
+          @apply="applyFilters"
           @reset="resetFilters"
         />
 

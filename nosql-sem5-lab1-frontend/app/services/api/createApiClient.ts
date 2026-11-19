@@ -30,7 +30,9 @@ export const createApiClient = ({
     })
   }
 
-  return createMockApiClient(mockDatabase)
+  return createMockApiClient(mockDatabase, () => (
+    readAuthHeaders()['X-Username'] ?? mockDatabase.value.currentUsername
+  ))
 }
 
 /** Неизвестное значение считается ошибкой конфигурации, а не новым режимом. */

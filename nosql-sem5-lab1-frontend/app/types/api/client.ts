@@ -14,6 +14,7 @@ import type {
   CreateNotificationRequest,
   Notification,
   NotificationQuery,
+  NotificationSearchQuery,
   NotificationStats,
   UpdateNotificationRequest,
 } from './notifications'
@@ -49,6 +50,7 @@ export interface ApiClient {
     cancel(orderId: number): Promise<CinemaOrder>
   }
   notifications: {
+    search(query?: NotificationSearchQuery): Promise<PageResponse<Notification>>
     getAll(query?: NotificationQuery): Promise<PageResponse<Notification>>
     getByUser(userId: string, query?: PageQuery): Promise<PageResponse<Notification>>
     getById(id: number): Promise<Notification>

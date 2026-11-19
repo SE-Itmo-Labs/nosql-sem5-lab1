@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
@@ -139,6 +140,11 @@ class NotificationServiceImplTest {
                     .containsEntry("actionLog", new Document("$elemMatch",
                             new Document("type", "RULE_APPLIED").append("actorId", "admin")))
                     .containsEntry("updatedAt", new Document("$gte", from).append("$lt", to));
+            @SuppressWarnings("unchecked")
+            var textFilters = (List<Document>) page.getQueryObject().get("$or");
+            var titlePattern = textFilters.getFirst().get("title", Pattern.class);
+            assertThat(titlePattern.matcher("ДеМо.*").find()).isTrue();
+            assertThat(titlePattern.matcher("Демо любая строка").find()).isFalse();
             assertThat(page.getSortObject()).containsExactly(
                     Map.entry("updatedAt", -1), Map.entry("id", -1));
             assertThat(page.getSkip()).isEqualTo(2);
@@ -150,7 +156,8 @@ class NotificationServiceImplTest {
 
         api.perform(get("/api/v1/notifications/search")
                         .requestAttr(SimpleAuthFilter.CURRENT_USER_ATTRIBUTE, reader)
-                        .param("userId", "another-user").param("actionType", "RULE_APPLIED").param("actorId", "admin")
+                        .param("q", "демо.*").param("userId", "another-user")
+                        .param("actionType", "RULE_APPLIED").param("actorId", "admin")
                         .param("updatedFrom", from.toString()).param("updatedTo", to.toString())
                         .param("page", "1").param("size", "2"))
                 .andExpect(status().isOk())
