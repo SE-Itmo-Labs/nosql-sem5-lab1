@@ -12,7 +12,7 @@ public interface MongoNotificationRepository extends MongoRepository<Notificatio
     // вывод уведомлений по id с самых новых
     List<Notification> findByUserIdOrderByCreatedAtDesc(String userId);
 
-    boolean existsBySouceEventId(String sourceEventId);
+    boolean existsBySourceEventId(String sourceEventId);
 
     default void saveSystem(Notification notification) {
         String eventId = notification.getSourceEventId();
@@ -24,7 +24,7 @@ public interface MongoNotificationRepository extends MongoRepository<Notificatio
         try {
             insert(notification);
         } catch (DuplicateKeyException e) {
-            if (!existsBySouceEventId(eventId)) {
+            if (!existsBySourceEventId(eventId)) {
                 throw e;
             }
         }
