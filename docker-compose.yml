@@ -59,12 +59,37 @@ services:
 
   mongodb:
     image: mongo:8.0
+    hostname: mongodb
     command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "127.0.0.1:27017:27017"
     volumes:
       - mongo_data:/data/db
     restart: unless-stopped
+
+  mongodb-init:
+    image: mongo:8.0
+    # Bootstrap through the MongoDB container's loopback interface.
+    network_mode: service:mongodb
+    entrypoint: ["timeout", "60s", "/bin/sh", "-ec"]
+    command:
+      - |
+        until mongosh 'mongodb://127.0.0.1:27017/admin?directConnection=true&serverSelectionTimeoutMS=1000' --norc --quiet --eval '
+          const hello = db.runCommand({ hello: 1 });
+          if (hello.setName === "rs0" && hello.isWritablePrimary) quit(0);
+
+          if (hello.isreplicaset && !hello.setName) {
+            try {
+              rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "mongodb:27017" }] });
+            } catch (error) {
+              if (error.codeName !== "AlreadyInitialized") throw error;
+            }
+          }
+          quit(1);
+        '; do
+          sleep 1
+        done
+        echo 'MongoDB rs0 is ready'
 
   spring-app:
     build: .
@@ -82,8 +107,8 @@ services:
         condition: service_healthy
       redis-replica-2:
         condition: service_healthy
-      mongodb:
-        condition: service_started
+      mongodb-init:
+        condition: service_completed_successfully
     environment:
       - SPRING_DATA_REDIS_HOST=redis-db
       - SPRING_DATA_REDIS_PORT=6379
