@@ -15,6 +15,7 @@ class UsersDemo implements DemoScenario {
     public void run() {
         createUserIfMissing("user", "12345", "Тестовый клиент", Role.ROLE_USER);
         createUserIfMissing("admin", "12345", "Администратор", Role.ROLE_ADMIN);
+        createUserIfMissing("demo-guest", "12345", "Тестовый зритель", Role.ROLE_USER);
     }
 
     private void createUserIfMissing(

@@ -17,6 +17,8 @@ class ProductsDemo implements DemoScenario {
         createProductIfMissing("Попкорн солёный", new BigDecimal("290.00"));
         createProductIfMissing("Кола 0,5 л", new BigDecimal("220.00"));
         createProductIfMissing("Начос с соусом", new BigDecimal("340.00"));
+        createProductIfMissing("Вода 0,5 л", new BigDecimal("120.00"));
+        createProductIfMissing("Попкорн карамельный", new BigDecimal("320.00"));
     }
 
     private void createProductIfMissing(String name, BigDecimal price) {

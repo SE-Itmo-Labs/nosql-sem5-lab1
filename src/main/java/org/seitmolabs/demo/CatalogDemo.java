@@ -55,6 +55,14 @@ class CatalogDemo implements DemoScenario {
                 6,
                 MovieStatus.NOW_SHOWING
         );
+        Movie midnightExpress = createMovieIfMissing(
+                "midnight-express",
+                "Ночной экспресс",
+                "Детектив о пропавшем пассажире ночного поезда.",
+                104,
+                16,
+                MovieStatus.NOW_SHOWING
+        );
 
         Auditorium mainHall = createAuditoriumIfMissing("Зал 1");
         Auditorium smallHall = createAuditoriumIfMissing("Зал 2");
@@ -73,6 +81,10 @@ class CatalogDemo implements DemoScenario {
                 atCinemaTime(tomorrow.plusDays(1), 18, 0), new BigDecimal("500.00"));
         createScreeningIfMissing(lastSignal, mainHall,
                 atCinemaTime(tomorrow.plusDays(1), 20, 0), new BigDecimal("600.00"));
+        createScreeningIfMissing(midnightExpress, mainHall,
+                atCinemaTime(tomorrow, 19, 30), new BigDecimal("520.00"));
+        createScreeningIfMissing(paperDragon, smallHall,
+                atCinemaTime(tomorrow.plusDays(1), 11, 15), new BigDecimal("350.00"));
     }
 
     private Movie createMovieIfMissing(
