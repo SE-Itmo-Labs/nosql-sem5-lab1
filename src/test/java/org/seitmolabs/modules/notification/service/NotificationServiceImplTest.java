@@ -2,10 +2,11 @@ package org.seitmolabs.modules.notification.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.argThat;
 
 import java.time.Instant;
 import java.util.List;
@@ -20,7 +21,7 @@ import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
-import org.seitmolabs.modules.notification.repositories.NotificationRepository;
+import org.seitmolabs.modules.notification.repositories.MongoNotificationRepository;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.repository.UserRepository;
@@ -29,14 +30,14 @@ import org.seitmolabs.common.exceptions.ResourceNotFoundException;
 
 class NotificationServiceImplTest {
 
-    private NotificationRepository notificationRepository;
+    private MongoNotificationRepository notificationRepository;
     private UserRepository userRepository;
     private NotificationServiceImpl service;
     private CategoryDbRepository categoryDbRepository;
 
     @BeforeEach
     void setUp() {
-        notificationRepository = mock(NotificationRepository.class);
+        notificationRepository = mock(MongoNotificationRepository.class);
         userRepository = mock(UserRepository.class);
         categoryDbRepository = mock(CategoryDbRepository.class);
         service = new NotificationServiceImpl(
@@ -57,7 +58,11 @@ class NotificationServiceImplTest {
         );
 
         when(userRepository.findByUsername("client01")).thenReturn(Optional.of(new User()));
-        when(notificationRepository.nextId()).thenReturn(10L);
+        when(notificationRepository.insert(any(Notification.class))).thenAnswer(invocation -> {
+            Notification notification = invocation.getArgument(0);
+            notification.setId(10L);
+            return notification;
+        });
 
         Notification result = service.create(request);
 
@@ -65,7 +70,7 @@ class NotificationServiceImplTest {
         assertThat(result.getUserId()).isEqualTo("client01");
         assertThat(result.getStatus()).isEqualTo(NotificationStatus.SENT);
         assertThat(result.getCreatedAt()).isNotNull();
-        verify(notificationRepository).save(result);
+        verify(notificationRepository).insert(result);
     }
 
     @Test
@@ -89,9 +94,7 @@ class NotificationServiceImplTest {
         Notification first = notification(2L, "Новое");
         Notification second = notification(1L, "Старое");
 
-        when(notificationRepository.findIdsByUserId("client01")).thenReturn(List.of(2L, 1L));
-        when(notificationRepository.findById(2L)).thenReturn(Optional.of(first));
-        when(notificationRepository.findById(1L)).thenReturn(Optional.of(second));
+        when(notificationRepository.findByUserIdOrderByCreatedAtDesc("client01")).thenReturn(List.of(first, second));
 
         List<Notification> result = service.getByUserId("client01");
 
@@ -107,8 +110,6 @@ class NotificationServiceImplTest {
                 .categoryName("Бронирование").build();
         when(categoryDbRepository.findBySystemCode(Category.BOOKING_CODE))
                 .thenReturn(Optional.of(renamed));
-        when(notificationRepository.nextId()).thenReturn(10L);
-
         service.deliver(event);
 
         verify(notificationRepository).saveSystem(argThat(notification ->
@@ -119,12 +120,14 @@ class NotificationServiceImplTest {
 
     private Notification notification(Long id, String title) {
         return new Notification(
+                id,
                 "client01",
                 title,
                 "Текст",
                 1L,
                 NotificationStatus.SENT,
-                Instant.parse("2026-10-08T10:00:00Z")
+                Instant.parse("2026-10-08T10:00:00Z"),
+                null
         );
     }
 }

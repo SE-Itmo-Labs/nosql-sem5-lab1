@@ -1,14 +1,12 @@
 package org.seitmolabs.modules.notification.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.seitmolabs.common.dto.CreateNotificationRequest;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.repositories.MongoNotificationRepository;
-import org.seitmolabs.modules.notification.repositories.NotificationRepository;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.categories.domain.Category;
@@ -33,15 +31,8 @@ public class NotificationServiceImpl implements NotificationService {
             throw new ResourceNotFoundException("Пользователь не найден: " + request.userId());
         }
 
-//        Notification notification = notificationFactory.createSent(
-//                notificationRepository.nextId(),
-//                request
-//        );
-
         Notification notification = notificationFactory.createSent(request);
-
-        notificationRepository.insert(notification);
-        return notification;
+        return notificationRepository.insert(notification);
     }
 
     @Override
@@ -61,11 +52,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<Notification> getByUserId(String userId) {
-
-//        return notificationRepository.findIdsByUserId(userId).stream()
-//                .map(notificationRepository::findById)
-//                .flatMap(Optional::stream)
-//                .toList();
 
         return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }

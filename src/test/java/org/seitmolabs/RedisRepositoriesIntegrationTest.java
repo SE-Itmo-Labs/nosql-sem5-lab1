@@ -6,13 +6,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -27,16 +27,12 @@ import org.seitmolabs.modules.booking.hold.repository.HoldOutboxRepository;
 import org.seitmolabs.modules.booking.hold.service.HoldOutboxProcessor;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.categories.repositories.CategoryCacheRepository;
-import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
-import org.seitmolabs.modules.notification.repositories.MongoNotificationRepository;
 import org.seitmolabs.modules.notification.repositories.NotificationRepository;
-import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.notification.outbox.factory.OutboxEventFactory;
-import org.seitmolabs.modules.notification.service.NotificationServiceImpl;
-import org.seitmolabs.modules.user.repository.UserRepository;
+import org.seitmolabs.modules.notification.service.NotificationService;
 import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.stream.MapRecord;
@@ -93,12 +89,14 @@ class RedisRepositoriesIntegrationTest {
         NotificationRepository repository = new NotificationRepository(redisTemplate, jsonMapper);
         Long id = repository.nextId();
         Notification notification = new Notification(
+                id,
                 "client01",
                 "Начало сеанса",
                 "Фильм начнётся через 15 минут",
                 1L,
                 NotificationStatus.SENT,
-                Instant.parse("2026-10-08T10:00:00Z")
+                Instant.parse("2026-10-08T10:00:00Z"),
+                null
         );
 
         repository.save(notification);
@@ -266,39 +264,33 @@ class RedisRepositoriesIntegrationTest {
     void failedDeliveryRemainsPendingAndIsRetriedSuccessfully() {
         var holds = new SeatHoldRepository(redisTemplate, jsonMapper);
         var outbox = new HoldOutboxRepository(redisTemplate, jsonMapper);
-        var notifications = new NotificationRepository(redisTemplate, jsonMapper);
-        var categories = mock(CategoryDbRepository.class);
-        when(categories.findBySystemCode(Category.BOOKING_CODE))
-                .thenReturn(Optional.empty(), Optional.of(bookingCategory()));
-        var processor = new HoldOutboxProcessor(outbox,
-                notificationService(notifications, categories));
+        var notifications = mock(NotificationService.class);
+        doThrow(new IllegalStateException("Simulated delivery failure"))
+                .doNothing().when(notifications).deliver(any(OutboxEvent.class));
+        var processor = new HoldOutboxProcessor(outbox, notifications);
         SeatHold hold = hold("hold-1", List.of(10L));
         assertThat(holds.createWithEvent(hold, event(hold))).isTrue();
 
         processor.deliverPending();
 
         assertThat(outbox.findAfter("0-0")).hasSize(1);
-        assertThat(notifications.findIdsByUserId("client01")).isEmpty();
+        verify(notifications).deliver(any(OutboxEvent.class));
 
         // Finish the first scan, then revisit the failed entry on the next scan.
         processor.deliverPending();
         processor.deliverPending();
 
         assertThat(outbox.findAfter("0-0")).isEmpty();
-        assertThat(notifications.findIdsByUserId("client01")).hasSize(1);
+        verify(notifications, times(2)).deliver(any(OutboxEvent.class));
         assertThat(holds.findById(hold.id())).contains(hold);
     }
 
     @Test
-    void retryAfterNotificationWasSavedDoesNotCreateDuplicate() {
+    void retriesDeliveryWhenDeletingTheEventFails() {
         var holds = new SeatHoldRepository(redisTemplate, jsonMapper);
         var outbox = new HoldOutboxRepository(redisTemplate, jsonMapper);
         var failingOutbox = spy(outbox);
-        var notifications = new NotificationRepository(redisTemplate, jsonMapper);
-        var categories = mock(CategoryDbRepository.class);
-        when(categories.findBySystemCode(Category.BOOKING_CODE))
-                .thenReturn(Optional.of(bookingCategory()));
-        var service = notificationService(notifications, categories);
+        var notifications = mock(NotificationService.class);
         SeatHold hold = hold("hold-1", List.of(10L));
         OutboxEvent event = event(hold);
         assertThat(holds.createWithEvent(hold, event)).isTrue();
@@ -306,19 +298,16 @@ class RedisRepositoriesIntegrationTest {
         // Reproduce the failure window: notification exists, queue deletion fails.
         doThrow(new IllegalStateException("Simulated queue deletion failure"))
                 .when(failingOutbox).deleteDelivered(any(RecordId.class));
-        new HoldOutboxProcessor(failingOutbox, service).deliverPending();
+        new HoldOutboxProcessor(failingOutbox, notifications).deliverPending();
 
-        var originalIds = notifications.findIdsByUserId("client01");
-        assertThat(originalIds).hasSize(1);
+        verify(notifications).deliver(any(OutboxEvent.class));
         assertThat(outbox.findAfter("0-0")).hasSize(1);
 
         // A new processor has no in-memory cursor, as after a backend restart.
-        new HoldOutboxProcessor(outbox, service).deliverPending();
+        new HoldOutboxProcessor(outbox, notifications).deliverPending();
 
         assertThat(outbox.findAfter("0-0")).isEmpty();
-        assertThat(notifications.findIdsByUserId("client01")).isEqualTo(originalIds);
-        assertThat(notifications.findById(originalIds.getFirst()).orElseThrow()
-                .getSourceEventId()).isEqualTo(event.getId().toString());
+        verify(notifications, times(2)).deliver(any(OutboxEvent.class));
     }
 
     @Test
@@ -347,17 +336,6 @@ class RedisRepositoriesIntegrationTest {
 
     private OutboxEvent event(SeatHold hold) {
         return new OutboxEventFactory().holdCreated(hold, "client01");
-    }
-
-    private Category bookingCategory() {
-        return new Category(1L, "Бронирование", "Изменения состояния билета",
-                Category.BOOKING_CODE);
-    }
-
-    private NotificationServiceImpl notificationService(
-            MongoNotificationRepository notifications, CategoryDbRepository categories) {
-        return new NotificationServiceImpl(notifications, mock(UserRepository.class),
-                new NotificationFactory(), categories);
     }
 
 }

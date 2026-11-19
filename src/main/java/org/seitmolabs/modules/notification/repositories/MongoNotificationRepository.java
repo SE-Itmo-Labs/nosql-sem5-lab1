@@ -1,8 +1,8 @@
 package org.seitmolabs.modules.notification.repositories;
 
 
-import com.mongodb.DuplicateKeyException;
 import org.seitmolabs.modules.notification.domain.Notification;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
