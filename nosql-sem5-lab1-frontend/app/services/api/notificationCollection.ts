@@ -6,17 +6,17 @@ import type {
 } from '~/types/api'
 
 /** Применяет фильтры UI к массиву, который возвращает текущий backend. */
-export const filterNotifications = (
-  notifications: Notification[],
+export const filterNotifications = <T extends Notification>(
+  notifications: T[],
   query: NotificationQuery = {},
-): Notification[] => {
+): T[] => {
   const search = query.q?.trim().toLocaleLowerCase('ru')
 
   return notifications
     .filter(item => query.userId === undefined || item.userId === query.userId)
     .filter(item => query.categoryId === undefined || item.categoryId === query.categoryId)
     .filter(item => query.status === undefined || item.status === query.status)
-    .filter(item => !search || `${item.title} ${item.text}`.toLocaleLowerCase('ru').includes(search))
+    .filter(item => !search || [item.title, item.text].some(text => text.toLocaleLowerCase('ru').includes(search)))
     .sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt))
 }
 

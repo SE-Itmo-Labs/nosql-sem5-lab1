@@ -8,13 +8,16 @@ import { createMockNotificationsApi } from './notificationsMock'
 import { createMockOrdersApi, createMockProductsApi, createMockSeatHoldsApi } from './bookingMock'
 
 /** Собирает небольшие доменные mock-модули в единый ApiClient. */
-export const createMockApiClient = (store: MockDatabaseStore): ApiClient => ({
+export const createMockApiClient = (
+  store: MockDatabaseStore,
+  getCurrentUsername: () => string | null = () => store.value.currentUsername,
+): ApiClient => ({
   auth: createMockAuthApi(store),
   catalog: createMockCatalogApi(store),
   seatHolds: createMockSeatHoldsApi(store),
   products: createMockProductsApi(store),
   orders: createMockOrdersApi(store),
-  notifications: createMockNotificationsApi(store),
+  notifications: createMockNotificationsApi(store, getCurrentUsername),
   categories: createMockCategoriesApi(store),
   consistency: createMockConsistencyApi(store),
 })

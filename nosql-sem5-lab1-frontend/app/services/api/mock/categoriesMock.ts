@@ -35,7 +35,7 @@ export const createMockCategoriesApi = (store: MockDatabaseStore): ApiClient['ca
     const category = store.value.categories.find(item => item.id === id)
 
     if (!category) {
-      throw createApiClientError(404, 'Not Found', 'Категория не найдена', API_ENDPOINTS.categories.byId(id))
+      throw createApiClientError(404, 'Not Found', 'Категория не найдена', API_ENDPOINTS.categories.adminById(id))
     }
 
     store.value.categoryCache[id] = {
@@ -68,7 +68,7 @@ export const createMockCategoriesApi = (store: MockDatabaseStore): ApiClient['ca
     const index = store.value.categories.findIndex(item => item.id === id)
 
     if (index < 0) {
-      throw createApiClientError(404, 'Not Found', 'Категория не найдена', API_ENDPOINTS.categories.byId(id))
+      throw createApiClientError(404, 'Not Found', 'Категория не найдена', API_ENDPOINTS.categories.adminById(id))
     }
 
     const category: Category = { ...store.value.categories[index]!, id, ...request }
@@ -82,13 +82,13 @@ export const createMockCategoriesApi = (store: MockDatabaseStore): ApiClient['ca
     const index = store.value.categories.findIndex(item => item.id === id)
 
     if (index < 0) {
-      throw createApiClientError(404, 'Not Found', 'Категория не найдена', API_ENDPOINTS.categories.byId(id))
+      throw createApiClientError(404, 'Not Found', 'Категория не найдена', API_ENDPOINTS.categories.adminById(id))
     }
 
     if (store.value.categories[index]?.systemCode) {
       throw createApiClientError(409, 'Conflict',
         'Системная категория нужна для автоматических уведомлений и не может быть удалена',
-        API_ENDPOINTS.categories.byId(id))
+        API_ENDPOINTS.categories.adminById(id))
     }
     store.value.categories.splice(index, 1)
     Reflect.deleteProperty(store.value.categoryCache, id)

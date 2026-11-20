@@ -19,7 +19,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import io.lettuce.core.cluster.api.async.RedisClusterAsyncCommands;
-import jakarta.persistence.EntityNotFoundException;
+import org.seitmolabs.common.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -41,10 +41,10 @@ public class ConsistencyService {
         return topologyService.attach(nodeId);
     }
 
-    /** Writes an isolated projection of a real screening; PostgreSQL remains authoritative. */
+    /** Writes an isolated projection of a real screening; MongoDB remains authoritative. */
     public ExperimentResponse runExperiment(ExperimentRequest request) {
         Screening screening = screeningRepository.findById(request.screeningId())
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Сеанс для эксперимента не найден: " + request.screeningId()));
         ExperimentMode mode = ExperimentMode.from(request.mode());
         ExperimentReadTarget readTarget = ExperimentReadTarget.from(request.readTarget());

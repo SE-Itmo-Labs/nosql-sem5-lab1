@@ -7,6 +7,7 @@ import org.seitmolabs.modules.auth.exceptions.UnauthorizedException;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.enums.Role;
 import org.seitmolabs.modules.user.repository.UserRepository;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -45,8 +46,14 @@ public class AuthService {
                 .role(Role.ROLE_USER)
                 .build();
 
-        userRepository.save(user);
-
-        return user;
+        try {
+            return userRepository.save(user);
+        } catch (DuplicateKeyException exception) {
+            // The unique index also handles concurrent registrations.
+            if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+                throw new ConflictException(USER_EXISTS);
+            }
+            throw exception;
+        }
     }
 }

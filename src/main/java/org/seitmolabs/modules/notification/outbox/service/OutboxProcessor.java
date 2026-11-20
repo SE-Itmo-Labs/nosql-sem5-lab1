@@ -8,7 +8,6 @@ import org.seitmolabs.modules.notification.service.NotificationService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,16 +19,13 @@ public class OutboxProcessor {
 
     /** A failed delivery remains pending and is retried during the next cycle. */
     @Scheduled(fixedDelayString = "${app.notification.outbox-delay:2s}")
-    @Transactional
     public void deliverPending() {
-        for (OutboxEvent event : repository.findByDeliveredAtIsNullOrderByCreatedAt(PageRequest.of(0, 20))) {
+        for (OutboxEvent event : repository.findByDeliveredAtIsNullOrderByLastAttemptAtAscCreatedAtAsc(PageRequest.of(0, 20))) {
             try {
                 notificationService.deliver(event);
-                event.setDeliveredAt(Instant.now());
-                event.setLastError(null);
+                repository.markDelivered(event.getId(), Instant.now());
             } catch (RuntimeException exception) {
-                event.setAttempts(event.getAttempts() + 1);
-                event.setLastError(limit(exception.getMessage()));
+                repository.recordFailure(event.getId(), limit(exception.getMessage()), Instant.now());
             }
         }
     }

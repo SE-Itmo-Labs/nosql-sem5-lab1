@@ -41,6 +41,7 @@ export const API_ENDPOINTS = {
   /** Основной сценарий лабораторной — создание и чтение уведомлений. */
   notifications: {
     base: '/api/v1/notifications',
+    search: '/api/v1/notifications/search',
     byId: (id: number) => `/api/v1/notifications/${pathSegment(id)}`,
     read: (id: number) => `/api/v1/notifications/${pathSegment(id)}/read`,
   },
@@ -61,5 +62,6 @@ export const API_ENDPOINTS = {
 
   adminNotifications: {
     base: '/api/v1/admin/notifications',
+    readAnalytics: '/api/v1/admin/notifications/analytics/read-times',
   },
 } as const

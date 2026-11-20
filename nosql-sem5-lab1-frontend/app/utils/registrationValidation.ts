@@ -1,5 +1,5 @@
 import type { RegisterRequest } from '~/types/api'
-
+ 
 /** Ограничения RegisterRequest backend одинаковы для формы и mock API. */
 export const validateRegistration = (request: RegisterRequest): string => {
   const fields = [
@@ -14,6 +14,6 @@ export const validateRegistration = (request: RegisterRequest): string => {
       return `${label}: нужно от 5 до 40 символов`
     }
   }
-
+ 
   return ''
 }

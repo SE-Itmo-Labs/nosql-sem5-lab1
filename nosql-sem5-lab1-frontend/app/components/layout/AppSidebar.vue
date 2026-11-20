@@ -30,7 +30,6 @@ const isActive = (path: string): boolean => path === '/'
       </span>
     </NuxtLink>
 
-    <!-- Пункты строятся из единой конфигурации, общей с главной страницей. -->
     <nav class="navigation">
       <p class="navigation-label">Личный кабинет</p>
       <NuxtLink
