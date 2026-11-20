@@ -452,6 +452,29 @@ COLLSCAN/IXSCAN и блокирующей сортировки, время се�
 `{ userId: 1, categoryId: 1, createdAt: -1, _id: -1 }`. В API используй
 `categoryId`, `createdFrom`, `createdTo` и `sort=CREATED_AT_DESC`.
 
+При `APP_DATA_INITIALIZER_ENABLED=true` сценарий `NotificationIndexDemo`
+наполняет коллекцию `notifications_explain_demo` 100 записями и создаёт
+в ней такой же индекс. Коллекция предназначена для эксперимента и отделена
+от уведомлений приложения. В `mongosh` можно сравнить полный просмотр
+и проход по индексу на одном запросе.
+
+```javascript
+const query = () => db.notifications_explain_demo.find({
+  userId: "user",
+  categoryId: 7,
+  createdAt: {
+    $gte: ISODate("2026-11-01T00:00:00Z"),
+    $lt: ISODate("2026-11-08T00:00:00Z")
+  }
+}).sort({ createdAt: -1, _id: -1 })
+
+query().hint({ $natural: 1 }).explain("executionStats")
+query().hint("notifications_user_category_created_id").explain("executionStats")
+```
+
+Ожидаемые ID в обоих случаях — 5003, 5002, 5001. Сравни
+`executionStats.totalDocsExamined` и `executionStats.nReturned`.
+
 ### 10.2 Популярные метки
 
 Pipeline: `$match` по владельцу/дате → `$unwind: "$tags"` → `$group` по метке

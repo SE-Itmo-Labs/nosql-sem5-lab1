@@ -2,6 +2,7 @@ package org.seitmolabs.modules.notification.repositories;
 
 import java.util.List;
 
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.IndexOptions;
@@ -36,10 +37,7 @@ public class NotificationMongoConfiguration implements BeforeConvertCallback<Not
                 .name("sourceEventId")
                 .unique(true)
                 .partialFilterExpression(Filters.type("sourceEventId", "string")));
-        notifications.createIndex(Indexes.compoundIndex(
-                Indexes.ascending("userId", "categoryId"),
-                Indexes.descending("createdAt", "_id")),
-                new IndexOptions().name("notifications_user_category_created_id"));
+        ensureCategorySearchIndex(notifications);
 
         // Backfill the sort and filter field once per legacy notification.
         notifications.updateMany(
@@ -55,6 +53,13 @@ public class NotificationMongoConfiguration implements BeforeConvertCallback<Not
         long lastId = lastNotification == null ? 0L : lastNotification.get("_id", Number.class).longValue();
         database.getCollection(SEQUENCES).updateOne(Filters.eq("_id", Notification.COLLECTION_NAME),
                 Updates.max("value", lastId), new UpdateOptions().upsert(true));
+    }
+
+    public static void ensureCategorySearchIndex(MongoCollection<Document> notifications) {
+        notifications.createIndex(Indexes.compoundIndex(
+                Indexes.ascending("userId", "categoryId"),
+                Indexes.descending("createdAt", "_id")),
+                new IndexOptions().name("notifications_user_category_created_id"));
     }
 
     @Override
