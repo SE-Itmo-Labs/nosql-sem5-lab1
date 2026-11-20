@@ -5,9 +5,9 @@ import java.util.Optional;
 
 import org.seitmolabs.modules.catalog.movie.domain.Movie;
 import org.seitmolabs.modules.catalog.movie.domain.MovieStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface MovieRepository extends JpaRepository<Movie, Long> {
+public interface MovieRepository extends MongoRepository<Movie, Long> {
 
     List<Movie> findAllByStatusNotOrderByTitleAsc(MovieStatus status);
 

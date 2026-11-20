@@ -28,26 +28,23 @@ const categoryNames = computed(() => new Map(
 </script>
 
 <template>
-  <section class="history" aria-label="История уведомлений">
-    <div class="history-heading">
-      <div>
-        <h3>Ваши сообщения</h3>
-      </div>
-      <span v-if="!loading && !error">Найдено: {{ page.totalElements }}</span>
+  <section aria-labelledby="notification-history-title">
+    <div class="tw:mt-6 tw:mb-3 tw:flex tw:flex-wrap tw:items-baseline tw:justify-between tw:gap-2">
+      <h3 id="notification-history-title" class="tw:m-0 tw:text-xl tw:font-semibold">История</h3>
+      <span v-if="!loading && !error" class="tw:text-xs tw:text-(--color-text-secondary)">Найдено: {{ page.totalElements }}</span>
     </div>
 
     <StatePanel
       v-if="loading"
       kind="loading"
-      icon="⋯"
+      icon=""
       title="Загружаем уведомления"
-      description="Загружаем ваши сообщения."
     />
 
     <StatePanel
       v-else-if="error"
       kind="error"
-      icon="!"
+      icon=""
       title="Не удалось загрузить уведомления"
       :description="error"
     >
@@ -59,12 +56,12 @@ const categoryNames = computed(() => new Map(
     <StatePanel
       v-else-if="page.empty"
       kind="empty"
-      icon="○"
+      icon=""
       title="Уведомлений не найдено"
-      description="Здесь появятся сообщения о ваших бронированиях и заказах. Если включены фильтры, попробуйте изменить их."
+      description="Попробуйте изменить фильтры."
     />
 
-    <div v-else class="notification-list">
+    <div v-else class="tw:flex tw:flex-col tw:gap-2">
       <NotificationCard
         v-for="notification in page.content"
         :key="notification.id"
@@ -77,61 +74,14 @@ const categoryNames = computed(() => new Map(
       />
     </div>
 
-    <nav v-if="!loading && !error && page.totalPages > 1" class="pagination" aria-label="Страницы уведомлений">
+    <nav v-if="!loading && !error && page.totalPages > 1" class="tw:mt-5 tw:flex tw:flex-wrap tw:items-center tw:justify-center tw:gap-2 tw:min-[431px]:gap-4" aria-label="Страницы уведомлений">
       <button class="btn btn-secondary" type="button" :disabled="page.page === 0" @click="emit('page', page.page - 1)">
         Назад
       </button>
-      <span>Страница {{ page.page + 1 }} из {{ page.totalPages }}</span>
+      <span class="tw:text-xs tw:text-(--color-text-secondary)">Страница {{ page.page + 1 }} из {{ page.totalPages }}</span>
       <button class="btn btn-secondary" type="button" :disabled="page.last" @click="emit('page', page.page + 1)">
         Далее
       </button>
     </nav>
   </section>
 </template>
-
-<style scoped>
-.history-heading {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  margin: 24px 0 14px;
-}
-
-.history-heading h3 {
-  margin: 0;
-}
-
-.history-heading h3 {
-  margin-top: 4px;
-  font-size: 20px;
-}
-
-.history-heading > span {
-  color: var(--color-text-muted);
-  font-size: 12px;
-}
-
-.notification-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 18px;
-}
-
-.pagination span {
-  color: var(--color-text-secondary);
-  font-size: 12px;
-}
-
-@media (max-width: 430px) {
-  .pagination { gap: 8px; }
-}
-</style>

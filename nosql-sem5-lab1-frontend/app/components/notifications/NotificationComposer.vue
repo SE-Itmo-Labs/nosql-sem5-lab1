@@ -39,16 +39,10 @@ const submitForm = () => {
 </script>
 
 <template>
-  <aside id="notification-composer" class="composer card">
-    <div class="composer-heading">
-      <span aria-hidden="true">✦</span>
-      <div>
-        <p>Новое уведомление</p>
-        <h3>Отправить клиенту</h3>
-      </div>
-    </div>
+  <aside id="notification-composer" class="card tw:min-w-0 tw:scroll-mt-6 tw:min-[981px]:sticky tw:min-[981px]:top-6">
+    <h3 class="tw:m-0 tw:text-lg tw:font-semibold">Новое уведомление</h3>
 
-    <form class="composer-form" @submit.prevent="submitForm">
+    <form class="tw:mt-4 tw:flex tw:flex-col tw:gap-3" @submit.prevent="submitForm">
       <label class="field">
         <span class="field-label">Получатель</span>
         <input v-model="form.userId" class="field-input" type="text" autocomplete="off" required>
@@ -71,7 +65,6 @@ const submitForm = () => {
           class="field-input"
           type="text"
           maxlength="120"
-          placeholder="Например, бронь подтверждена"
           required
         >
       </label>
@@ -80,9 +73,8 @@ const submitForm = () => {
         <span class="field-label">Текст</span>
         <textarea
           v-model="form.text"
-          class="field-input composer-textarea"
+          class="field-input tw:min-h-28! tw:resize-y"
           maxlength="500"
-          placeholder="Сообщение для клиента"
           required
         />
       </label>
@@ -93,76 +85,5 @@ const submitForm = () => {
         {{ submitting ? 'Отправляем…' : 'Отправить уведомление' }}
       </button>
     </form>
-
-    <p class="composer-note">
-      В mock-режиме запись сохраняется локально. В real-режиме форма вызывает тот же REST-контракт.
-    </p>
   </aside>
 </template>
-
-<style scoped>
-.composer {
-  position: sticky;
-  top: 24px;
-  padding: 22px;
-}
-
-.composer-heading {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--color-border-soft);
-}
-
-.composer-heading > span {
-  display: grid;
-  width: 40px;
-  height: 40px;
-  place-items: center;
-  border-radius: 12px;
-  background: var(--color-primary-soft);
-  color: var(--color-primary-hover);
-  font-size: 18px;
-}
-
-.composer-heading p,
-.composer-heading h3 {
-  margin: 0;
-}
-
-.composer-heading p {
-  color: var(--color-text-muted);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.composer-heading h3 {
-  margin-top: 3px;
-  font-size: 18px;
-}
-
-.composer-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 18px;
-}
-
-.composer-textarea {
-  min-height: 116px;
-  resize: vertical;
-}
-
-.composer-note {
-  margin: 16px 0 0;
-  color: var(--color-text-muted);
-  font-size: 11px;
-  line-height: 1.5;
-}
-
-@media (max-width: 980px) {
-  .composer { position: static; }
-}
-</style>

@@ -28,7 +28,7 @@ import org.seitmolabs.modules.notification.outbox.service.OutboxEventService;
 import org.seitmolabs.modules.user.domain.User;
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.EntityNotFoundException;
+import org.seitmolabs.common.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import static org.springframework.util.SerializationUtils.serialize;
@@ -85,7 +85,7 @@ public class SeatHoldService {
             throw new BadRequestException("Выбраны места, не принадлежащие залу сеанса");
         }
 
-        if (ticketRepository.existsConfirmedByScreeningIdAndSeatIdIn(
+        if (ticketRepository.existsByScreeningIdAndSeatIdInAndStatus(
                 screening.getId(), seatIds, TicketStatus.CONFIRMED)) {
             throw new ConflictException("Одно или несколько мест уже куплены");
         }
@@ -119,9 +119,9 @@ public class SeatHoldService {
 
     public SeatHold requireOwned(String holdId, User user) {
         SeatHold hold = holdRepository.findById(holdId)
-                .orElseThrow(() -> new EntityNotFoundException("Удержание не найдено или истекло: " + holdId));
+                .orElseThrow(() -> new ResourceNotFoundException("Удержание не найдено или истекло: " + holdId));
         if (!hold.userId().equals(user.getId())) {
-            throw new EntityNotFoundException("Удержание не найдено: " + holdId);
+            throw new ResourceNotFoundException("Удержание не найдено: " + holdId);
         }
         return hold;
     }
@@ -138,7 +138,7 @@ public class SeatHoldService {
         return screeningRepository.findById(screeningId)
                 .filter(screening -> screening.getStatus() == ScreeningStatus.SCHEDULED)
                 .filter(screening -> screening.getStartsAt().isAfter(Instant.now()))
-                .orElseThrow(() -> new EntityNotFoundException("Доступный сеанс не найден: " + screeningId));
+                .orElseThrow(() -> new ResourceNotFoundException("Доступный сеанс не найден: " + screeningId));
     }
 
     private SeatHoldResponse toResponse(SeatHold hold) {

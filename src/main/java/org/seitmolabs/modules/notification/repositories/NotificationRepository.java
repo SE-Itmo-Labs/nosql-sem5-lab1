@@ -108,9 +108,17 @@ public class NotificationRepository {
             return Optional.empty();
         }
 
-        return Optional.of(
-                jsonMapper.readValue(json, Notification.class)
-        );
+        try {
+            Notification notification = jsonMapper.readValue(jsonNotif, Notification.class);
+            // Legacy Redis JSON stores createdAt as its only timestamp.
+            notification.setUpdatedAt(notification.getCreatedAt());
+            return Optional.of(notification);
+        } catch (JacksonException e) {
+            throw new IllegalStateException(
+                    "Не удалось десериализовать уведомление с id " + id,
+                    e
+            );
+        }
     }
 
     public List<Long> findIdsByUserId(String userId) {

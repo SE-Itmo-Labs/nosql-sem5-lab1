@@ -1,9 +1,10 @@
 <script setup lang="ts">
 withDefaults(defineProps<{
   title: string
-  description: string
+  description?: string
   eyebrow?: string
 }>(), {
+  description: '',
   eyebrow: 'Личный кабинет',
 })
 </script>
@@ -11,9 +12,9 @@ withDefaults(defineProps<{
 <template>
   <header class="page-heading">
     <div class="page-heading-copy">
-      <p class="page-eyebrow">{{ eyebrow }}</p>
+      <p v-if="eyebrow" class="page-eyebrow">{{ eyebrow }}</p>
       <h2>{{ title }}</h2>
-      <p class="page-description">{{ description }}</p>
+      <p v-if="description" class="page-description">{{ description }}</p>
     </div>
 
     <!-- Slot не резервирует место, если странице пока не нужны действия. -->

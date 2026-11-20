@@ -29,7 +29,7 @@ public class OrderFactory {
     ) {
         Instant now = Instant.now(clock);
         return CinemaOrder.builder()
-                .user(user)
+                .userId(user.getId())
                 .holdId(hold.id())
                 .idempotencyKey(idempotencyKey)
                 .status(OrderStatus.CONFIRMED)
@@ -41,9 +41,9 @@ public class OrderFactory {
 
     public Ticket createTicket(CinemaOrder order, Screening screening, Seat seat) {
         return Ticket.builder()
-                .order(order)
-                .screening(screening)
-                .seat(seat)
+                .orderId(order.getId())
+                .screeningId(screening.getId())
+                .seatId(seat.getId())
                 .priceSnapshot(screening.getBasePrice())
                 .status(TicketStatus.CONFIRMED)
                 .build();
@@ -55,8 +55,8 @@ public class OrderFactory {
             int quantity
     ) {
         return OrderProduct.builder()
-                .order(order)
-                .product(product)
+                .orderId(order.getId())
+                .productId(product.getId())
                 .quantity(quantity)
                 .unitPriceSnapshot(product.getPrice())
                 .build();
