@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.bson.Document;
@@ -31,8 +32,12 @@ import org.seitmolabs.modules.notification.controller.NotificationController;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.domain.NotificationAction;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
+import org.seitmolabs.modules.notification.dto.NotificationSearchPage;
+import org.seitmolabs.modules.notification.dto.NotificationSearchResult;
+import org.seitmolabs.modules.notification.dto.NotificationSearchResult.CacheStatus;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.repositories.MongoNotificationRepository;
+import org.seitmolabs.modules.notification.repositories.NotificationSearchCache;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEventType;
 import org.seitmolabs.modules.user.domain.User;
@@ -42,6 +47,9 @@ import org.seitmolabs.common.exceptions.ResourceNotFoundException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 class NotificationServiceImplTest {
 
@@ -50,6 +58,7 @@ class NotificationServiceImplTest {
     private NotificationServiceImpl service;
     private CategoryDbRepository categoryDbRepository;
     private MongoTemplate mongoTemplate;
+    private NotificationSearchCache searchCache;
 
     @BeforeEach
     void setUp() {
@@ -57,12 +66,20 @@ class NotificationServiceImplTest {
         userRepository = mock(UserRepository.class);
         categoryDbRepository = mock(CategoryDbRepository.class);
         mongoTemplate = mock(MongoTemplate.class);
+        searchCache = mock(NotificationSearchCache.class);
+        when(searchCache.getOrLoad(any(), any(), any())).thenAnswer(invocation -> new NotificationSearchResult(
+                invocation.<Supplier<NotificationSearchPage>>getArgument(2).get(), CacheStatus.BYPASS));
+        var transactions = mock(TransactionTemplate.class);
+        when(transactions.execute(any())).thenAnswer(invocation ->
+                invocation.<TransactionCallback<?>>getArgument(0).doInTransaction(mock(TransactionStatus.class)));
         service = new NotificationServiceImpl(
                 notificationRepository,
                 userRepository,
                 new NotificationFactory(),
                 categoryDbRepository,
-                mongoTemplate
+                mongoTemplate,
+                searchCache,
+                transactions
         );
     }
 
@@ -91,6 +108,7 @@ class NotificationServiceImplTest {
         assertThat(result.getActionLog()).containsExactly(
                 new NotificationAction(NotificationAction.Type.CREATED, "admin", result.getCreatedAt(), null));
         verify(notificationRepository).insert(result);
+        verify(searchCache).invalidate("client01");
     }
 
     @Test
@@ -191,13 +209,14 @@ class NotificationServiceImplTest {
                 .thenReturn(Optional.of(renamed));
         service.deliver(event);
 
-        verify(notificationRepository).saveSystem(argThat(notification ->
+        verify(notificationRepository).insert(argThat((Notification notification) ->
                 notification.getCategoryId().equals(7L)
                         && notification.getUserId().equals("client01")
                         && notification.getSourceEventId().equals(eventId.toString())
                         && notification.getSourceEventType() == OutboxEventType.ORDER_CONFIRMED
                         && notification.getActionLog().equals(List.of(new NotificationAction(
                                 NotificationAction.Type.CREATED, "system", notification.getCreatedAt(), null)))));
+        verify(searchCache).invalidate("client01");
     }
 
     private Notification notification(Long id, String title) {

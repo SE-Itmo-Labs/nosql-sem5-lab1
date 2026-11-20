@@ -25,6 +25,7 @@ import org.seitmolabs.modules.notification.domain.NotificationAction;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
 import org.seitmolabs.modules.notification.domain.ProcessingRule;
 import org.seitmolabs.modules.notification.repositories.NotificationMongoConfiguration;
+import org.seitmolabs.modules.notification.repositories.NotificationSearchCache;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.repository.UserRepository;
 import org.springframework.core.annotation.Order;
@@ -49,6 +50,7 @@ class RandomNotificationsDemo implements DemoScenario {
     private final CategoryDbRepository categories;
     private final NotificationMongoConfiguration notificationIds;
     private final MongoTemplate mongoTemplate;
+    private final NotificationSearchCache searchCache;
 
     @Override
     public void run() {
@@ -95,8 +97,11 @@ class RandomNotificationsDemo implements DemoScenario {
             }
         }
         if (!writes.isEmpty()) {
-            mongoTemplate.getCollection(Notification.COLLECTION_NAME)
+            var result = mongoTemplate.getCollection(Notification.COLLECTION_NAME)
                     .bulkWrite(writes, new BulkWriteOptions().ordered(false));
+            if (result.getModifiedCount() > 0 || !result.getUpserts().isEmpty()) {
+                searchCache.invalidate(user.getUsername());
+            }
         }
     }
 

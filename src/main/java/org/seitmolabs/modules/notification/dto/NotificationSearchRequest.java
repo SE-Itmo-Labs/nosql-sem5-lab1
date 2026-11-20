@@ -1,6 +1,7 @@
 package org.seitmolabs.modules.notification.dto;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -27,6 +28,13 @@ public record NotificationSearchRequest(
         @Min(1) @Max(100) Integer size,
         Order sort
 ) {
+    public NotificationSearchRequest normalized() {
+        return new NotificationSearchRequest(processingRuleId, updatedFrom, updatedTo, createdFrom, createdTo,
+                status, categoryId, tag, q == null || q.isBlank() ? null : q.strip(), actionType, actorId,
+                Objects.requireNonNullElse(page, 0), Objects.requireNonNullElse(size, 20),
+                Objects.requireNonNullElse(sort, Order.UPDATED_AT_DESC));
+    }
+
     public enum Order {
         UPDATED_AT_DESC("updatedAt", Sort.Direction.DESC),
         UPDATED_AT_ASC("updatedAt", Sort.Direction.ASC),

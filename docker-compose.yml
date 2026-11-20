@@ -119,6 +119,7 @@ services:
       - REDIS_REPLICA2_PORT=6379
       - REDIS_MASTER_HOST=redis-db
       - REDIS_MASTER_PORT=6379
+      - NOTIFICATION_SEARCH_CACHE_TTL_SECONDS=${NOTIFICATION_SEARCH_CACHE_TTL_SECONDS:-60}
 
       # В production оставляйте false: демонстрационные записи не должны
       # создаваться при каждом развёртывании приложения.

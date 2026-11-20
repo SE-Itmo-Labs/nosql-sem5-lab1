@@ -35,11 +35,12 @@ public class NotificationController {
 
     @Operation(summary = "Найти свои уведомления по фильтрам и журналу действий")
     @GetMapping("/search")
-    public NotificationSearchPage search(
+    public ResponseEntity<NotificationSearchPage> search(
             @Valid @ModelAttribute @ParameterObject NotificationSearchRequest request,
             @RequestAttribute(SimpleAuthFilter.CURRENT_USER_ATTRIBUTE) User currentUser
     ) {
-        return notificationService.search(currentUser.getUsername(), request);
+        var result = notificationService.search(currentUser.getUsername(), request);
+        return ResponseEntity.ok().header("X-Cache", result.cacheStatus().name()).body(result.page());
     }
 
     @Operation(summary = "Получить уведомление по ID")

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,12 +51,16 @@ import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import tools.jackson.databind.json.JsonMapper;
 
 @Testcontainers(disabledWithoutDocker = true)
 class NotificationMongoIntegrationTest {
@@ -67,6 +72,10 @@ class NotificationMongoIntegrationTest {
     private static final GenericContainer<?> MONGO = new GenericContainer<>(DockerImageName.parse("mongo:8.0"))
             .withExposedPorts(27017)
             .withCommand("mongod", "--replSet", "rs0", "--bind_ip_all");
+
+    @Container
+    private static final GenericContainer<?> REDIS = new GenericContainer<>(DockerImageName.parse("redis:8.10.1-alpine"))
+            .withExposedPorts(6379);
 
     @BeforeAll
     static void initializeReplicaSet() throws Exception {
@@ -96,6 +105,14 @@ class NotificationMongoIntegrationTest {
 
             try (var context = openContext(client, DATABASE, recipient)) {
                 var service = context.getBean(NotificationService.class);
+                var api = MockMvcBuilders.standaloneSetup(new NotificationController(service)).build();
+                var redis = context.getBean(StringRedisTemplate.class);
+                String searchKeys = "notification:search:v1:*";
+                var previousKeys = redis.keys(searchKeys);
+                assertSearch(api, recipient, "MISS", 0);
+                assertSearch(api, recipient, "HIT", 0);
+                assertThat(redis.keys(searchKeys)).filteredOn(key -> !previousKeys.contains(key)).singleElement()
+                        .satisfies(key -> assertThat(redis.getExpire(key)).isBetween(1L, 60L));
                 MockMvcBuilders.standaloneSetup(new AdminNotificationController(service)).build()
                         .perform(post("/api/v1/admin/notifications").contentType(MediaType.APPLICATION_JSON)
                                 .requestAttr(CURRENT_USER, admin)
@@ -107,7 +124,11 @@ class NotificationMongoIntegrationTest {
                         .andExpect(jsonPath("$.status").value("SENT"))
                         .andExpect(jsonPath("$.updatedAt").doesNotExist())
                         .andExpect(jsonPath("$.actionLog").doesNotExist());
+                assertSearch(api, recipient, "MISS", 1);
                 service.deliver(event);
+                assertSearch(api, recipient, "MISS", 2);
+                service.deliver(event);
+                assertSearch(api, recipient, "HIT", 2);
             }
 
             try (var context = openContext(client, DATABASE, recipient)) {
@@ -116,6 +137,7 @@ class NotificationMongoIntegrationTest {
                 var adminApi = MockMvcBuilders.standaloneSetup(new AdminNotificationController(service))
                         .setControllerAdvice(new GlobalExceptionHandler()).build();
                 var api = MockMvcBuilders.standaloneSetup(new NotificationController(service)).build();
+                assertSearch(api, recipient, "MISS", 2);
                 var rules = client.getDatabase(DATABASE).getCollection("processing_rules");
                 rules.insertOne(confirmationRule());
                 api.perform(get("/api/v1/notifications").requestAttr(CURRENT_USER, recipient))
@@ -127,8 +149,12 @@ class NotificationMongoIntegrationTest {
                 api.perform(post("/api/v1/notifications/42/read").requestAttr(CURRENT_USER, recipient))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.status").value("READ"));
+                api.perform(get("/api/v1/notifications/search").requestAttr(CURRENT_USER, recipient))
+                        .andExpect(status().isOk()).andExpect(header().string("X-Cache", "MISS"))
+                        .andExpect(jsonPath("$.items[?(@.id == 42)].status").value("READ"));
                 api.perform(post("/api/v1/notifications/42/read").requestAttr(CURRENT_USER, recipient))
                         .andExpect(status().isOk());
+                assertSearch(api, recipient, "HIT", 2);
                 var manual = notifications.find(new Document("_id", 42L)).first();
                 assertThat(manual.getList("actionLog", Document.class)).satisfiesExactly(
                         entry -> assertJournalEntry(entry, "CREATED", "admin"),
@@ -146,7 +172,11 @@ class NotificationMongoIntegrationTest {
                         .requestAttr(CURRENT_USER, admin).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"ruleId\":7}");
                 adminApi.perform(applyRule).andExpect(status().isOk());
+                api.perform(get("/api/v1/notifications/search").requestAttr(CURRENT_USER, recipient))
+                        .andExpect(status().isOk()).andExpect(header().string("X-Cache", "MISS"))
+                        .andExpect(jsonPath("$.items[?(@.id == %d)].processingRuleId", systemNotificationId).value(7));
                 adminApi.perform(applyRule).andExpect(status().isOk());
+                assertSearch(api, recipient, "HIT", 2);
                 var processed = notifications.find(source).first();
                 assertThat(processed.getList("tags", String.class)).containsExactly("booking", "confirmed");
                 assertThat(processed.getLong("processingRuleId")).isEqualTo(7L);
@@ -163,6 +193,7 @@ class NotificationMongoIntegrationTest {
                 assertThat(rule.getDate("lastAppliedAt")).isEqualTo(processed.getDate("updatedAt"));
                 api.perform(delete("/api/v1/notifications/42").requestAttr(CURRENT_USER, recipient))
                         .andExpect(status().isNoContent());
+                assertSearch(api, recipient, "MISS", 1);
             }
 
             assertThat(notifications.countDocuments(new Document("_id", 42L))).isZero();
@@ -172,7 +203,7 @@ class NotificationMongoIntegrationTest {
     }
 
     @Test
-    void rollsBackTheNotificationWhenMongoRejectsTheRuleUpdate() {
+    void rollsBackTheNotificationWhenMongoRejectsTheRuleUpdate() throws Exception {
         String database = DATABASE + "_rule_rollback";
         User recipient = new User();
         recipient.setUsername("reader");
@@ -188,6 +219,8 @@ class NotificationMongoIntegrationTest {
             var service = context.getBean(NotificationService.class);
             service.deliver(OutboxEvent.builder().id(eventId).username(recipient.getUsername())
                     .eventType(OutboxEventType.ORDER_CONFIRMED).title("Заказ").message("Подтверждён").build());
+            var api = MockMvcBuilders.standaloneSetup(new NotificationController(service)).build();
+            assertSearch(api, recipient, "MISS", 1);
             var notifications = db.getCollection("notifications");
             var source = new Document("sourceEventId", eventId.toString());
             var notificationBefore = notifications.find(source).first();
@@ -198,6 +231,7 @@ class NotificationMongoIntegrationTest {
                             error -> assertThat(error.getCode()).isEqualTo(121));
             assertThat(notifications.find(source).first()).isEqualTo(notificationBefore);
             assertThat(rules.find(new Document("_id", 7L)).first()).isEqualTo(ruleBefore);
+            assertSearch(api, recipient, "HIT", 1);
         }
     }
 
@@ -383,6 +417,12 @@ class NotificationMongoIntegrationTest {
         assertThat(entry.getDate("at")).isNotNull();
     }
 
+    private void assertSearch(MockMvc api, User recipient, String cacheStatus, int total) throws Exception {
+        api.perform(get("/api/v1/notifications/search").requestAttr(CURRENT_USER, recipient))
+                .andExpect(status().isOk()).andExpect(header().string("X-Cache", cacheStatus))
+                .andExpect(jsonPath("$.totalElements").value(total));
+    }
+
     private AnnotationConfigApplicationContext openContext(MongoClient client, String database, User recipient) {
         var users = mock(UserRepository.class);
         when(users.findByUsername(recipient.getUsername())).thenReturn(Optional.of(recipient));
@@ -392,10 +432,15 @@ class NotificationMongoIntegrationTest {
         var context = new AnnotationConfigApplicationContext();
         context.registerBean(MongoDatabaseFactory.class, () -> new SimpleMongoClientDatabaseFactory(client, database));
         context.registerBean(MongoTemplate.class, () -> new MongoTemplate(context.getBean(MongoDatabaseFactory.class)));
+        context.registerBean(LettuceConnectionFactory.class,
+                () -> new LettuceConnectionFactory(REDIS.getHost(), REDIS.getMappedPort(6379)));
+        context.registerBean(StringRedisTemplate.class,
+                () -> new StringRedisTemplate(context.getBean(LettuceConnectionFactory.class)));
+        context.registerBean(JsonMapper.class, () -> JsonMapper.builder().findAndAddModules().build());
         context.registerBean(UserRepository.class, () -> users);
         context.registerBean(CategoryDbRepository.class, () -> categories);
         context.register(NotificationMongoConfiguration.class, BookingMongoConfiguration.class,
-                NotificationFactory.class, NotificationServiceImpl.class, Repositories.class);
+                NotificationSearchCache.class, NotificationFactory.class, NotificationServiceImpl.class, Repositories.class);
         context.refresh();
         return context;
     }

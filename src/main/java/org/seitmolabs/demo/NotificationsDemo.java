@@ -18,6 +18,7 @@ import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEventType;
 import org.seitmolabs.modules.notification.repositories.MongoNotificationRepository;
+import org.seitmolabs.modules.notification.repositories.NotificationSearchCache;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -37,11 +38,12 @@ class NotificationsDemo implements DemoScenario {
     private final MongoNotificationRepository notifications;
     private final NotificationFactory factory;
     private final MongoTemplate mongoTemplate;
+    private final NotificationSearchCache searchCache;
 
     @Override
     public void run() {
         Long categoryId = categories.findBySystemCode(Category.BOOKING_CODE).orElseThrow().getId();
-        moveLegacyGuestNotification();
+        boolean changed = moveLegacyGuestNotification();
         Instant now = Instant.now();
         List<Example> examples = List.of(
                 new Example("confirm-pending", OutboxEventType.ORDER_CONFIRMED, "Билеты готовы",
@@ -55,11 +57,14 @@ class NotificationsDemo implements DemoScenario {
                 EXTRA_CONFIRMATION
         );
         for (Example example : examples) {
-            insertIfMissing(example, categoryId, now.minus(example.hoursAgo(), ChronoUnit.HOURS));
+            changed |= insertIfMissing(example, categoryId, now.minus(example.hoursAgo(), ChronoUnit.HOURS));
+        }
+        if (changed) {
+            searchCache.invalidate(DEMO_USERNAME);
         }
     }
 
-    private void moveLegacyGuestNotification() {
+    private boolean moveLegacyGuestNotification() {
         // Reassign only the original seeded fixture, keeping its identity and read status.
         String formerUsername = "demo-guest";
         Query query = Query.query(Criteria.where("sourceEventId").is(EXTRA_CONFIRMATION.eventId().toString())
@@ -71,14 +76,18 @@ class NotificationsDemo implements DemoScenario {
                 .set("actionLog.$[read].actorId", DEMO_USERNAME)
                 .filterArray(Criteria.where("read.actorId").is(formerUsername)
                         .and("read.type").is(NotificationAction.Type.READ.name()));
-        mongoTemplate.updateFirst(query, update, Notification.class);
+        if (mongoTemplate.updateFirst(query, update, Notification.class).getModifiedCount() == 0) {
+            return false;
+        }
+        searchCache.invalidate(formerUsername);
+        return true;
     }
 
-    private void insertIfMissing(Example example, Long categoryId, Instant createdAt) {
+    private boolean insertIfMissing(Example example, Long categoryId, Instant createdAt) {
         // A stable event ID lets startup reuse the normal duplicate-delivery protection.
         UUID eventId = example.eventId();
         if (notifications.existsBySourceEventId(eventId.toString())) {
-            return;
+            return false;
         }
         Notification notification = factory.createSystem(OutboxEvent.builder()
                 .id(eventId)
@@ -109,6 +118,7 @@ class NotificationsDemo implements DemoScenario {
         notification.setActionLog(actions);
         notification.setUpdatedAt(actions.getLast().at());
         notifications.saveSystem(notification);
+        return true;
     }
 
     private record Example(String key, OutboxEventType eventType, String title, String message,

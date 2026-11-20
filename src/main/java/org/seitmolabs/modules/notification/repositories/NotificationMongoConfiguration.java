@@ -2,6 +2,7 @@ package org.seitmolabs.modules.notification.repositories;
 
 import java.util.List;
 
+import com.mongodb.MongoCommandException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
@@ -34,6 +35,14 @@ public class NotificationMongoConfiguration implements BeforeConvertCallback<Not
     @Override
     public void afterPropertiesSet() {
         var database = databaseFactory.getMongoDatabase();
+        try {
+            database.createCollection(NotificationSearchCache.VERSIONS);
+        } catch (MongoCommandException exception) {
+            // A collection must exist before it is updated by a snapshot transaction.
+            if (exception.getErrorCode() != 48) { // NamespaceExists
+                throw exception;
+            }
+        }
         var notifications = database.getCollection(Notification.COLLECTION_NAME);
         notifications.createIndex(Indexes.ascending("sourceEventId"), new IndexOptions()
                 .name("sourceEventId")

@@ -2,9 +2,11 @@ package org.seitmolabs.modules.notification.service;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
+import com.mongodb.MongoException;
+import com.mongodb.ReadPreference;
 import org.seitmolabs.common.dto.CreateNotificationRequest;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.domain.NotificationAction;
@@ -12,12 +14,16 @@ import org.seitmolabs.modules.notification.domain.NotificationStatus;
 import org.seitmolabs.modules.notification.domain.ProcessingRule;
 import org.seitmolabs.modules.notification.dto.NotificationSearchPage;
 import org.seitmolabs.modules.notification.dto.NotificationSearchRequest;
+import org.seitmolabs.modules.notification.dto.NotificationSearchResult;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.repositories.MongoNotificationRepository;
+import org.seitmolabs.modules.notification.repositories.NotificationSearchCache;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.user.repository.UserRepository;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -25,7 +31,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import org.seitmolabs.common.exceptions.BadRequestException;
 import org.seitmolabs.common.exceptions.ResourceNotFoundException;
@@ -40,6 +46,8 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationFactory notificationFactory;
     private final CategoryDbRepository categoryRepository;
     private final MongoTemplate mongoTemplate;
+    private final NotificationSearchCache searchCache;
+    private final TransactionTemplate transactionTemplate;
 
     @Override
     public Notification create(CreateNotificationRequest request, String actorId) {
@@ -47,8 +55,11 @@ public class NotificationServiceImpl implements NotificationService {
             throw new ResourceNotFoundException("Пользователь не найден: " + request.userId());
         }
 
-        Notification notification = notificationFactory.createSent(request, actorId);
-        return notificationRepository.insert(notification);
+        return inTransaction(() -> {
+            Notification inserted = notificationRepository.insert(notificationFactory.createSent(request, actorId));
+            searchCache.invalidate(inserted.getUserId());
+            return inserted;
+        });
     }
 
     @Override
@@ -72,15 +83,18 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public NotificationSearchPage search(String userId, NotificationSearchRequest request) {
+    public NotificationSearchResult search(String userId, NotificationSearchRequest request) {
         validateRange(request.updatedFrom(), request.updatedTo(), "updatedFrom", "updatedTo");
         validateRange(request.createdFrom(), request.createdTo(), "createdFrom", "createdTo");
+        var normalized = request.normalized();
+        return searchCache.getOrLoad(userId, normalized, () -> loadSearchPage(userId, normalized));
+    }
 
-        int page = Objects.requireNonNullElse(request.page(), 0);
-        int size = Objects.requireNonNullElse(request.size(), 20);
-        var order = Objects.requireNonNullElse(request.sort(), NotificationSearchRequest.Order.UPDATED_AT_DESC);
-        var pagination = PageRequest.of(page, size, order.toSort());
-        Query query = searchQuery(userId, request);
+    private NotificationSearchPage loadSearchPage(String userId, NotificationSearchRequest request) {
+        int page = request.page();
+        int size = request.size();
+        var pagination = PageRequest.of(page, size, request.sort().toSort());
+        Query query = searchQuery(userId, request).withReadPreference(ReadPreference.primary());
         long totalElements = mongoTemplate.count(query, Notification.class);
 
         // The journal participates in matching, but is internal and need not be loaded for the response.
@@ -105,8 +119,8 @@ public class NotificationServiceImpl implements NotificationService {
         if (request.tag() != null) {
             criteria.and("tags").is(request.tag());
         }
-        if (request.q() != null && !request.q().isBlank()) {
-            Pattern text = Pattern.compile(Pattern.quote(request.q().strip()),
+        if (request.q() != null) {
+            Pattern text = Pattern.compile(Pattern.quote(request.q()),
                     Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
             criteria.orOperator(Criteria.where("title").regex(text), Criteria.where("text").regex(text));
         }
@@ -147,18 +161,29 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Notification markRead(Long id, String userId) {
+        return inTransaction(() -> markReadInTransaction(id, userId));
+    }
+
+    private Notification markReadInTransaction(Long id, String userId) {
         Query unreadNotification = Query.query(Criteria.where("id").is(id)
                 .and("userId").is(userId).and("status").ne(NotificationStatus.READ));
         NotificationAction action = new NotificationAction(
                 NotificationAction.Type.READ, userId, Instant.now(), null);
         Update update = new Update().set("status", NotificationStatus.READ);
         Notification updated = updateNotification(unreadNotification, update, action);
-        return updated != null ? updated : getByIdForUser(id, userId);
+        if (updated == null) {
+            return getByIdForUser(id, userId);
+        }
+        searchCache.invalidate(userId);
+        return updated;
     }
 
     @Override
-    @Transactional("transactionManager")
     public Notification applyRule(Long id, Long ruleId, String actorId) {
+        return inTransaction(() -> applyRuleInTransaction(id, ruleId, actorId));
+    }
+
+    private Notification applyRuleInTransaction(Long id, Long ruleId, String actorId) {
         ProcessingRule rule = mongoTemplate.findById(ruleId, ProcessingRule.class);
         if (rule == null) {
             throw new ResourceNotFoundException("Правило обработки не найдено: " + ruleId);
@@ -181,6 +206,7 @@ public class NotificationServiceImpl implements NotificationService {
             if (ruleUpdate.getMatchedCount() != 1) {
                 throw new ResourceNotFoundException("Правило обработки не найдено: " + ruleId);
             }
+            searchCache.invalidate(updated.getUserId());
             return updated;
         }
 
@@ -200,7 +226,11 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void delete(Long id, String userId) {
-        notificationRepository.delete(getByIdForUser(id, userId));
+        inTransaction(() -> {
+            notificationRepository.delete(getByIdForUser(id, userId));
+            searchCache.invalidate(userId);
+            return null;
+        });
     }
 
     @Override
@@ -209,8 +239,43 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Системная категория уведомлений не найдена: " + Category.BOOKING_CODE))
                 .getId();
-        Notification notification = notificationFactory.createSystem(
-                event, categoryId);
-        notificationRepository.saveSystem(notification);
+        try {
+            inTransaction(() -> {
+                Notification notification = notificationFactory.createSystem(event, categoryId);
+                notificationRepository.insert(notification);
+                searchCache.invalidate(notification.getUserId());
+                return null;
+            });
+        } catch (DuplicateKeyException exception) {
+            // A duplicate insert aborts the transaction. Confirm the existing delivery afterwards.
+            if (!notificationRepository.existsBySourceEventId(event.getId().toString())) {
+                throw exception;
+            }
+        }
+    }
+
+    private <T> T inTransaction(Supplier<T> operation) {
+        for (int attempt = 1; ; attempt++) {
+            try {
+                return transactionTemplate.execute(status -> operation.get());
+            } catch (RuntimeException exception) {
+                if (attempt >= 5 || !isRetryable(exception)) {
+                    throw exception;
+                }
+            }
+        }
+    }
+
+    private boolean isRetryable(Throwable failure) {
+        if (failure instanceof OptimisticLockingFailureException) {
+            return true;
+        }
+        for (Throwable cause = failure; cause != null; cause = cause.getCause()) {
+            if (cause instanceof MongoException mongoException) {
+                return mongoException.hasErrorLabel(MongoException.TRANSIENT_TRANSACTION_ERROR_LABEL)
+                        && !mongoException.hasErrorLabel(MongoException.UNKNOWN_TRANSACTION_COMMIT_RESULT_LABEL);
+            }
+        }
+        return false;
     }
 }
