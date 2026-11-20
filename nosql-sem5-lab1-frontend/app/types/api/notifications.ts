@@ -66,3 +66,14 @@ export interface NotificationStats {
   read: number
   byCategory: Record<string, number>
 }
+
+export interface NotificationReadSummary {
+  totalCount: number
+  readCount: number
+  averageMs: number | null
+}
+
+export interface NotificationReadAnalytics {
+  summary: NotificationReadSummary
+  byDay: (NotificationReadSummary & { day: string })[]
+}

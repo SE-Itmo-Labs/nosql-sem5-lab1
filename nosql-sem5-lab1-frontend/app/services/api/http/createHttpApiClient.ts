@@ -7,6 +7,7 @@ import type {
   ConsistencyExperimentResponse,
   Movie,
   Notification,
+  NotificationReadAnalytics,
   NotificationSearchPage,
   Screening,
   ScreeningSeats,
@@ -69,6 +70,7 @@ export const createHttpApiClient = (options: HttpApiClientOptions): ApiClient =>
     },
 
     notifications: {
+      getReadAnalytics: days => http.get<NotificationReadAnalytics>(API_ENDPOINTS.adminNotifications.readAnalytics, { days }),
       search: async (query) => {
         const { items, ...page } = await http.get<NotificationSearchPage>(API_ENDPOINTS.notifications.search, query)
         return {

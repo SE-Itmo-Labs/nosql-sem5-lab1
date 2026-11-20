@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -23,18 +25,22 @@ import org.bson.Document;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.seitmolabs.common.exceptions.GlobalExceptionHandler;
+import org.seitmolabs.modules.auth.authorization.RoleAuthorizationInterceptor;
 import org.seitmolabs.modules.auth.filters.SimpleAuthFilter;
 import org.seitmolabs.modules.booking.order.config.BookingMongoConfiguration;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.notification.controller.AdminNotificationController;
+import org.seitmolabs.modules.notification.controller.AdminNotificationAnalyticsController;
 import org.seitmolabs.modules.notification.controller.NotificationController;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEventType;
 import org.seitmolabs.modules.notification.service.NotificationService;
+import org.seitmolabs.modules.notification.service.NotificationAnalyticsService;
 import org.seitmolabs.modules.notification.service.NotificationServiceImpl;
 import org.seitmolabs.modules.user.domain.User;
+import org.seitmolabs.modules.user.enums.Role;
 import org.seitmolabs.modules.user.repository.UserRepository;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -254,6 +260,56 @@ class NotificationMongoIntegrationTest {
                 .append("name", "Подтверждение бронирования")
                 .append("eventType", OutboxEventType.ORDER_CONFIRMED.name())
                 .append("tagsToAdd", List.of("booking", "confirmed"));
+    }
+
+    @Test
+    void aggregatesFirstReadTimeAcrossRecipientsForAdmins() throws Exception {
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        Instant created = today.atStartOfDay().toInstant(ZoneOffset.UTC).plusSeconds(3600);
+        User admin = new User();
+        admin.setRole(Role.ROLE_ADMIN);
+        User reader = new User();
+        reader.setRole(Role.ROLE_USER);
+        try (MongoClient client = MongoClients.create(mongoUri())) {
+            String database = DATABASE + "_analytics";
+            client.getDatabase(database).getCollection("notifications").insertMany(List.of(
+                    analyticsFixture("alice", created, List.of(
+                            readAction(created.plusSeconds(90)), readAction(created.plusSeconds(30)),
+                            readAction(created.minusSeconds(1)))),
+                    analyticsFixture("bob", created.minusSeconds(86400),
+                            List.of(readAction(created.minusSeconds(86400).plusSeconds(90)))),
+                    analyticsFixture("bob", created, List.of(new Document("type", "READ"))),
+                    analyticsFixture("alice", created.minusSeconds(8 * 86400L), List.of())
+            ));
+            var service = new NotificationAnalyticsService(new MongoTemplate(
+                    new SimpleMongoClientDatabaseFactory(client, database)));
+            var api = MockMvcBuilders.standaloneSetup(new AdminNotificationAnalyticsController(service))
+                    .addInterceptors(new RoleAuthorizationInterceptor())
+                    .setControllerAdvice(new GlobalExceptionHandler()).build();
+            String endpoint = "/api/v1/admin/notifications/analytics/read-times";
+            api.perform(get(endpoint).param("days", "7").requestAttr(CURRENT_USER, admin))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.summary.totalCount").value(3))
+                    .andExpect(jsonPath("$.summary.readCount").value(2))
+                    .andExpect(jsonPath("$.summary.averageMs").value(60_000.0))
+                    .andExpect(jsonPath("$.byDay[0].day").value(today.toString()))
+                    .andExpect(jsonPath("$.byDay[0].averageMs").value(30_000.0))
+                    .andExpect(jsonPath("$.byDay[1].averageMs").value(90_000.0));
+            api.perform(get(endpoint).param("days", "91").requestAttr(CURRENT_USER, admin))
+                    .andExpect(status().isBadRequest());
+            api.perform(get(endpoint).requestAttr(CURRENT_USER, reader)).andExpect(status().isForbidden());
+            assertThat(new NotificationAnalyticsService(new MongoTemplate(
+                    new SimpleMongoClientDatabaseFactory(client, database + "_empty"))).readTimes(7).summary().totalCount())
+                    .isZero();
+        }
+    }
+
+    private Document analyticsFixture(String userId, Instant createdAt, List<Document> actions) {
+        return new Document("userId", userId).append("createdAt", Date.from(createdAt)).append("actionLog", actions);
+    }
+
+    private Document readAction(Instant readAt) {
+        return new Document("type", "READ").append("at", Date.from(readAt));
     }
 
     private Document searchFixture(long id, String userId, Date createdAt) {

@@ -40,7 +40,8 @@ export default defineNuxtConfig({
         '/orders/1',
         '/notifications',
         '/categories',
-        '/consistency'
+        '/consistency',
+        '/notification-analytics'
       ]
     }
   },

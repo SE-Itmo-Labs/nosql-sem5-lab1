@@ -1,6 +1,7 @@
 import { API_ENDPOINTS } from '~/constants/apiEndpoints'
 import type { ApiClient } from '~/types/api'
 import { createApiClientError } from '../ApiClientError'
+import { readAnalytics } from './notificationAnalyticsMock'
 import { filterNotifications } from '../notificationCollection'
 import type { MockDatabaseStore, MockNotification } from './database'
 import { paginate, waitForMockResponse } from './helpers'
@@ -10,6 +11,19 @@ export const createMockNotificationsApi = (
   store: MockDatabaseStore,
   getCurrentUsername: () => string | null,
 ): ApiClient['notifications'] => ({
+  async getReadAnalytics(days) {
+    await waitForMockResponse()
+    const user = store.value.users.find(user => user.username === getCurrentUsername())
+    if (!user) throw createApiClientError(401, 'Unauthorized', 'Требуется вход', API_ENDPOINTS.adminNotifications.readAnalytics)
+    if (user.role !== 'ROLE_ADMIN') {
+      throw createApiClientError(403, 'Forbidden', 'Доступно администратору', API_ENDPOINTS.adminNotifications.readAnalytics)
+    }
+    if (!Number.isInteger(days) || days < 1 || days > 90) {
+      throw createApiClientError(400, 'Bad Request', 'Период от 1 до 90 дней', API_ENDPOINTS.adminNotifications.readAnalytics)
+    }
+    return readAnalytics(store.value.notifications, days)
+  },
+
   async search(query = {}) {
     await waitForMockResponse()
     const userId = getCurrentUsername()
@@ -103,7 +117,7 @@ export const createMockNotificationsApi = (
     const updated = { ...current, ...request }
     if (request.status === 'READ' && current.status !== 'READ') {
       updated.updatedAt = new Date().toISOString()
-      updated.actionLog = [...current.actionLog ?? [], { type: 'READ', actorId: current.userId }]
+      updated.actionLog = [...current.actionLog ?? [], { type: 'READ', actorId: current.userId, at: updated.updatedAt }]
     }
     store.value.notifications[index] = updated
     return { ...updated }

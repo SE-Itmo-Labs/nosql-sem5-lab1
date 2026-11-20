@@ -41,7 +41,7 @@ export interface MockOrder extends CinemaOrder {
 }
 
 export interface MockNotification extends Notification {
-  actionLog?: { type: NotificationActionType, actorId: string }[]
+  actionLog?: { type: NotificationActionType, actorId: string, at?: string }[]
 }
 
 /**
@@ -200,7 +200,7 @@ export const createMockDatabase = (): MockDatabase => {
         updatedAt: new Date(now - 23 * 60 * 60_000).toISOString(),
         actionLog: [
           { type: 'CREATED', actorId: 'admin' },
-          { type: 'READ', actorId: 'client01' },
+          { type: 'READ', actorId: 'client01', at: new Date(now - 23 * 60 * 60_000).toISOString() },
         ],
       },
     ],

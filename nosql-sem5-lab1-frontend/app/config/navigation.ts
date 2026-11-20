@@ -35,6 +35,12 @@ export const APP_NAVIGATION: readonly NavigationItem[] = [
     audience: 'admin',
   },
   {
+    label: 'Аналитика уведомлений',
+    to: '/notification-analytics',
+    icon: '▥',
+    audience: 'admin',
+  },
+  {
     label: 'Согласованность',
     to: '/consistency',
     icon: '⇄',

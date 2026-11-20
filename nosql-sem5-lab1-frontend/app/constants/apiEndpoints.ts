@@ -60,5 +60,6 @@ export const API_ENDPOINTS = {
 
   adminNotifications: {
     base: '/api/v1/admin/notifications',
+    readAnalytics: '/api/v1/admin/notifications/analytics/read-times',
   },
 } as const
