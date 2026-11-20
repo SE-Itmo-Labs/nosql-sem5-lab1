@@ -74,16 +74,16 @@ const reset = () => {
 </script>
 
 <template>
-  <form class="filters card" aria-label="Фильтры уведомлений" @submit.prevent="apply" @reset.prevent="reset">
-    <div class="filter-grid">
-      <label class="field">
+  <form class="card tw:mb-4 tw:grid tw:gap-4" aria-label="Фильтры уведомлений" @submit.prevent="apply" @reset.prevent="reset">
+    <div class="tw:grid tw:grid-cols-[repeat(auto-fit,minmax(min(100%,190px),1fr))] tw:items-end tw:gap-3">
+      <label class="field tw:min-w-0">
         <span class="field-label">Поиск</span>
-        <input v-model.trim="form.q" class="field-input" type="search" maxlength="200" placeholder="Заголовок или текст">
+        <input v-model.trim="form.q" class="field-input tw:min-w-0" type="search" maxlength="200" placeholder="Заголовок или текст">
       </label>
 
-      <label class="field">
+      <label class="field tw:min-w-0">
         <span class="field-label">Категория</span>
-        <select v-model="form.categoryId" class="field-input">
+        <select v-model="form.categoryId" class="field-input tw:min-w-0">
           <option value="">Все категории</option>
           <option v-for="category in categories" :key="category.id" :value="category.id">
             {{ category.name }}
@@ -91,18 +91,18 @@ const reset = () => {
         </select>
       </label>
 
-      <label class="field">
+      <label class="field tw:min-w-0">
         <span class="field-label">Статус</span>
-        <select v-model="form.status" class="field-input">
+        <select v-model="form.status" class="field-input tw:min-w-0">
           <option value="">Все статусы</option>
           <option value="SENT">Новые</option>
           <option value="READ">Прочитанные</option>
         </select>
       </label>
 
-      <label class="field">
+      <label class="field tw:min-w-0">
         <span class="field-label">Сортировка</span>
-        <select v-model="form.sort" class="field-input">
+        <select v-model="form.sort" class="field-input tw:min-w-0">
           <option value="UPDATED_AT_DESC">Сначала недавно изменённые</option>
           <option value="UPDATED_AT_ASC">Сначала давно изменённые</option>
           <option value="CREATED_AT_DESC">Сначала новые по дате создания</option>
@@ -110,94 +110,56 @@ const reset = () => {
         </select>
       </label>
 
-      <label class="field">
+      <label class="field tw:min-w-0">
         <span class="field-label">На странице</span>
-        <select v-model="form.size" class="field-input">
+        <select v-model="form.size" class="field-input tw:min-w-0">
           <option v-for="size in [1, 6, 12, 24]" :key="size" :value="size">{{ size }}</option>
         </select>
       </label>
     </div>
 
-    <details class="filter-details">
-      <summary>Дополнительные фильтры<span v-if="extraFiltersActive"> · заполнены</span></summary>
-      <div class="filter-grid">
-        <label class="field">
+    <details class="tw:border-0 tw:border-t tw:border-solid tw:border-(--color-border-soft) tw:pt-3">
+      <summary class="tw:w-fit tw:cursor-pointer tw:text-sm tw:font-semibold tw:text-(--color-text-secondary)">
+        Дополнительные фильтры<span v-if="extraFiltersActive"> (заполнены)</span>
+      </summary>
+      <div class="tw:mt-3 tw:grid tw:grid-cols-[repeat(auto-fit,minmax(min(100%,190px),1fr))] tw:items-end tw:gap-3">
+        <label class="field tw:min-w-0">
           <span class="field-label">Метка</span>
-          <input v-model.trim="form.tag" class="field-input" type="text" placeholder="booking">
+          <input v-model.trim="form.tag" class="field-input tw:min-w-0" type="text" placeholder="booking">
         </label>
-        <label class="field">
+        <label class="field tw:min-w-0">
           <span class="field-label">ID правила</span>
-          <input v-model.number="form.processingRuleId" class="field-input" type="number" min="1" step="1" max="9007199254740991">
+          <input v-model.number="form.processingRuleId" class="field-input tw:min-w-0" type="number" min="1" step="1" max="9007199254740991">
         </label>
-        <label class="field">
+        <label class="field tw:min-w-0">
           <span class="field-label">Действие в журнале</span>
-          <select v-model="form.actionType" class="field-input">
+          <select v-model="form.actionType" class="field-input tw:min-w-0">
             <option value="">Все действия</option>
             <option value="CREATED">Создано</option>
             <option value="READ">Прочитано</option>
             <option value="RULE_APPLIED">Применено правило</option>
           </select>
         </label>
-        <label class="field">
+        <label class="field tw:min-w-0">
           <span class="field-label">Автор действия</span>
-          <input v-model.trim="form.actorId" class="field-input" type="text" placeholder="admin">
+          <input v-model.trim="form.actorId" class="field-input tw:min-w-0" type="text" placeholder="admin">
         </label>
-        <label class="field">
+        <label class="field tw:min-w-0">
           <span class="field-label">Изменено с</span>
-          <input v-model="form.updatedFrom" class="field-input" type="datetime-local">
+          <input v-model="form.updatedFrom" class="field-input tw:min-w-0" type="datetime-local">
         </label>
-        <label class="field">
+        <label class="field tw:min-w-0">
           <span class="field-label">Изменено до</span>
-          <input v-model="form.updatedTo" class="field-input" type="datetime-local">
+          <input v-model="form.updatedTo" class="field-input tw:min-w-0" type="datetime-local">
         </label>
       </div>
     </details>
 
-    <p v-if="error" class="filter-error" role="alert">{{ error }}</p>
+    <p v-if="error" class="form-error" role="alert">{{ error }}</p>
 
-    <div class="filter-actions">
+    <div class="tw:flex tw:flex-wrap tw:gap-2">
       <button class="btn btn-primary" type="submit">Применить</button>
       <button class="btn btn-secondary" type="reset">Сбросить</button>
     </div>
   </form>
 </template>
-
-<style scoped>
-.filters {
-  display: grid;
-  gap: 14px;
-  margin-bottom: 14px;
-  padding: 18px;
-}
-
-.filter-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
-  align-items: end;
-  gap: 12px 14px;
-}
-
-.filter-grid .field,
-.filter-grid .field-input {
-  min-width: 0;
-}
-
-.filter-details {
-  border-top: 1px solid var(--color-border-soft);
-  padding-top: 12px;
-}
-
-.filter-details summary {
-  width: fit-content;
-  color: var(--color-text-secondary);
-  font-size: 14px;
-  font-weight: 650;
-  cursor: pointer;
-}
-
-.filter-details .filter-grid { margin-top: 12px; }
-
-.filter-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-
-.filter-error { margin: 0; color: var(--color-error); font-size: 13px; }
-</style>

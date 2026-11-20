@@ -13,76 +13,24 @@ const categoryCount = computed(() => Object.values(props.stats.byCategory)
 </script>
 
 <template>
-  <section class="stats-grid" aria-label="Сводка по всем вашим уведомлениям">
-    <article class="stat-card stat-card--total">
-      <span>Всего в истории</span>
-      <strong>{{ stats.total }}</strong>
-    </article>
-    <article class="stat-card stat-card--sent">
-      <span>Статус SENT</span>
-      <strong>{{ stats.sent }}</strong>
-    </article>
-    <article class="stat-card stat-card--read">
-      <span>Статус READ</span>
-      <strong>{{ stats.read }}</strong>
-    </article>
-    <article class="stat-card stat-card--categories">
-      <span>Категорий в истории</span>
-      <strong>{{ categoryCount }}</strong>
-    </article>
+  <section aria-label="Сводка по всем вашим уведомлениям">
+    <dl class="tw:mt-0 tw:mb-5 tw:grid tw:grid-cols-1 tw:gap-3 tw:min-[431px]:grid-cols-2 tw:min-[781px]:grid-cols-4 tw:[&_dt]:text-xs tw:[&_dt]:font-medium tw:[&_dt]:text-(--color-text-secondary) tw:[&_dd]:m-0 tw:[&_dd]:mt-2 tw:[&_dd]:text-[26px] tw:[&_dd]:font-semibold tw:[&_dd]:tabular-nums">
+      <div class="card tw:px-5! tw:py-4! tw:shadow-none!">
+        <dt>Всего в истории</dt>
+        <dd>{{ stats.total }}</dd>
+      </div>
+      <div class="card tw:px-5! tw:py-4! tw:shadow-none!">
+        <dt>Новые</dt>
+        <dd>{{ stats.sent }}</dd>
+      </div>
+      <div class="card tw:px-5! tw:py-4! tw:shadow-none!">
+        <dt>Прочитанные</dt>
+        <dd>{{ stats.read }}</dd>
+      </div>
+      <div class="card tw:px-5! tw:py-4! tw:shadow-none!">
+        <dt>Категорий в истории</dt>
+        <dd>{{ categoryCount }}</dd>
+      </div>
+    </dl>
   </section>
 </template>
-
-<style scoped>
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.stat-card {
-  position: relative;
-  overflow: hidden;
-  padding: 18px 20px;
-  border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-sm);
-}
-
-.stat-card::before {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 4px;
-  background: var(--stat-accent);
-  content: '';
-}
-
-.stat-card span {
-  display: block;
-  color: var(--color-text-muted);
-  font-size: 12px;
-  font-weight: 650;
-}
-
-.stat-card strong {
-  display: block;
-  margin-top: 7px;
-  font-size: 26px;
-  letter-spacing: -0.03em;
-}
-
-.stat-card--total { --stat-accent: var(--color-primary); }
-.stat-card--sent { --stat-accent: var(--color-info); }
-.stat-card--read { --stat-accent: var(--color-success); }
-.stat-card--categories { --stat-accent: var(--color-warning); }
-
-@media (max-width: 780px) {
-  .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-@media (max-width: 430px) {
-  .stats-grid { grid-template-columns: 1fr; }
-}
-</style>

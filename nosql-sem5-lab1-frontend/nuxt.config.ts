@@ -9,8 +9,15 @@ export default defineNuxtConfig({
     '~/assets/css/base.css',
     '~/assets/css/buttons.css',
     '~/assets/css/forms.css',
-    '~/assets/css/surfaces.css'
+    '~/assets/css/surfaces.css',
+    '~/assets/css/tailwind.css'
   ],
+
+  postcss: {
+    plugins: {
+      '@tailwindcss/postcss': {},
+    },
+  },
 
   nitro: {
     prerender: {

@@ -36,9 +36,8 @@ const {
 <template>
   <div>
     <PageHeader
-      eyebrow="Личный кабинет"
+      eyebrow=""
       title="Уведомления"
-      description="Сообщения о бронировании, подтверждении и отмене ваших заказов."
     >
       <template v-if="canSendNotifications" #actions>
         <a class="btn btn-primary" href="#notification-composer">Новое уведомление</a>
@@ -46,13 +45,19 @@ const {
     </PageHeader>
 
     <NotificationStats v-if="canSendNotifications && stats" :stats="stats" />
-    <p v-if="statsError" class="page-message page-message--error" role="status">Сводка недоступна: {{ statsError }}</p>
+    <p v-if="statsError" class="form-error tw:mb-4!" role="status">Сводка недоступна: {{ statsError }}</p>
 
-    <p v-if="feedback" class="page-message page-message--success" role="status">{{ feedback }}</p>
-    <p v-if="actionError" class="page-message page-message--error" role="alert">{{ actionError }}</p>
+    <p
+      v-if="feedback"
+      class="tw:mt-0 tw:mb-4 tw:rounded-(--radius-sm) tw:bg-(--color-success-soft) tw:px-3 tw:py-2.5 tw:text-[13px] tw:text-(--color-success)"
+      role="status"
+    >
+      {{ feedback }}
+    </p>
+    <p v-if="actionError" class="form-error tw:mb-4!" role="alert">{{ actionError }}</p>
 
-    <div class="notifications-layout" :class="{ 'notifications-layout--single': !canSendNotifications }">
-      <main class="notifications-content">
+    <div class="tw:grid tw:grid-cols-1 tw:items-start tw:gap-5" :class="{ 'tw:min-[981px]:grid-cols-[minmax(0,1fr)_330px]': canSendNotifications }">
+      <div class="tw:min-w-0">
         <NotificationFilters
           :categories="categories"
           @apply="applyFilters"
@@ -72,7 +77,7 @@ const {
           @read="markAsRead"
           @delete="deleteNotification"
         />
-      </main>
+      </div>
 
       <!-- key очищает форму только после подтвержденной отправки. -->
       <NotificationComposer
@@ -86,39 +91,3 @@ const {
     </div>
   </div>
 </template>
-
-<style scoped>
-.notifications-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 330px;
-  align-items: start;
-  gap: 18px;
-}
-
-.notifications-content {
-  min-width: 0;
-}
-
-.notifications-layout--single { grid-template-columns: 1fr; }
-
-.page-message {
-  margin: 0 0 14px;
-  padding: 11px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-}
-
-.page-message--success {
-  background: var(--color-success-soft);
-  color: var(--color-success);
-}
-
-.page-message--error {
-  background: var(--color-error-bg);
-  color: var(--color-error);
-}
-
-@media (max-width: 980px) {
-  .notifications-layout { grid-template-columns: 1fr; }
-}
-</style>
