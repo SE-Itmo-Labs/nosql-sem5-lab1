@@ -137,6 +137,7 @@ class NotificationServiceImplTest {
         List<Notification> result = service.getByUserId("client01");
 
         assertThat(result).containsExactly(first, second);
+        verify(notificationRepository).findByUserId("client01");
     }
 
     @Test

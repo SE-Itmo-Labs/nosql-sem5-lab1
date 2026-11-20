@@ -43,6 +43,7 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import org.seitmolabs.modules.consistency.topology.RedisNodeRegistry;
 
 import tools.jackson.databind.json.JsonMapper;
 
@@ -57,6 +58,7 @@ class RedisRepositoriesIntegrationTest {
     private static LettuceConnectionFactory connectionFactory;
     private static StringRedisTemplate redisTemplate;
     private static JsonMapper jsonMapper;
+    private static RedisReplicaReader reader;
 
     @BeforeAll
     static void connect() {
@@ -67,6 +69,10 @@ class RedisRepositoriesIntegrationTest {
         redisTemplate.afterPropertiesSet();
         jsonMapper = JsonMapper.builder().findAndAddModules().build();
 
+        RedisNodeRegistry registry = mock(RedisNodeRegistry.class);
+        when(registry.replicas()).thenReturn(List.of());
+
+        reader = new RedisReplicaReader(registry, redisTemplate);
     }
 
     @AfterAll
@@ -86,8 +92,12 @@ class RedisRepositoriesIntegrationTest {
 
     @Test
     void storesNotificationAndUserIndexTogether() {
-        NotificationRepository repository = new NotificationRepository(redisTemplate, jsonMapper);
+
+        NotificationRepository repository = new NotificationRepository(reader, redisTemplate, jsonMapper);
+
+
         Long id = repository.nextId();
+
         Notification notification = new Notification(
                 id,
                 "client01",
@@ -311,8 +321,27 @@ class RedisRepositoriesIntegrationTest {
     }
 
     @Test
+    void experimentalWaitWithoutReplicasKeepsHoldAndEvent() {
+        var holds = new SeatHoldRepository(redisTemplate, jsonMapper);
+        var outbox = new HoldOutboxRepository(redisTemplate, jsonMapper);
+        SeatHold hold = hold("hold-wait", List.of(10L));
+
+        var result = holds.createWithReplicationCheck(hold, event(hold), true);
+
+        assertThat(result.created()).isTrue();
+        assertThat(result.waitStatus()).isEqualTo("NOT_ACKNOWLEDGED");
+        assertThat(result.replicasAcked()).isZero();
+        assertThat(holds.findById(hold.id())).contains(hold);
+        assertThat(outbox.findAfter("0-0")).hasSize(1);
+
+        SeatHold conflicting = hold("hold-conflict", List.of(10L));
+        assertThat(holds.createWithReplicationCheck(conflicting, event(conflicting), true).created()).isFalse();
+        assertThat(outbox.findAfter("0-0")).hasSize(1);
+    }
+
+    @Test
     void cachesCategoryAndCategoryList() {
-        CategoryCacheRepository repository = new CategoryCacheRepository(redisTemplate, jsonMapper);
+        CategoryCacheRepository repository = new CategoryCacheRepository(redisTemplate, jsonMapper, reader);
         Category category = new Category(1L, "Бронирование", "Изменения состояния билета");
 
         repository.put(category, Duration.ofMinutes(5));

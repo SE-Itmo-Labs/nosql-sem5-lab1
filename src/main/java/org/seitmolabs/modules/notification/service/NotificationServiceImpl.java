@@ -77,6 +77,14 @@ public class NotificationServiceImpl implements NotificationService {
         return notification;
     }
 
+//    @Override
+//    public List<Notification> getByUserId(String userId) {
+//        return notificationRepository.findIdsByUserId(userId).stream()
+//                .map(notificationRepository::findById)
+//                .flatMap(Optional::stream)
+//                .toList();
+//    }
+
     @Override
     public List<Notification> getByUserId(String userId) {
         return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);

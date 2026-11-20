@@ -13,7 +13,9 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 
-/** Owns all consistency-experiment clients and hides topology size from services. */
+/**
+ * Хранение подключения к узлам
+ * */
 @Component
 @RequiredArgsConstructor
 public class RedisNodeRegistry {
@@ -22,12 +24,15 @@ public class RedisNodeRegistry {
     private final RedisNodeClientFactory clientFactory;
 
     private Map<RedisNodeId, RedisNodeClient> clients = Map.of();
+
     private RedisNodeClient primary;
+
 
     @PostConstruct
     void connect() {
         Map<RedisNodeId, RedisNodeClient> created = new LinkedHashMap<>();
         List<RedisNodeClient> createdClients = new ArrayList<>();
+
 
         try {
             for (RedisTopologyProperties.Node definition : properties.getNodes()) {
@@ -39,6 +44,7 @@ public class RedisNodeRegistry {
                 }
                 createdClients.add(client);
             }
+
 
             List<RedisNodeClient> primaries = createdClients.stream()
                     .filter(client -> client.role() == RedisNodeRole.PRIMARY)
@@ -65,17 +71,22 @@ public class RedisNodeRegistry {
     }
 
     public List<RedisNodeClient> replicas() {
+
         return clients.values().stream()
                 .filter(client -> client.role() == RedisNodeRole.REPLICA)
                 .toList();
+
     }
 
     public List<RedisNodeClient> all() {
+
         return List.copyOf(clients.values());
     }
 
     public RedisNodeClient get(String nodeId) {
+
         RedisNodeClient client = clients.get(new RedisNodeId(nodeId));
+
         if (client == null) {
             throw new BadRequestException("Неизвестный Redis-узел: " + nodeId);
         }
@@ -83,14 +94,18 @@ public class RedisNodeRegistry {
     }
 
     public RedisNodeClient requireReplica(String nodeId) {
+
         RedisNodeClient client = get(nodeId);
+
         if (client.role() != RedisNodeRole.REPLICA) {
+
             throw new BadRequestException("Операция доступна только для реплики: " + nodeId);
         }
         return client;
     }
 
     private void validateDefinition(RedisTopologyProperties.Node definition) {
+
         if (definition.getRole() == null
                 || definition.getHost() == null
                 || definition.getHost().isBlank()

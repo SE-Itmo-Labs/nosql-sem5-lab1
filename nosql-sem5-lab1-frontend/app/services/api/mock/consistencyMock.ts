@@ -11,6 +11,12 @@ const REPLICATION_DELAY_MS = 300
 export const createMockConsistencyApi = (
   store: MockDatabaseStore,
 ): ApiClient['consistency'] => ({
+  async createExperimentalHold() {
+    throw new Error('Эксперимент доступен только при подключении к серверу Redis.')
+  },
+  async inspectHold() {
+    throw new Error('Проверка удержания доступна только при подключении к серверу Redis.')
+  },
   async runExperiment(request) {
     await waitForMockResponse()
     const screening = store.value.screenings.find(candidate => candidate.id === request.screeningId)

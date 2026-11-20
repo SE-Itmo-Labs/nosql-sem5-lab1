@@ -46,6 +46,15 @@ docker compose --env-file credentials.env up -d --build
 docker compose --env-file credentials.env exec mongodb mongosh somedb_mongo
 ```
 
+## Попасть в Redis
+
+`redis_container`, `redis_replica1_container`, `redis_replica2_container` 
+
+```bash
+docker exec -it redis_container redis-cli
+
+```
+
 После запуска:
 
 - API: <http://localhost:16767>
