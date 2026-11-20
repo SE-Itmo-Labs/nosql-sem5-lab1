@@ -38,6 +38,7 @@ public class NotificationMongoConfiguration implements BeforeConvertCallback<Not
                 .unique(true)
                 .partialFilterExpression(Filters.type("sourceEventId", "string")));
         ensureCategorySearchIndex(notifications);
+        ensureRuleSearchIndex(notifications);
 
         // Backfill the sort and filter field once per legacy notification.
         notifications.updateMany(
@@ -60,6 +61,13 @@ public class NotificationMongoConfiguration implements BeforeConvertCallback<Not
                 Indexes.ascending("userId", "categoryId"),
                 Indexes.descending("createdAt", "_id")),
                 new IndexOptions().name("notifications_user_category_created_id"));
+    }
+
+    public static void ensureRuleSearchIndex(MongoCollection<Document> notifications) {
+        notifications.createIndex(Indexes.compoundIndex(
+                Indexes.ascending("userId", "processingRuleId"),
+                Indexes.descending("updatedAt", "_id")),
+                new IndexOptions().name("notifications_user_rule_updated_id"));
     }
 
     @Override

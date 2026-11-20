@@ -1,15 +1,20 @@
 package org.seitmolabs.demo;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
 import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateManyModel;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.WriteModel;
 import lombok.RequiredArgsConstructor;
 import org.bson.BsonType;
 import org.bson.Document;
@@ -18,6 +23,7 @@ import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.notification.domain.Notification;
 import org.seitmolabs.modules.notification.domain.NotificationAction;
 import org.seitmolabs.modules.notification.domain.NotificationStatus;
+import org.seitmolabs.modules.notification.domain.ProcessingRule;
 import org.seitmolabs.modules.notification.repositories.NotificationMongoConfiguration;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.repository.UserRepository;
@@ -51,46 +57,75 @@ class RandomNotificationsDemo implements DemoScenario {
     @Override
     public void run() {
         List<Long> categoryIds = categories.findAll().stream().map(Category::getId).toList();
+        List<ProcessingRule> rules = List.of(ProcessingRuleDemo.CONFIRMED_RULE_ID,
+                        ProcessingRuleDemo.CANCELLED_RULE_ID, ProcessingRuleDemo.HELD_RULE_ID).stream()
+                .map(id -> mongoTemplate.findById(id, ProcessingRule.class))
+                .filter(Objects::nonNull)
+                .filter(rule -> rule.eventType() != null && rule.tagsToAdd() != null)
+                .toList();
         Instant now = Instant.now();
         Pageable pageRequest = PageRequest.of(0, 100, Sort.by("id"));
         do {
             var page = users.findAll(pageRequest);
-            page.forEach(user -> fillHistory(user, categoryIds, now));
+            page.forEach(user -> fillHistory(user, categoryIds, rules, now));
             pageRequest = page.nextPageable();
         } while (pageRequest.isPaged());
     }
 
-    private void fillHistory(User user, List<Long> categoryIds, Instant now) {
+    private void fillHistory(User user, List<Long> categoryIds, List<ProcessingRule> rules, Instant now) {
         for (int start = 0; start < NOTIFICATIONS_PER_USER; start += BATCH_SIZE) {
-            fillBatch(user, categoryIds, now, start, Math.min(start + BATCH_SIZE, NOTIFICATIONS_PER_USER));
+            fillBatch(user, categoryIds, rules, now, start, Math.min(start + BATCH_SIZE, NOTIFICATIONS_PER_USER));
         }
     }
 
-    private void fillBatch(User user, List<Long> categoryIds, Instant now, int start, int end) {
+    private void fillBatch(User user, List<Long> categoryIds, List<ProcessingRule> rules, Instant now, int start, int end) {
         // The same slots are reused on restart, including after a partially completed run.
-        List<String> eventIds = IntStream.range(start, end)
-                .mapToObj(slot -> "nosql-demo-random:" + user.getId() + ":" + slot)
+        List<Slot> slots = IntStream.range(start, end)
+                .mapToObj(slot -> new Slot("nosql-demo-random:" + user.getId() + ":" + slot,
+                        !rules.isEmpty() && slot % 25 == 0 ? rules.get(slot / 25 % rules.size()) : null))
                 .toList();
         Set<String> existing = Set.copyOf(mongoTemplate.findDistinct(
-                Query.query(Criteria.where("sourceEventId").type(BsonType.STRING.getValue()).in(eventIds)),
+                Query.query(Criteria.where("sourceEventId").type(BsonType.STRING.getValue())
+                        .in(slots.stream().map(Slot::eventId).toList())),
                 "sourceEventId", Notification.class, String.class));
-        List<String> missing = eventIds.stream().filter(eventId -> !existing.contains(eventId)).toList();
-        if (missing.isEmpty()) {
-            return;
+        var writes = new ArrayList<WriteModel<Document>>();
+        for (ProcessingRule rule : rules) {
+            List<String> previous = slots.stream()
+                    .filter(slot -> rule.equals(slot.rule()) && existing.contains(slot.eventId()))
+                    .map(Slot::eventId)
+                    .toList();
+            if (!previous.isEmpty()) {
+                writes.add(addRuleToExisting(previous, rule, now));
+            }
         }
 
-        // Share the application sequence, reserving IDs with one write per batch.
-        long firstId = notificationIds.reserveIds(missing.size());
-        var writes = IntStream.range(0, missing.size())
-                .mapToObj(index -> {
-                    String eventId = missing.get(index);
-                    Notification notification = randomNotification(user, categoryIds, now, eventId);
-                    notification.setId(firstId + index);
-                    return insertIfMissing(notification);
-                })
-                .toList();
-        mongoTemplate.getCollection(Notification.COLLECTION_NAME)
-                .bulkWrite(writes, new BulkWriteOptions().ordered(false));
+        List<Slot> missing = slots.stream().filter(slot -> !existing.contains(slot.eventId())).toList();
+        if (!missing.isEmpty()) {
+            // Share the application sequence, reserving IDs with one write per batch.
+            long nextId = notificationIds.reserveIds(missing.size());
+            for (Slot slot : missing) {
+                Notification notification = randomNotification(user, categoryIds, now, slot);
+                notification.setId(nextId++);
+                writes.add(insertIfMissing(notification));
+            }
+        }
+        if (!writes.isEmpty()) {
+            mongoTemplate.getCollection(Notification.COLLECTION_NAME)
+                    .bulkWrite(writes, new BulkWriteOptions().ordered(false));
+        }
+    }
+
+    private UpdateManyModel<Document> addRuleToExisting(List<String> eventIds, ProcessingRule rule, Instant now) {
+        // Upgrade historical fixtures once without changing their owner, ID, or read status.
+        var action = new Document("type", NotificationAction.Type.RULE_APPLIED.name())
+                .append("actorId", "admin").append("at", Date.from(now)).append("processingRuleId", rule.id());
+        var update = new Document("$set", new Document("processingRuleId", rule.id())
+                .append("sourceEventType", rule.eventType().name()))
+                .append("$addToSet", new Document("tags", new Document("$each", rule.tagsToAdd())))
+                .append("$push", new Document("actionLog", action))
+                .append("$max", new Document("updatedAt", Date.from(now)));
+        return new UpdateManyModel<>(Filters.and(Filters.in("sourceEventId", eventIds),
+                Filters.eq("processingRuleId", null)), update, new UpdateOptions().hintString("sourceEventId"));
     }
 
     private UpdateOneModel<Document> insertIfMissing(Notification notification) {
@@ -102,7 +137,7 @@ class RandomNotificationsDemo implements DemoScenario {
                 new Document("$setOnInsert", fields), new UpdateOptions().upsert(true).hintString("sourceEventId"));
     }
 
-    private Notification randomNotification(User user, List<Long> categoryIds, Instant now, String eventId) {
+    private Notification randomNotification(User user, List<Long> categoryIds, Instant now, Slot slot) {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         Message message = MESSAGES.get(random.nextInt(MESSAGES.size()));
         Long categoryId = categoryIds.get(random.nextInt(categoryIds.size()));
@@ -111,17 +146,27 @@ class RandomNotificationsDemo implements DemoScenario {
         var created = new NotificationAction(NotificationAction.Type.CREATED, "system", createdAt, null);
         boolean read = random.nextBoolean();
         var notification = new Notification(user.getUsername(), "[Демо] " + message.title(), message.text(),
-                categoryId, read ? NotificationStatus.READ : NotificationStatus.SENT, createdAt, eventId);
+                categoryId, read ? NotificationStatus.READ : NotificationStatus.SENT, createdAt, slot.eventId());
 
+        var actions = new ArrayList<NotificationAction>();
+        actions.add(created);
+        if (slot.rule() != null) {
+            ProcessingRule rule = slot.rule();
+            notification.setSourceEventType(rule.eventType());
+            notification.setProcessingRuleId(rule.id());
+            notification.setTags(rule.tagsToAdd().stream().distinct().toList());
+            actions.add(new NotificationAction(NotificationAction.Type.RULE_APPLIED, "admin", createdAt, rule.id()));
+        }
         if (read) {
             Instant readAt = createdAt.plusSeconds(random.nextLong(1, Math.min(ageSeconds, SECONDS_PER_DAY) + 1));
-            notification.setActionLog(List.of(created,
-                    new NotificationAction(NotificationAction.Type.READ, user.getUsername(), readAt, null)));
+            actions.add(new NotificationAction(NotificationAction.Type.READ, user.getUsername(), readAt, null));
             notification.setUpdatedAt(readAt);
-        } else {
-            notification.setActionLog(List.of(created));
         }
+        notification.setActionLog(actions);
         return notification;
+    }
+
+    private record Slot(String eventId, ProcessingRule rule) {
     }
 
     private record Message(String title, String text) {

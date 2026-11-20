@@ -30,6 +30,7 @@ class NotificationIndexDemo implements DemoScenario {
         // Keep benchmark records out of the application's notification history.
         var notifications = mongoTemplate.getCollection(COLLECTION);
         NotificationMongoConfiguration.ensureCategorySearchIndex(notifications);
+        NotificationMongoConfiguration.ensureRuleSearchIndex(notifications);
 
         var writes = new ArrayList<UpdateOneModel<Document>>();
         for (long id = 1; id <= 96; id++) {
@@ -57,7 +58,8 @@ class NotificationIndexDemo implements DemoScenario {
                 new Document("$setOnInsert", new Document("userId", userId)
                         .append("categoryId", categoryId)
                         .append("createdAt", createdAt)
-                        .append("title", "[Демо] Уведомление " + id)),
+                        .append("title", "[Демо] Уведомление " + id))
+                        .append("$set", new Document("processingRuleId", categoryId).append("updatedAt", createdAt)),
                 new UpdateOptions().upsert(true));
     }
 }
