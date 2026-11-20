@@ -28,9 +28,6 @@ import org.seitmolabs.modules.notification.repositories.NotificationMongoConfigu
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.repository.UserRepository;
 import org.springframework.core.annotation.Order;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -38,8 +35,7 @@ import org.springframework.data.mongodb.core.query.Query;
 @Order(65)
 @RequiredArgsConstructor
 class RandomNotificationsDemo implements DemoScenario {
-    private static final int NOTIFICATIONS_PER_USER = 50_000;
-    private static final int BATCH_SIZE = 1_000;
+    private static final int NOTIFICATIONS_PER_USER = 1_000;
     private static final long SECONDS_PER_DAY = 86_400L;
     private static final List<Message> MESSAGES = List.of(
             new Message("Обновление афиши", "В расписании появились новые сеансы."),
@@ -64,23 +60,12 @@ class RandomNotificationsDemo implements DemoScenario {
                 .filter(rule -> rule.eventType() != null && rule.tagsToAdd() != null)
                 .toList();
         Instant now = Instant.now();
-        Pageable pageRequest = PageRequest.of(0, 100, Sort.by("id"));
-        do {
-            var page = users.findAll(pageRequest);
-            page.forEach(user -> fillHistory(user, categoryIds, rules, now));
-            pageRequest = page.nextPageable();
-        } while (pageRequest.isPaged());
+        users.findAll().forEach(user -> fillHistory(user, categoryIds, rules, now));
     }
 
     private void fillHistory(User user, List<Long> categoryIds, List<ProcessingRule> rules, Instant now) {
-        for (int start = 0; start < NOTIFICATIONS_PER_USER; start += BATCH_SIZE) {
-            fillBatch(user, categoryIds, rules, now, start, Math.min(start + BATCH_SIZE, NOTIFICATIONS_PER_USER));
-        }
-    }
-
-    private void fillBatch(User user, List<Long> categoryIds, List<ProcessingRule> rules, Instant now, int start, int end) {
         // The same slots are reused on restart, including after a partially completed run.
-        List<Slot> slots = IntStream.range(start, end)
+        List<Slot> slots = IntStream.range(0, NOTIFICATIONS_PER_USER)
                 .mapToObj(slot -> new Slot("nosql-demo-random:" + user.getId() + ":" + slot,
                         !rules.isEmpty() && slot % 25 == 0 ? rules.get(slot / 25 % rules.size()) : null))
                 .toList();

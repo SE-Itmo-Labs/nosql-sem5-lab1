@@ -50,7 +50,7 @@ if (!RULE_ID && !FROM && !TO) {
 
 const filter = { userId: LOGIN, processingRuleId, updatedAt: { $gte: from, $lt: to } };
 const explain = hint => collection.find(filter, { actionLog: 0 })
-  .sort({ updatedAt: -1, _id: -1 }).limit(20).hint(hint).maxTimeMS(5000)
+  .sort({ updatedAt: -1, _id: -1 }).hint(hint).maxTimeMS(5000)
   .explain("executionStats").executionStats;
 
 const indexed = explain(indexName);
