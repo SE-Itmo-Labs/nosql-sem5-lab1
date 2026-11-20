@@ -36,6 +36,10 @@ public class NotificationMongoConfiguration implements BeforeConvertCallback<Not
                 .name("sourceEventId")
                 .unique(true)
                 .partialFilterExpression(Filters.type("sourceEventId", "string")));
+        notifications.createIndex(Indexes.compoundIndex(
+                Indexes.ascending("userId", "categoryId"),
+                Indexes.descending("createdAt", "_id")),
+                new IndexOptions().name("notifications_user_category_created_id"));
 
         // Backfill the sort and filter field once per legacy notification.
         notifications.updateMany(

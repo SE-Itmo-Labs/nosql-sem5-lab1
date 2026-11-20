@@ -15,6 +15,8 @@ public record NotificationSearchRequest(
         @Positive Long processingRuleId,
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant updatedFrom,
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant updatedTo,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant createdFrom,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant createdTo,
         NotificationStatus status,
         @Positive Long categoryId,
         String tag,

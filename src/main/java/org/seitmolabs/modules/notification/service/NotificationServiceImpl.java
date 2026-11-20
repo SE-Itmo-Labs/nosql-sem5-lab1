@@ -73,10 +73,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public NotificationSearchPage search(String userId, NotificationSearchRequest request) {
-        if (request.updatedFrom() != null && request.updatedTo() != null
-                && !request.updatedFrom().isBefore(request.updatedTo())) {
-            throw new BadRequestException("updatedFrom должен быть раньше updatedTo");
-        }
+        validateRange(request.updatedFrom(), request.updatedTo(), "updatedFrom", "updatedTo");
+        validateRange(request.createdFrom(), request.createdTo(), "createdFrom", "createdTo");
 
         int page = Objects.requireNonNullElse(request.page(), 0);
         int size = Objects.requireNonNullElse(request.size(), 20);
@@ -112,15 +110,8 @@ public class NotificationServiceImpl implements NotificationService {
                     Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
             criteria.orOperator(Criteria.where("title").regex(text), Criteria.where("text").regex(text));
         }
-        if (request.updatedFrom() != null || request.updatedTo() != null) {
-            Criteria updatedAt = criteria.and("updatedAt");
-            if (request.updatedFrom() != null) {
-                updatedAt.gte(request.updatedFrom());
-            }
-            if (request.updatedTo() != null) {
-                updatedAt.lt(request.updatedTo());
-            }
-        }
+        addDateRange(criteria, "updatedAt", request.updatedFrom(), request.updatedTo());
+        addDateRange(criteria, "createdAt", request.createdFrom(), request.createdTo());
         if (request.actionType() != null || request.actorId() != null) {
             // One journal entry must satisfy both the action type and the actor filters.
             Criteria entry = new Criteria();
@@ -133,6 +124,25 @@ public class NotificationServiceImpl implements NotificationService {
             criteria.and("actionLog").elemMatch(entry);
         }
         return Query.query(criteria);
+    }
+
+    private void validateRange(Instant from, Instant to, String fromParameter, String toParameter) {
+        if (from != null && to != null && !from.isBefore(to)) {
+            throw new BadRequestException(fromParameter + " должен быть раньше " + toParameter);
+        }
+    }
+
+    private void addDateRange(Criteria criteria, String field, Instant from, Instant to) {
+        if (from == null && to == null) {
+            return;
+        }
+        Criteria range = criteria.and(field);
+        if (from != null) {
+            range.gte(from);
+        }
+        if (to != null) {
+            range.lt(to);
+        }
     }
 
     @Override

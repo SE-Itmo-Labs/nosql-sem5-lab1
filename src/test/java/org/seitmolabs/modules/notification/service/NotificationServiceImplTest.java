@@ -139,7 +139,8 @@ class NotificationServiceImplTest {
                     .containsEntry("userId", "client01")
                     .containsEntry("actionLog", new Document("$elemMatch",
                             new Document("type", "RULE_APPLIED").append("actorId", "admin")))
-                    .containsEntry("updatedAt", new Document("$gte", from).append("$lt", to));
+                    .containsEntry("updatedAt", new Document("$gte", from).append("$lt", to))
+                    .containsEntry("createdAt", new Document("$gte", from).append("$lt", to));
             @SuppressWarnings("unchecked")
             var textFilters = (List<Document>) page.getQueryObject().get("$or");
             var titlePattern = textFilters.getFirst().get("title", Pattern.class);
@@ -159,6 +160,7 @@ class NotificationServiceImplTest {
                         .param("q", "демо.*").param("userId", "another-user")
                         .param("actionType", "RULE_APPLIED").param("actorId", "admin")
                         .param("updatedFrom", from.toString()).param("updatedTo", to.toString())
+                        .param("createdFrom", from.toString()).param("createdTo", to.toString())
                         .param("page", "1").param("size", "2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items[0].id").value(5))
@@ -170,6 +172,10 @@ class NotificationServiceImplTest {
                 .andExpect(status().isBadRequest());
         api.perform(get("/api/v1/notifications/search")
                         .requestAttr(SimpleAuthFilter.CURRENT_USER_ATTRIBUTE, reader).param("sort", "unknown"))
+                .andExpect(status().isBadRequest());
+        api.perform(get("/api/v1/notifications/search")
+                        .requestAttr(SimpleAuthFilter.CURRENT_USER_ATTRIBUTE, reader)
+                        .param("createdFrom", to.toString()).param("createdTo", from.toString()))
                 .andExpect(status().isBadRequest());
     }
 
