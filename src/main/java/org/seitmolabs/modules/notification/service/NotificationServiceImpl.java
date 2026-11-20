@@ -25,6 +25,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.seitmolabs.common.exceptions.BadRequestException;
 import org.seitmolabs.common.exceptions.ResourceNotFoundException;
@@ -146,6 +147,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Transactional("transactionManager")
     public Notification applyRule(Long id, Long ruleId, String actorId) {
         ProcessingRule rule = mongoTemplate.findById(ruleId, ProcessingRule.class);
         if (rule == null) {
@@ -161,6 +163,14 @@ public class NotificationServiceImpl implements NotificationService {
 
         Notification updated = updateNotification(matchingNotification, update, action);
         if (updated != null) {
+            // Count only applications that added a journal entry, in the same MongoDB transaction.
+            var ruleUpdate = mongoTemplate.updateFirst(
+                    Query.query(Criteria.where("id").is(ruleId)),
+                    new Update().inc("appliedCount", 1L).max("lastAppliedAt", action.at()),
+                    ProcessingRule.class);
+            if (ruleUpdate.getMatchedCount() != 1) {
+                throw new ResourceNotFoundException("Правило обработки не найдено: " + ruleId);
+            }
             return updated;
         }
 

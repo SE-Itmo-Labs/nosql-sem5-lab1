@@ -1,6 +1,7 @@
 package org.seitmolabs.modules.notification.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -15,24 +16,29 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import org.bson.Document;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.seitmolabs.common.exceptions.GlobalExceptionHandler;
 import org.seitmolabs.modules.auth.filters.SimpleAuthFilter;
+import org.seitmolabs.modules.booking.order.config.BookingMongoConfiguration;
 import org.seitmolabs.modules.categories.domain.Category;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.seitmolabs.modules.notification.controller.AdminNotificationController;
 import org.seitmolabs.modules.notification.controller.NotificationController;
-import org.seitmolabs.modules.notification.domain.ProcessingRule;
 import org.seitmolabs.modules.notification.factory.NotificationFactory;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEvent;
 import org.seitmolabs.modules.notification.outbox.domain.OutboxEventType;
+import org.seitmolabs.modules.notification.service.NotificationService;
 import org.seitmolabs.modules.notification.service.NotificationServiceImpl;
 import org.seitmolabs.modules.user.domain.User;
 import org.seitmolabs.modules.user.repository.UserRepository;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.transaction.autoconfigure.TransactionAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -53,11 +59,23 @@ class NotificationMongoIntegrationTest {
 
     @Container
     private static final GenericContainer<?> MONGO = new GenericContainer<>(DockerImageName.parse("mongo:8.0"))
-            .withExposedPorts(27017);
+            .withExposedPorts(27017)
+            .withCommand("mongod", "--replSet", "rs0", "--bind_ip_all");
+
+    @BeforeAll
+    static void initializeReplicaSet() throws Exception {
+        var result = MONGO.execInContainer("mongosh", "--quiet", "--eval",
+                "rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }] })");
+        assertThat(result.getExitCode()).withFailMessage(result.getStderr()).isZero();
+    }
+
+    private String mongoUri() {
+        return "mongodb://%s:%d/?replicaSet=rs0&directConnection=true"
+                .formatted(MONGO.getHost(), MONGO.getMappedPort(27017));
+    }
 
     @Test
     void preservesNotificationApiAndDeduplicatesDeliveryAcrossRestarts() throws Exception {
-        String uri = "mongodb://%s:%d".formatted(MONGO.getHost(), MONGO.getMappedPort(27017));
         User recipient = new User();
         recipient.setUsername("client01");
         User admin = new User();
@@ -66,12 +84,12 @@ class NotificationMongoIntegrationTest {
                 .eventType(OutboxEventType.ORDER_CONFIRMED)
                 .title("Заказ подтверждён").message("Заказ №1").build();
 
-        try (MongoClient client = MongoClients.create(uri)) {
+        try (MongoClient client = MongoClients.create(mongoUri())) {
             var notifications = client.getDatabase(DATABASE).getCollection("notifications");
             notifications.insertOne(new Document("_id", 41L).append("userId", "other-user"));
 
-            try (var context = openContext(client, DATABASE)) {
-                var service = notificationService(context, recipient);
+            try (var context = openContext(client, DATABASE, recipient)) {
+                var service = context.getBean(NotificationService.class);
                 MockMvcBuilders.standaloneSetup(new AdminNotificationController(service)).build()
                         .perform(post("/api/v1/admin/notifications").contentType(MediaType.APPLICATION_JSON)
                                 .requestAttr(CURRENT_USER, admin)
@@ -86,14 +104,14 @@ class NotificationMongoIntegrationTest {
                 service.deliver(event);
             }
 
-            try (var context = openContext(client, DATABASE)) {
-                var service = notificationService(context, recipient);
+            try (var context = openContext(client, DATABASE, recipient)) {
+                var service = context.getBean(NotificationService.class);
                 service.deliver(event);
                 var adminApi = MockMvcBuilders.standaloneSetup(new AdminNotificationController(service))
                         .setControllerAdvice(new GlobalExceptionHandler()).build();
                 var api = MockMvcBuilders.standaloneSetup(new NotificationController(service)).build();
-                context.getBean(MongoTemplate.class).insert(new ProcessingRule(7L, "Подтверждение бронирования",
-                        OutboxEventType.ORDER_CONFIRMED, List.of("booking", "confirmed")));
+                var rules = client.getDatabase(DATABASE).getCollection("processing_rules");
+                rules.insertOne(confirmationRule());
                 api.perform(get("/api/v1/notifications").requestAttr(CURRENT_USER, recipient))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.length()").value(2));
@@ -134,6 +152,9 @@ class NotificationMongoIntegrationTest {
                         });
                 assertThat(processed.getDate("updatedAt")).isEqualTo(
                         processed.getList("actionLog", Document.class).getLast().getDate("at"));
+                var rule = rules.find(new Document("_id", 7L)).first();
+                assertThat(rule.getLong("appliedCount")).isEqualTo(1L);
+                assertThat(rule.getDate("lastAppliedAt")).isEqualTo(processed.getDate("updatedAt"));
                 api.perform(delete("/api/v1/notifications/42").requestAttr(CURRENT_USER, recipient))
                         .andExpect(status().isNoContent());
             }
@@ -145,14 +166,43 @@ class NotificationMongoIntegrationTest {
     }
 
     @Test
+    void rollsBackTheNotificationWhenMongoRejectsTheRuleUpdate() {
+        String database = DATABASE + "_rule_rollback";
+        User recipient = new User();
+        recipient.setUsername("reader");
+        UUID eventId = UUID.randomUUID();
+        try (MongoClient client = MongoClients.create(mongoUri());
+             var context = openContext(client, database, recipient)) {
+            var db = client.getDatabase(database);
+            var rules = db.getCollection("processing_rules");
+            rules.insertOne(confirmationRule().append("appliedCount", 0L));
+            // The existing rule passes validation, but incrementing its counter fails inside the transaction.
+            db.runCommand(new Document("collMod", "processing_rules").append("validator",
+                    new Document("appliedCount", new Document("$lte", 0))));
+            var service = context.getBean(NotificationService.class);
+            service.deliver(OutboxEvent.builder().id(eventId).username(recipient.getUsername())
+                    .eventType(OutboxEventType.ORDER_CONFIRMED).title("Заказ").message("Подтверждён").build());
+            var notifications = db.getCollection("notifications");
+            var source = new Document("sourceEventId", eventId.toString());
+            var notificationBefore = notifications.find(source).first();
+            var ruleBefore = rules.find(new Document("_id", 7L)).first();
+
+            assertThatThrownBy(() -> service.applyRule(notificationBefore.getLong("_id"), 7L, "admin"))
+                    .rootCause().isInstanceOfSatisfying(MongoWriteException.class,
+                            error -> assertThat(error.getCode()).isEqualTo(121));
+            assertThat(notifications.find(source).first()).isEqualTo(notificationBefore);
+            assertThat(rules.find(new Document("_id", 7L)).first()).isEqualTo(ruleBefore);
+        }
+    }
+
+    @Test
     void searchesOwnNotificationsWithNestedMatchesAndStablePages() throws Exception {
-        String uri = "mongodb://%s:%d".formatted(MONGO.getHost(), MONGO.getMappedPort(27017));
         String database = DATABASE + "_search";
         User recipient = new User();
         recipient.setUsername("reader");
         Date from = Date.from(Instant.parse("2026-10-08T10:00:00Z"));
         Date to = Date.from(Instant.parse("2026-10-09T10:00:00Z"));
-        try (MongoClient client = MongoClients.create(uri)) {
+        try (MongoClient client = MongoClients.create(mongoUri())) {
             var notifications = client.getDatabase(database).getCollection("notifications");
             notifications.insertMany(List.of(
                     searchFixture(1L, "reader", from),
@@ -162,8 +212,8 @@ class NotificationMongoIntegrationTest {
                     searchFixture(5L, "reader", from).append("tags", List.of("cancelled"))
             ));
 
-            try (var context = openContext(client, database)) {
-                var api = MockMvcBuilders.standaloneSetup(new NotificationController(notificationService(context, recipient)))
+            try (var context = openContext(client, database, recipient)) {
+                var api = MockMvcBuilders.standaloneSetup(new NotificationController(context.getBean(NotificationService.class)))
                         .setControllerAdvice(new GlobalExceptionHandler()).build();
                 for (int page = 0; page < 2; page++) {
                     api.perform(get("/api/v1/notifications/search").requestAttr(CURRENT_USER, recipient)
@@ -199,6 +249,13 @@ class NotificationMongoIntegrationTest {
         }
     }
 
+    private Document confirmationRule() {
+        return new Document("_id", 7L)
+                .append("name", "Подтверждение бронирования")
+                .append("eventType", OutboxEventType.ORDER_CONFIRMED.name())
+                .append("tagsToAdd", List.of("booking", "confirmed"));
+    }
+
     private Document searchFixture(long id, String userId, Date createdAt) {
         return new Document("_id", id)
                 .append("userId", userId)
@@ -218,26 +275,25 @@ class NotificationMongoIntegrationTest {
         assertThat(entry.getDate("at")).isNotNull();
     }
 
-    private AnnotationConfigApplicationContext openContext(MongoClient client, String database) {
-        var context = new AnnotationConfigApplicationContext();
-        context.registerBean(MongoDatabaseFactory.class, () -> new SimpleMongoClientDatabaseFactory(client, database));
-        context.registerBean(MongoTemplate.class, () -> new MongoTemplate(context.getBean(MongoDatabaseFactory.class)));
-        context.register(NotificationMongoConfiguration.class, Repositories.class);
-        context.refresh();
-        return context;
-    }
-
-    private NotificationServiceImpl notificationService(AnnotationConfigApplicationContext context, User recipient) {
+    private AnnotationConfigApplicationContext openContext(MongoClient client, String database, User recipient) {
         var users = mock(UserRepository.class);
         when(users.findByUsername(recipient.getUsername())).thenReturn(Optional.of(recipient));
         var categories = mock(CategoryDbRepository.class);
         when(categories.findBySystemCode(Category.BOOKING_CODE))
                 .thenReturn(Optional.of(new Category(1L, "Бронирование", "Описание", Category.BOOKING_CODE)));
-        return new NotificationServiceImpl(context.getBean(MongoNotificationRepository.class), users,
-                new NotificationFactory(), categories, context.getBean(MongoTemplate.class));
+        var context = new AnnotationConfigApplicationContext();
+        context.registerBean(MongoDatabaseFactory.class, () -> new SimpleMongoClientDatabaseFactory(client, database));
+        context.registerBean(MongoTemplate.class, () -> new MongoTemplate(context.getBean(MongoDatabaseFactory.class)));
+        context.registerBean(UserRepository.class, () -> users);
+        context.registerBean(CategoryDbRepository.class, () -> categories);
+        context.register(NotificationMongoConfiguration.class, BookingMongoConfiguration.class,
+                NotificationFactory.class, NotificationServiceImpl.class, Repositories.class);
+        context.refresh();
+        return context;
     }
 
     @TestConfiguration(proxyBeanMethods = false)
+    @ImportAutoConfiguration(TransactionAutoConfiguration.class)
     @EnableMongoRepositories(basePackageClasses = MongoNotificationRepository.class)
     static class Repositories {
     }

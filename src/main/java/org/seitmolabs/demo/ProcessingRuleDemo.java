@@ -35,6 +35,7 @@ class ProcessingRuleDemo implements DemoScenario {
         mongoTemplate.upsert(Query.query(Criteria.where("id").is(id)), new Update()
                 .setOnInsert("name", name)
                 .setOnInsert("eventType", eventType)
+                .setOnInsert("appliedCount", 0L)
                 .setOnInsert("tagsToAdd", tags), ProcessingRule.class);
     }
 }
