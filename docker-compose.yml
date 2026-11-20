@@ -91,6 +91,15 @@ services:
         done
         echo 'MongoDB rs0 is ready'
 
+  compooss:
+    image: abdullahmia/compooss:latest
+    profiles: [tools]
+    ports:
+      - "127.0.0.1:8081:3000"
+    depends_on:
+      mongodb-init:
+        condition: service_completed_successfully
+
   spring-app:
     build: .
     container_name: spring_app_container

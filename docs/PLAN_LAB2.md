@@ -556,6 +556,14 @@ MongoDB требует `schemaVersion: 2` и поле `tags` в виде мас�
 ./gradlew test --tests '*.NotificationMongoIntegrationTest.migratesLegacyTagsTwiceAndRejectsInvalidWrites'
 ```
 
+### Просмотр MongoDB в браузере
+
+При работающей MongoDB запусти только Compooss командой
+`docker compose --env-file credentials.env up -d --no-deps compooss`.
+Открой [localhost:8081](http://localhost:8081) и при первом входе добавь
+подключение `mongodb://mongodb:27017/somedb_mongo?replicaSet=rs0`.
+Для просмотра документов и индексов можно включить Read-only.
+
 ## 12. Redis-кэш запроса к MongoDB
 
 `GET /api/v1/notifications/search` кэширует результат серверного поиска в Redis.
