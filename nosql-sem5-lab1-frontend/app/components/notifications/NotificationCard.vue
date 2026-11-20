@@ -70,29 +70,40 @@ const formatDate = (value: string): string => dateFormatter.format(new Date(valu
 <template>
   <article
     ref="card"
-    class="notification-card"
-    :class="{ 'notification-card--new': notification.status !== 'READ' }"
+    class="card tw:grid tw:min-w-0 tw:gap-3 tw:p-4! tw:shadow-none! tw:min-[681px]:grid-cols-[minmax(0,1fr)_auto]"
   >
-    <div class="notification-marker" :class="`notification-marker--${notification.status.toLowerCase()}`">
-      {{ notification.status === 'READ' ? '✓' : '✦' }}
-    </div>
-
-    <div class="notification-body">
-      <div class="notification-meta">
-        <span class="status-pill" :class="`status-pill--${notification.status.toLowerCase()}`">
+    <div class="tw:min-w-0 tw:wrap-anywhere">
+      <div class="tw:flex tw:flex-wrap tw:items-center tw:gap-x-3 tw:gap-y-1 tw:text-[11px] tw:text-(--color-text-secondary)">
+        <span
+          class="tw:rounded-full tw:px-2 tw:py-0.5 tw:font-semibold"
+          :class="notification.status === 'READ'
+            ? 'tw:bg-(--color-success-soft) tw:text-(--color-success)'
+            : 'tw:bg-(--color-bg-subtle) tw:text-(--color-text)'"
+        >
           {{ notification.status === 'READ' ? 'Прочитано' : 'Новое' }}
         </span>
         <span>{{ categoryName }}</span>
         <time :datetime="notification.createdAt">{{ formatDate(notification.createdAt) }}</time>
       </div>
-      <h4>{{ notification.title }}</h4>
-      <p>{{ notification.text }}</p>
+      <h4 class="tw:mt-2 tw:mb-0 tw:text-base tw:font-semibold">{{ notification.title }}</h4>
+      <p class="tw:mt-1 tw:mb-0 tw:text-[13px] tw:leading-relaxed tw:text-(--color-text-secondary)">{{ notification.text }}</p>
+      <div v-if="notification.processingRuleId != null || notification.tags?.length" class="tw:mt-2 tw:flex tw:flex-wrap tw:gap-x-3 tw:gap-y-1 tw:text-[11px] tw:text-(--color-text-secondary)">
+        <span v-if="notification.processingRuleId != null">Правило №{{ notification.processingRuleId }}</span>
+        <span v-for="tag in notification.tags" :key="tag">{{ tag }}</span>
+      </div>
+      <time
+        v-if="notification.updatedAt && notification.updatedAt !== notification.createdAt"
+        class="tw:mt-2 tw:block tw:text-[11px] tw:text-(--color-text-secondary)"
+        :datetime="notification.updatedAt"
+      >
+        Изменено {{ formatDate(notification.updatedAt) }}
+      </time>
     </div>
 
     <!-- Изменяющие действия блокируются на время запроса от повторного клика. -->
-    <div v-if="allowActions" class="notification-actions">
+    <div v-if="allowActions" class="tw:self-start">
       <button
-        class="notification-action notification-action--danger"
+        class="btn btn-secondary tw:min-h-0! tw:px-2! tw:py-1.5! tw:text-[11px]! tw:enabled:hover:border-(--color-error)! tw:enabled:hover:text-(--color-error)!"
         type="button"
         :disabled="busy"
         @click.stop="emit('delete')"
@@ -102,121 +113,3 @@ const formatDate = (value: string): string => dateFormatter.format(new Date(valu
     </div>
   </article>
 </template>
-
-<style scoped>
-.notification-card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 15px;
-  padding: 18px;
-  border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-sm);
-}
-
-.notification-card--new {
-  border-left: 3px solid var(--color-primary);
-}
-
-.notification-marker {
-  display: grid;
-  width: 38px;
-  height: 38px;
-  place-items: center;
-  border-radius: 11px;
-  font-weight: 800;
-}
-
-.notification-marker--sent {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-hover);
-}
-
-.notification-marker--read {
-  background: var(--color-success-soft);
-  color: var(--color-success);
-}
-
-.notification-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 7px 10px;
-  color: var(--color-text-muted);
-  font-size: 11px;
-}
-
-.status-pill {
-  padding: 3px 7px;
-  border-radius: 999px;
-  font-weight: 750;
-}
-
-.status-pill--sent {
-  background: var(--color-primary-soft);
-  color: var(--color-primary-hover);
-}
-
-.status-pill--read {
-  background: var(--color-success-soft);
-  color: var(--color-success);
-}
-
-.notification-body h4,
-.notification-body p {
-  margin: 0;
-}
-
-.notification-body h4 {
-  margin-top: 8px;
-  font-size: 16px;
-}
-
-.notification-body p {
-  margin-top: 5px;
-  color: var(--color-text-secondary);
-  font-size: 13px;
-  line-height: 1.55;
-}
-
-.notification-actions {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-}
-
-.notification-action {
-  padding: 7px 9px;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 7px;
-  background: var(--color-surface);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 650;
-}
-
-.notification-action:hover:not(:disabled) {
-  border-color: var(--color-primary);
-  color: var(--color-primary-hover);
-}
-
-.notification-action--danger:hover:not(:disabled) {
-  border-color: var(--color-error);
-  color: var(--color-error);
-}
-
-.notification-action:disabled { cursor: wait; opacity: 0.5; }
-
-@media (max-width: 680px) {
-  .notification-card { grid-template-columns: auto minmax(0, 1fr); }
-  .notification-actions { grid-column: 2; }
-}
-
-@media (max-width: 430px) {
-  .notification-card { grid-template-columns: 1fr; }
-  .notification-marker { display: none; }
-  .notification-actions { grid-column: auto; }
-}
-</style>

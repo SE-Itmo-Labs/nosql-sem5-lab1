@@ -11,7 +11,7 @@ import org.seitmolabs.modules.categories.repositories.CategoryCacheRepository;
 import org.seitmolabs.modules.categories.repositories.CategoryDbRepository;
 import org.springframework.stereotype.Service;
 
-import jakarta.persistence.EntityNotFoundException;
+import org.seitmolabs.common.exceptions.ResourceNotFoundException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +33,7 @@ public class CategoryService {
         }
 
         Category category = dbRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Категория не найдена: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Категория не найдена: " + id));
 
         cacheRepository.put(category, CACHE_TTL);
         return response(category, "DATABASE", false);
@@ -60,7 +60,7 @@ public class CategoryService {
 
     public Category update(Long id, CategoryRequest request) {
         Category category = dbRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Категория не найдена: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Категория не найдена: " + id));
 
         category.setName(request.name());
         category.setDescription(request.description());
@@ -73,7 +73,7 @@ public class CategoryService {
 
     public void delete(Long id) {
         Category category = dbRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Категория не найдена: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Категория не найдена: " + id));
         if (category.getSystemCode() != null) {
             throw new ConflictException("Системная категория нужна для автоматических уведомлений и не может быть удалена");
         }

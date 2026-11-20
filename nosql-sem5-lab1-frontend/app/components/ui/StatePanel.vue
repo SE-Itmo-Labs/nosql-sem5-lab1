@@ -5,8 +5,9 @@ withDefaults(defineProps<{
   kind?: StateKind
   icon?: string
   title: string
-  description: string
+  description?: string
 }>(), {
+  description: '',
   kind: 'info',
   icon: '·',
 })
@@ -18,11 +19,11 @@ withDefaults(defineProps<{
     :class="`state-panel--${kind}`"
     :aria-live="kind === 'loading' || kind === 'error' ? 'polite' : undefined"
   >
-    <span class="state-icon" :class="{ 'state-icon--loading': kind === 'loading' }" aria-hidden="true">
+    <span v-if="icon" class="state-icon" :class="{ 'state-icon--loading': kind === 'loading' }" aria-hidden="true">
       {{ icon }}
     </span>
     <h3>{{ title }}</h3>
-    <p>{{ description }}</p>
+    <p v-if="description">{{ description }}</p>
 
     <div v-if="$slots.actions" class="state-actions">
       <slot name="actions" />

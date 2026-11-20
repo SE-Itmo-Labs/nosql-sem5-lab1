@@ -17,14 +17,14 @@ public class OutboxEventService {
     private final OutboxEventFactory factory;
 
     public void enqueueHoldCreated(SeatHold hold, String username) {
-        repository.save(factory.holdCreated(hold, username));
+        repository.insert(factory.holdCreated(hold, username));
     }
 
-    public void enqueueOrderConfirmed(CinemaOrder order, List<Long> seatIds) {
-        repository.save(factory.orderConfirmed(order, seatIds));
+    public void enqueueOrderConfirmed(CinemaOrder order, List<Long> seatIds, String username) {
+        repository.insert(factory.orderConfirmed(order, seatIds, username));
     }
 
-    public void enqueueOrderCancelled(CinemaOrder order) {
-        repository.save(factory.orderCancelled(order));
+    public void enqueueOrderCancelled(CinemaOrder order, String username) {
+        repository.insert(factory.orderCancelled(order, username));
     }
 }

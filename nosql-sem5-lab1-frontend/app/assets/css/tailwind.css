@@ -1,0 +1,7 @@
+@layer theme, utilities;
+@import 'tailwindcss/theme.css' layer(theme) prefix(tw);
+@import 'tailwindcss/utilities.css' layer(utilities) prefix(tw) source(none);
+
+/* Существующие экраны сохраняют общие стили без сброса Preflight. */
+@source '../../pages/notifications.vue';
+@source '../../components/notifications';

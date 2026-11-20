@@ -3,6 +3,7 @@ import type {
   Category,
   Movie,
   Notification,
+  NotificationActionType,
   Screening,
   ScreeningSeat,
   SeatHold,
@@ -39,6 +40,10 @@ export interface MockOrder extends CinemaOrder {
   idempotencyKey: string
 }
 
+export interface MockNotification extends Notification {
+  actionLog?: { type: NotificationActionType, actorId: string, at?: string }[]
+}
+
 /**
  * Единая локальная база mock-режима. По структуре она повторяет независимые
  * источники backend: постоянные записи, TTL-ключи, кэш и primary/replica.
@@ -52,7 +57,7 @@ export interface MockDatabase {
   products: Product[]
   seatHolds: Record<string, MockSeatHold>
   orders: MockOrder[]
-  notifications: Notification[]
+  notifications: MockNotification[]
   categories: Category[]
   categoryCache: Record<number, MockCategoryCacheRecord>
   primaryValues: Record<string, string>
@@ -176,6 +181,13 @@ export const createMockDatabase = (): MockDatabase => {
         categoryId: 2,
         status: 'SENT',
         createdAt: new Date(now - 15 * 60_000).toISOString(),
+        updatedAt: new Date(now - 12 * 60_000).toISOString(),
+        processingRuleId: 7,
+        tags: ['booking', 'confirmed'],
+        actionLog: [
+          { type: 'CREATED', actorId: 'system' },
+          { type: 'RULE_APPLIED', actorId: 'admin' },
+        ],
       },
       {
         id: 2,
@@ -185,6 +197,11 @@ export const createMockDatabase = (): MockDatabase => {
         categoryId: 3,
         status: 'READ',
         createdAt: new Date(now - 24 * 60 * 60_000).toISOString(),
+        updatedAt: new Date(now - 23 * 60 * 60_000).toISOString(),
+        actionLog: [
+          { type: 'CREATED', actorId: 'admin' },
+          { type: 'READ', actorId: 'client01', at: new Date(now - 23 * 60 * 60_000).toISOString() },
+        ],
       },
     ],
     categoryCache: {},
