@@ -64,17 +64,20 @@ public class NotificationMongoConfiguration implements BeforeConvertCallback<Not
 
     @Override
     public Notification onBeforeConvert(Notification notification, String collection) {
-        if (notification.getId() != null) {
-            return notification;
+        if (notification.getId() == null) {
+            notification.setId(reserveIds(1));
         }
+        return notification;
+    }
 
+    /** Atomically allocates a contiguous range and returns its first ID. */
+    public long reserveIds(int count) {
         var sequence = databaseFactory.getMongoDatabase().getCollection(SEQUENCES).findOneAndUpdate(
-                Filters.eq("_id", Notification.COLLECTION_NAME), Updates.inc("value", 1L),
+                Filters.eq("_id", Notification.COLLECTION_NAME), Updates.inc("value", (long) count),
                 new FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER));
         if (sequence == null || !(sequence.get("value") instanceof Number value)) {
             throw new IllegalStateException("Не удалось получить ID уведомления");
         }
-        notification.setId(value.longValue());
-        return notification;
+        return value.longValue() - count + 1;
     }
 }

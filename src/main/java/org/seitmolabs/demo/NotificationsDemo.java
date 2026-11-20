@@ -20,10 +20,19 @@ import org.seitmolabs.modules.notification.outbox.domain.OutboxEventType;
 import org.seitmolabs.modules.notification.repositories.MongoNotificationRepository;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+
+import static org.seitmolabs.demo.UsersDemo.DEMO_USERNAME;
 
 @Order(60)
 @RequiredArgsConstructor
 class NotificationsDemo implements DemoScenario {
+    private static final Example EXTRA_CONFIRMATION = new Example("guest-confirm", OutboxEventType.ORDER_CONFIRMED,
+            "Бронирование подтверждено", "Билеты на «Ночной экспресс» готовы.", 5, true,
+            ProcessingRuleDemo.CONFIRMED_RULE_ID);
+
     private final CategoryDbRepository categories;
     private final MongoNotificationRepository notifications;
     private final NotificationFactory factory;
@@ -32,35 +41,50 @@ class NotificationsDemo implements DemoScenario {
     @Override
     public void run() {
         Long categoryId = categories.findBySystemCode(Category.BOOKING_CODE).orElseThrow().getId();
+        moveLegacyGuestNotification();
         Instant now = Instant.now();
         List<Example> examples = List.of(
-                new Example("confirm-pending", "user", OutboxEventType.ORDER_CONFIRMED, "Билеты готовы",
+                new Example("confirm-pending", OutboxEventType.ORDER_CONFIRMED, "Билеты готовы",
                         "Бронирование на «Северный свет» подтверждено.", 1, false, null),
-                new Example("confirm-processed", "user", OutboxEventType.ORDER_CONFIRMED, "Билеты прочитаны",
+                new Example("confirm-processed", OutboxEventType.ORDER_CONFIRMED, "Билеты прочитаны",
                         "Бронирование на «Последний сигнал» подтверждено.", 2, true, ProcessingRuleDemo.CONFIRMED_RULE_ID),
-                new Example("cancel-processed", "user", OutboxEventType.ORDER_CANCELLED, "Заказ отменён",
+                new Example("cancel-processed", OutboxEventType.ORDER_CANCELLED, "Заказ отменён",
                         "Билеты на «Бумажный дракон» возвращены.", 3, false, ProcessingRuleDemo.CANCELLED_RULE_ID),
-                new Example("hold-pending", "user", OutboxEventType.SEAT_HOLD_CREATED, "Место удержано",
+                new Example("hold-pending", OutboxEventType.SEAT_HOLD_CREATED, "Место удержано",
                         "Место на «Ночной экспресс» было временно зарезервировано.", 4, false, null),
-                new Example("guest-confirm", "demo-guest", OutboxEventType.ORDER_CONFIRMED, "Билеты другого зрителя",
-                        "Бронирование второго зрителя подтверждено.", 5, true, ProcessingRuleDemo.CONFIRMED_RULE_ID)
+                EXTRA_CONFIRMATION
         );
         for (Example example : examples) {
             insertIfMissing(example, categoryId, now.minus(example.hoursAgo(), ChronoUnit.HOURS));
         }
     }
 
+    private void moveLegacyGuestNotification() {
+        // Reassign only the original seeded fixture, keeping its identity and read status.
+        String formerUsername = "demo-guest";
+        Query query = Query.query(Criteria.where("sourceEventId").is(EXTRA_CONFIRMATION.eventId().toString())
+                .and("userId").is(formerUsername));
+        Update update = new Update()
+                .set("userId", DEMO_USERNAME)
+                .set("title", EXTRA_CONFIRMATION.displayTitle())
+                .set("text", EXTRA_CONFIRMATION.message())
+                .set("actionLog.$[read].actorId", DEMO_USERNAME)
+                .filterArray(Criteria.where("read.actorId").is(formerUsername)
+                        .and("read.type").is(NotificationAction.Type.READ.name()));
+        mongoTemplate.updateFirst(query, update, Notification.class);
+    }
+
     private void insertIfMissing(Example example, Long categoryId, Instant createdAt) {
         // A stable event ID lets startup reuse the normal duplicate-delivery protection.
-        UUID eventId = UUID.nameUUIDFromBytes(("nosql-lab2-demo:" + example.key()).getBytes(StandardCharsets.UTF_8));
+        UUID eventId = example.eventId();
         if (notifications.existsBySourceEventId(eventId.toString())) {
             return;
         }
         Notification notification = factory.createSystem(OutboxEvent.builder()
                 .id(eventId)
                 .eventType(example.eventType())
-                .username(example.username())
-                .title("[Демо] " + example.title())
+                .username(DEMO_USERNAME)
+                .title(example.displayTitle())
                 .message(example.message())
                 .build(), categoryId);
         notification.setCreatedAt(createdAt);
@@ -79,7 +103,7 @@ class NotificationsDemo implements DemoScenario {
         }
         if (example.read()) {
             notification.setStatus(NotificationStatus.READ);
-            actions.add(new NotificationAction(NotificationAction.Type.READ, example.username(),
+            actions.add(new NotificationAction(NotificationAction.Type.READ, DEMO_USERNAME,
                     createdAt.plusSeconds(120), null));
         }
         notification.setActionLog(actions);
@@ -87,7 +111,14 @@ class NotificationsDemo implements DemoScenario {
         notifications.saveSystem(notification);
     }
 
-    private record Example(String key, String username, OutboxEventType eventType, String title, String message,
+    private record Example(String key, OutboxEventType eventType, String title, String message,
                            int hoursAgo, boolean read, Long ruleId) {
+        private UUID eventId() {
+            return UUID.nameUUIDFromBytes(("nosql-lab2-demo:" + key).getBytes(StandardCharsets.UTF_8));
+        }
+
+        private String displayTitle() {
+            return "[Демо] " + title;
+        }
     }
 }

@@ -9,13 +9,14 @@ import org.springframework.core.annotation.Order;
 @Order(10)
 @RequiredArgsConstructor
 class UsersDemo implements DemoScenario {
+    static final String DEMO_USERNAME = "user";
+
     private final UserRepository userRepository;
 
     @Override
     public void run() {
-        createUserIfMissing("user", "12345", "Тестовый клиент", Role.ROLE_USER);
+        createUserIfMissing(DEMO_USERNAME, "12345", "Тестовый клиент", Role.ROLE_USER);
         createUserIfMissing("admin", "12345", "Администратор", Role.ROLE_ADMIN);
-        createUserIfMissing("demo-guest", "12345", "Тестовый зритель", Role.ROLE_USER);
     }
 
     private void createUserIfMissing(

@@ -96,9 +96,10 @@ public class NotificationRepository {
         }
 
         try {
-            return Optional.of(
-                    jsonMapper.readValue(jsonNotif, Notification.class)
-            );
+            Notification notification = jsonMapper.readValue(jsonNotif, Notification.class);
+            // Legacy Redis JSON stores createdAt as its only timestamp.
+            notification.setUpdatedAt(notification.getCreatedAt());
+            return Optional.of(notification);
         } catch (JacksonException e) {
             throw new IllegalStateException(
                     "Не удалось десериализовать уведомление с id " + id,
