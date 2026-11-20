@@ -263,6 +263,58 @@ class NotificationMongoIntegrationTest {
     }
 
     @Test
+    void migratesLegacyTagsTwiceAndRejectsInvalidWrites() {
+        try (MongoClient client = MongoClients.create(mongoUri())) {
+            var db = client.getDatabase(DATABASE + "_tag_migration");
+            var collection = db.getCollection("notifications");
+            var journal = List.of(new Document("type", "CREATED"));
+            var current = new Document("_id", 5L).append("schemaVersion", 2).append("tags", List.of("kept"));
+            collection.insertMany(List.of(
+                    new Document("_id", 1L).append("tag", "booking").append("actionLog", journal),
+                    new Document("_id", 2L).append("tag", " booking ").append("tags", List.of("confirmed")),
+                    new Document("_id", 3L).append("tag", "booking").append("tags", List.of("booking")),
+                    new Document("_id", 4L),
+                    current,
+                    new Document("_id", 6L).append("tag", " ").append("tags", null)));
+
+            assertThat(NotificationTagsMigration.migrate(collection)).isEqualTo(5);
+            NotificationTagsMigration.installValidator(db);
+            assertThat(NotificationTagsMigration.migrate(collection)).isZero();
+
+            var single = collection.find(new Document("_id", 1L)).first();
+            assertThat(single).containsEntry("tags", List.of("booking"))
+                    .containsEntry("actionLog", journal).containsEntry("schemaVersion", 2).doesNotContainKey("tag");
+            assertThat(collection.find(new Document("_id", 2L)).first())
+                    .containsEntry("tags", List.of("confirmed", "booking")).doesNotContainKey("tag");
+            assertThat(collection.find(new Document("_id", 3L)).first()).containsEntry("tags", List.of("booking"));
+            assertThat(collection.find(new Document("_id", 4L)).first()).containsEntry("tags", List.of());
+            assertThat(collection.find(new Document("_id", 5L)).first()).isEqualTo(current);
+            assertThat(collection.find(new Document("_id", 6L)).first()).containsEntry("tags", List.of());
+
+            assertThatThrownBy(() -> collection.insertOne(new Document("schemaVersion", 2).append("tags", "booking")))
+                    .isInstanceOfSatisfying(MongoWriteException.class, error -> assertThat(error.getCode()).isEqualTo(121));
+            assertThatThrownBy(() -> collection.insertOne(new Document("schemaVersion", 2).append("tags", List.of())
+                    .append("tag", "booking")))
+                    .isInstanceOfSatisfying(MongoWriteException.class, error -> assertThat(error.getCode()).isEqualTo(121));
+            collection.insertOne(new Document("schemaVersion", 2).append("tags", List.of("booking")));
+        }
+    }
+
+    @Test
+    void reportsMalformedLegacyTagsWithoutOverwritingThem() {
+        try (MongoClient client = MongoClients.create(mongoUri())) {
+            var collection = client.getDatabase(DATABASE + "_invalid_tags").getCollection("notifications");
+            var valid = new Document("_id", 1L).append("tag", "booking");
+            var invalid = new Document("_id", 2L).append("tags", "booking");
+            collection.insertMany(List.of(valid, invalid));
+            assertThatThrownBy(() -> NotificationTagsMigration.migrate(collection))
+                    .isInstanceOf(IllegalStateException.class).hasMessageContaining("[2]");
+            assertThat(collection.find(new Document("_id", 1L)).first()).isEqualTo(valid);
+            assertThat(collection.find(new Document("_id", 2L)).first()).isEqualTo(invalid);
+        }
+    }
+
+    @Test
     void aggregatesFirstReadTimeAcrossRecipientsForAdmins() throws Exception {
         LocalDate today = LocalDate.now(ZoneOffset.UTC);
         Instant created = today.atStartOfDay().toInstant(ZoneOffset.UTC).plusSeconds(3600);

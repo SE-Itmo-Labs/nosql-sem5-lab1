@@ -16,6 +16,7 @@ import java.util.List;
 public class Notification {
 
     public static final String COLLECTION_NAME = "notifications";
+    public static final int TAGS_SCHEMA_VERSION = 2;
 
     public Notification(String userId, String title, String text, Long categoryId,
             NotificationStatus status, Instant createdAt) {
@@ -68,6 +69,9 @@ public class Notification {
 
     @JsonIgnore
     private List<String> tags = List.of();
+
+    @JsonIgnore
+    private int schemaVersion = TAGS_SCHEMA_VERSION;
 
     // The journal is persisted with the notification and contains internal actor information.
     @JsonIgnore

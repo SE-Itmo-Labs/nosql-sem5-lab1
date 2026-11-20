@@ -13,6 +13,7 @@ import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.Updates;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.BsonType;
 import org.bson.Document;
 import org.seitmolabs.modules.notification.domain.Notification;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationMongoConfiguration implements BeforeConvertCallback<Notification>, InitializingBean {
 
     private static final String SEQUENCES = "sequences";
@@ -39,6 +41,10 @@ public class NotificationMongoConfiguration implements BeforeConvertCallback<Not
                 .partialFilterExpression(Filters.type("sourceEventId", "string")));
         ensureCategorySearchIndex(notifications);
         ensureRuleSearchIndex(notifications);
+
+        long migrated = NotificationTagsMigration.migrate(notifications);
+        NotificationTagsMigration.installValidator(database);
+        log.info("Notification tag migration updated {} documents", migrated);
 
         // Backfill the sort and filter field once per legacy notification.
         notifications.updateMany(
